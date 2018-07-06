@@ -19,7 +19,7 @@ open class ALTileStackHandler(size: Int, var tile: ALTile) : ItemStackHandler() 
 
     override fun onContentsChanged(slot: Int) {
         super.onContentsChanged(slot)
-        this.tile.markDirtyClient()
+        this.tile.markDirty()
     }
 
     fun clear() = (0 until this.slots).forEach { this.setStackInSlot(it, ItemStack.EMPTY) }

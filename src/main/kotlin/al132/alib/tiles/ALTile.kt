@@ -123,10 +123,18 @@ abstract class ALTile : TileEntity() {
         }
     }
 
-    fun markDirtyEvery(ticks: Int) {
+    fun markDirtyClientEvery(ticks: Int) {
         this.dirtyTicks++
         if (this.dirtyTicks >= ticks) {
             this.markDirtyClient()
+            this.dirtyTicks = 0
+        }
+    }
+
+    fun markDirtyEvery(ticks: Int) {
+        this.dirtyTicks++
+        if (this.dirtyTicks >= ticks) {
+            this.markDirty()
             this.dirtyTicks = 0
         }
     }
@@ -166,7 +174,7 @@ abstract class ALTile : TileEntity() {
             val heldItem = player.getHeldItem(hand)
             if (heldItem.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, facing)) {
                 val didInteract = FluidUtil.interactWithFluidHandler(player, hand, world, pos, facing)
-                this.markDirtyClient()
+                this.markDirty()
                 return didInteract
             }
         }
