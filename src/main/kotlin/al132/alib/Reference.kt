@@ -13,7 +13,7 @@ object Reference {
 
     const val MODID = "alib"
     const val NAME = "A Lib"
-    const val VERSION = "1.0.2"
+    const val VERSION = "1.0.5"
     const val CLIENT = "al132.alib.ClientProxy"
     const val SERVER = "al132.alib.CommonProxy"
     const val DEPENDENCIES = "required-after:forgelin"

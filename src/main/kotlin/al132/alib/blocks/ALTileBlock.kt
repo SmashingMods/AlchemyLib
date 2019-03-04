@@ -14,11 +14,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.EnumHand
+import net.minecraft.util.NonNullList
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.IBlockAccess
 import net.minecraft.world.World
 import net.minecraftforge.fml.common.registry.GameRegistry
-import java.util.*
 
 open class ALTileBlock(name: String,
                        creativeTab: CreativeTabs,
@@ -58,20 +58,28 @@ open class ALTileBlock(name: String,
         world.setBlockToAir(pos)
     }
 
-    override fun getDrops(world: IBlockAccess, pos: BlockPos, state: IBlockState, fortune: Int): List<ItemStack> {
-        val ret = ArrayList<ItemStack>()
+    override fun getDrops(drops: NonNullList<ItemStack>, world: IBlockAccess, pos: BlockPos, state: IBlockState, fortune: Int) {
         val item = Item.getItemFromBlock(this)
         if (item != Items.AIR) {
-            ret.add(ItemStack(item, 1, this.damageDropped(state))
-                    .apply { this.tagCompound = world.getTileEntity(pos)?.updateTag })
+            drops.add(ItemStack(item, 1, this.damageDropped(state))
+                    .apply {
+                        this.tagCompound = world.getTileEntity(pos)?.updateTag
+                        tagCompound?.removeTag("x")
+                        tagCompound?.removeTag("y")
+                        tagCompound?.removeTag("z")
+                    })
         }
-        return ret
     }
 
     override fun onBlockPlacedBy(world: World?, pos: BlockPos?, state: IBlockState?, placer: EntityLivingBase?, stack: ItemStack?) {
         val tile: TileEntity? = world?.getTileEntity(pos)
-        tile?.let {
-            if (tile is ALTile) stack?.tagCompound?.let { tile.readFromNBT(it) }
+        if (tile != null && tile is ALTile) {
+            stack?.tagCompound?.setInteger("x",pos!!.x)
+            stack?.tagCompound?.setInteger("y",pos!!.y)
+            stack?.tagCompound?.setInteger("z",pos!!.z)
+            stack?.tagCompound?.let { tile.readFromNBT(it) }
+
+            tile.markDirtyClient()
         }
     }
 }
