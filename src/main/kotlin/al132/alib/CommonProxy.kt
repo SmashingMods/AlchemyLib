@@ -14,7 +14,6 @@ open class CommonProxy {
     }
 
     open fun init(e: FMLInitializationEvent) {
-        //if(Loader.isModLoaded("crafttweaker")) MTIntegration.init()
         //MinecraftForge.EVENT_BUS.register(EventHandler())
     }
 

@@ -18,11 +18,11 @@ object Utils {
 
 
     fun isHandlerEmpty(handler: IItemHandler): Boolean {
-        return (0..handler.slots - 1).all { handler.getStackInSlot(it).isEmpty }
+        return (0 until handler.slots).all { handler.getStackInSlot(it).isEmpty }
     }
 
-    fun canStacksMerge(origin: ItemStack, target: ItemStack): Boolean {
-        if (target.isEmpty || origin.isEmpty) return true
+    fun canStacksMerge(origin: ItemStack, target: ItemStack, stacksCanbeEmpty: Boolean = true): Boolean {
+        if (stacksCanbeEmpty && (target.isEmpty || origin.isEmpty))  return true
         else {
             return origin.item === target.item
                     && origin.count + target.count <= origin.maxStackSize

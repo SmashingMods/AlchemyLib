@@ -49,7 +49,8 @@ abstract class ALTile : TileEntity() {
         get() = CombinedInvWrapper(this.automationInput, this.automationOutput)
 
 
-    fun canInteractWith(playerIn: EntityPlayer) = !isInvalid && playerIn.getDistanceSq(pos.add(0.5, 0.5, 0.5)) <= 64.0
+    fun canInteractWith(playerIn: EntityPlayer) = !isInvalid
+            && playerIn.getDistanceSq(pos.add(0.5, 0.5, 0.5)) <= 64.0
 
     fun initInventoryCapability(inputSlots: Int, outputSlots: Int) {
         this.inputSlots = inputSlots
@@ -78,7 +79,7 @@ abstract class ALTile : TileEntity() {
     }
 
     fun initEnergyCapability(capacity: Int) {
-        if (this is IEnergyTile) this.energyCapability = EnergyStorage(10000)
+        if (this is IEnergyTile) this.energyCapability = EnergyStorage(capacity)
     }
 
     /*
@@ -159,7 +160,6 @@ abstract class ALTile : TileEntity() {
         if (this is IEnergyTile) {
             compound.setInteger("EnergyMax", energyCapability.maxEnergyStored)
             compound.setInteger("EnergyStored", energyCapability.energyStored)
-
         }
         if (this is IItemTile) {
             compound.setTag("input", input.serializeNBT())

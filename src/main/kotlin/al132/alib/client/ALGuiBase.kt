@@ -10,10 +10,9 @@ import net.minecraft.inventory.Container
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
 import java.util.*
-import kotlin.reflect.full.companionObjectInstance
 
 
-abstract class ALGuiBase<T>(container: Container, val tile: T)
+abstract class ALGuiBase<T>(container: Container, val tile: T, val textureLocation: ResourceLocation)
     : GuiContainer(container) where T : ALTile, T : IGuiTile {
 
     var displayData = ArrayList<CapabilityDisplayWrapper>()
@@ -43,7 +42,8 @@ abstract class ALGuiBase<T>(container: Container, val tile: T)
 
             mc.textureManager.bindTexture(texture)
             this.drawTexturedModalRect(i, j + storage.height - k, textureX, textureY, storage.width, k)
-            this.mc.textureManager.bindTexture((this::class.companionObjectInstance as IResource).textureLocation())
+            //this.mc.textureManager.bindTexture((this::class.companionObjectInstance as IResource).textureLocation())
+            this.mc.textureManager.bindTexture(this.textureLocation)
         }
     }
 
@@ -62,7 +62,9 @@ abstract class ALGuiBase<T>(container: Container, val tile: T)
 
     override fun drawGuiContainerBackgroundLayer(partialTicks: Float, mouseX: Int, mouseY: Int) {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
-        this.mc.textureManager.bindTexture((this::class.companionObjectInstance as IResource).textureLocation())
+        //this.mc.textureManager.bindTexture((this::class.companionObjectInstance as IResource).textureLocation())
+        this.mc.textureManager.bindTexture(this.textureLocation)
+
         this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, this.xSize, this.ySize)
         val i = (this.width - this.xSize) / 2
         val j = (this.height - this.ySize) / 2
@@ -75,7 +77,7 @@ abstract class ALGuiBase<T>(container: Container, val tile: T)
                             textureX = powerBarX,
                             textureY = powerBarY)
                 }
-                is CapabilityFluidDisplayWrapper -> this.drawFluidTank(data, i + data.x, j + data.y)
+                is CapabilityFluidDisplayWrapper  -> this.drawFluidTank(data, i + data.x, j + data.y)
             }
         }
     }
@@ -96,12 +98,13 @@ abstract class ALGuiBase<T>(container: Container, val tile: T)
                     wrapper.getStored(), i.toDouble(), j.toDouble(), zLevel.toDouble(), width.toDouble(), height.toDouble())
         }
     }
-
+/*
     companion object : IResource {
         override fun textureLocation(): ResourceLocation? = null
     }
+    */
 }
-
+/*
 interface IResource {
     fun textureLocation(): ResourceLocation?
-}
+}*/
