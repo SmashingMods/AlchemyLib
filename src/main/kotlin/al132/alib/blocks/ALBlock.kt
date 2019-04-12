@@ -20,7 +20,7 @@ abstract class ALBlock(name: String,
     : Block(material) {
 
     init {
-        unlocalizedName = name
+        translationKey = name
         setRegistryName(name)
         this.setHardness(hardness)
         this.setCreativeTab(creativeTab)

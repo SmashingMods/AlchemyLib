@@ -14,7 +14,7 @@ open class ALItem(name: String,
 
     init {
         setRegistryName(name)
-        unlocalizedName = this.registryName!!.toString()
+        translationKey = this.registryName!!.toString()
         creativeTab = tab
     }
 

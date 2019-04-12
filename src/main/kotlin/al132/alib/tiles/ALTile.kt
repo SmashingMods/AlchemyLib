@@ -16,7 +16,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.energy.EnergyStorage
-import net.minecraftforge.energy.IEnergyStorage
 import net.minecraftforge.fluids.FluidUtil
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.items.IItemHandler
@@ -33,13 +32,10 @@ abstract class ALTile : TileEntity() {
 
     var dirtyTicks: Int = 0
 
-    lateinit var energyCapability: IEnergyStorage
-        protected set
-
     lateinit var input: ALTileStackHandler
-    lateinit protected var automationInput: IItemHandlerModifiable
+    protected lateinit var automationInput: IItemHandlerModifiable
     lateinit var output: ALTileStackHandler
-    lateinit protected var automationOutput: IItemHandlerModifiable
+    protected lateinit var automationOutput: IItemHandlerModifiable
 
     open val inventory: IItemHandler
         get() = CombinedInvWrapper(input, output)
@@ -75,11 +71,6 @@ abstract class ALTile : TileEntity() {
 
     open fun initInventoryInputCapability() {
         input = ALTileStackHandler(inputSlots, this)
-
-    }
-
-    fun initEnergyCapability(capacity: Int) {
-        if (this is IEnergyTile) this.energyCapability = EnergyStorage(capacity)
     }
 
     /*
@@ -112,13 +103,10 @@ abstract class ALTile : TileEntity() {
         this.readFromNBT(packet!!.nbtCompound)
     }
 
-    val inventoryStackLimit: Int
-        get() = 64
-
     //From McJtyLib, MIT license
     fun markDirtyClient() {
         markDirty()
-        getWorld()?.let { world ->
+        getWorld().let { world ->
             val state = world.getBlockState(getPos())
             world.notifyBlockUpdate(getPos(), state, state, 3)
         }
@@ -142,13 +130,11 @@ abstract class ALTile : TileEntity() {
 
     override fun readFromNBT(compound: NBTTagCompound) {
         super.readFromNBT(compound)
-        if (compound.hasKey("EnergyMax")) {
-            val energyMax = compound.getInteger("EnergyMax")
+        if (this is IEnergyTile) {
             val energyStored = compound.getInteger("EnergyStored")
-            energyCapability = EnergyStorage(energyMax)
-            energyCapability.receiveEnergy(energyStored, false)
+            energyStorage = EnergyStorage(this.energyCapacity())
+            energyStorage.receiveEnergy(energyStored, false)
         }
-
         if (this is IItemTile) {
             input.deserializeNBT(compound.getCompoundTag("input"))
             output.deserializeNBT(compound.getCompoundTag("output"))
@@ -158,8 +144,7 @@ abstract class ALTile : TileEntity() {
     override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
         super.writeToNBT(compound)
         if (this is IEnergyTile) {
-            compound.setInteger("EnergyMax", energyCapability.maxEnergyStored)
-            compound.setInteger("EnergyStored", energyCapability.energyStored)
+            compound.setInteger("EnergyStored", energyStorage.energyStored)
         }
         if (this is IItemTile) {
             compound.setTag("input", input.serializeNBT())
@@ -181,26 +166,20 @@ abstract class ALTile : TileEntity() {
         return false
     }
 
-    open val defaultALCapabilities: Boolean = true
-
     override fun hasCapability(capability: Capability<*>, facing: EnumFacing?): Boolean {
-        if (defaultALCapabilities) {
-            when (capability) {
-                ENERGY_CAP -> return this is IEnergyTile
-                FLUID_CAP -> return this is IFluidTile
-                ITEM_CAP -> return this is IItemTile
-            }
+        when (capability) {
+            ENERGY_CAP -> return this is IEnergyTile
+            FLUID_CAP  -> return this is IFluidTile
+            ITEM_CAP   -> return this is IItemTile
         }
         return super.hasCapability(capability, facing)
     }
 
     override fun <T : Any> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
-        if (defaultALCapabilities) {
-            when (capability) {
-                ENERGY_CAP -> if (this is IEnergyTile) return ENERGY_CAP.cast<T>(energyCapability)
-                FLUID_CAP -> if (this is IFluidTile) return FLUID_CAP.cast<T>(fluidTanks)
-                ITEM_CAP -> if (this is IItemTile) return ITEM_CAP.cast<T>(automationInvHandler)
-            }
+        when (capability) {
+            ENERGY_CAP -> if (this is IEnergyTile) return ENERGY_CAP.cast<T>((this as IEnergyTile).energyStorage)
+            FLUID_CAP  -> if (this is IFluidTile) return FLUID_CAP.cast<T>(fluidTanks)
+            ITEM_CAP   -> if (this is IItemTile) return ITEM_CAP.cast<T>(automationInvHandler)
         }
         return super.getCapability(capability, facing)
     }

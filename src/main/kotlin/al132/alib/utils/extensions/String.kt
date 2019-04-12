@@ -1,5 +1,6 @@
 package al132.alib.utils.extensions
 
+import al132.alib.utils.Translator
 import al132.alib.utils.Utils
 
 /**
@@ -8,3 +9,5 @@ import al132.alib.utils.Utils
 
 
 fun String.toDict(prefix: String) = Utils.toDictName(prefix, this)
+
+fun String.translate(): String = Translator.translateToLocal(this)

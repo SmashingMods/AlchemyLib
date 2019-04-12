@@ -1,5 +1,6 @@
 package al132.alib.tiles
 
+import net.minecraftforge.energy.IEnergyStorage
 import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate
 
 /**
@@ -19,6 +20,9 @@ interface IFluidTile {
         get() = null
 }
 
-interface IEnergyTile
+interface IEnergyTile {
+    var energyStorage: IEnergyStorage
+    fun energyCapacity(): Int
+}
 
 interface IItemTile
