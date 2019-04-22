@@ -27,7 +27,7 @@ abstract class ALTile : TileEntity() {
 
     var inputSlots: Int = 0
     var outputSlots: Int = 0
-    val SIZE: Int
+    open val SIZE: Int
         get() = inventory.slots
 
     var dirtyTicks: Int = 0
