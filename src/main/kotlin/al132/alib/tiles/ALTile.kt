@@ -48,6 +48,10 @@ abstract class ALTile : TileEntity() {
     fun canInteractWith(playerIn: EntityPlayer) = !isInvalid
             && playerIn.getDistanceSq(pos.add(0.5, 0.5, 0.5)) <= 64.0
 
+    override fun shouldRefresh(world: World, pos: BlockPos, oldState: IBlockState, newState: IBlockState): Boolean {
+        return oldState.block != newState.block;
+    }
+
     fun initInventoryCapability(inputSlots: Int, outputSlots: Int) {
         this.inputSlots = inputSlots
         this.outputSlots = outputSlots

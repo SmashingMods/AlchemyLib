@@ -17,13 +17,13 @@ abstract class ALBlock(name: String,
                        creativeTab: CreativeTabs,
                        material: Material = Material.ROCK,
                        hardness: Float = 3.0F)
-    : Block(material) {
+    : Block(material), IModelBlock {
 
     init {
         translationKey = name
         setRegistryName(name)
         this.setHardness(hardness)
-        this.setCreativeTab(creativeTab)
+        this.creativeTab = creativeTab
     }
 
     open fun registerBlock(event: RegistryEvent.Register<Block>){
@@ -35,7 +35,7 @@ abstract class ALBlock(name: String,
     }
 
     @SideOnly(Side.CLIENT)
-    open fun registerModel() {
+    override fun registerModel() {
         ModelLoader.setCustomModelResourceLocation(
                 Item.getItemFromBlock(this), 0, ModelResourceLocation(registryName!!, "inventory"))
     }
