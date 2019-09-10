@@ -1,5 +1,6 @@
 package al132.alib.tiles;
 
+import al132.alib.utils.Utils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
@@ -24,7 +25,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
-import org.codehaus.plexus.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -125,6 +125,6 @@ public abstract class ABaseTile extends TileEntity implements INamedContainerPro
     public ITextComponent getDisplayName() {
         //TODO make more localization friendly
         String regName = getType().getRegistryName().getPath().replaceAll("_", " ");
-        return new StringTextComponent(StringUtils.capitaliseAllWords(regName));
+        return new StringTextComponent(Utils.capitalizeAllWords(regName));
     }
 }

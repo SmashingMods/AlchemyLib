@@ -38,10 +38,12 @@ public class CapabilityFluidDisplayWrapper extends CapabilityDisplayWrapper {
     public List<String> toStringList() {
         FluidStack stack = fluid.get().getFluidInTank(0);
         String fluidName = "";
+        String stored = numFormat.format(getStored());
+        String capacity = numFormat.format(getCapacity());
         if (!stack.isEmpty() && stack.getAmount() > 0) {
             fluidName = stack.getFluid().getAttributes().getName();
         }
-        String out = getStored() + "/" + getCapacity() + " mb " + fluidName;
+        String out = stored + "/" + capacity + " mb " + fluidName;
         return Lists.newArrayList(out);
     }
 }

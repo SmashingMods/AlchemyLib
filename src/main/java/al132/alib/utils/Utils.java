@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 /**
  * Created by al132 on 1/2/2017.
  */
-class Utils {
+public class Utils {
 /*
     public static boolean oreExists(String dictName ){
        return OreDicOretionary.doesOreNameExist(dictName);
@@ -65,4 +65,26 @@ class Utils {
         if (temp.itemDamage >= temp.maxDamage) return ItemStack.EMPTY
         else return temp
     }*/
+
+    public static String capitalizeAllWords(String str) { //StringUtils.capitaliseAllWords
+        if (str == null) {
+            return null;
+        }
+        int sz = str.length();
+        StringBuilder buffer = new StringBuilder(sz);
+        boolean space = true;
+        for (int i = 0; i < sz; i++) {
+            char ch = str.charAt(i);
+            if (Character.isWhitespace(ch)) {
+                buffer.append(ch);
+                space = true;
+            } else if (space) {
+                buffer.append(Character.toTitleCase(ch));
+                space = false;
+            } else {
+                buffer.append(ch);
+            }
+        }
+        return buffer.toString();
+    }
 }
