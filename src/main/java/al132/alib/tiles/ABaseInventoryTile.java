@@ -1,5 +1,6 @@
 package al132.alib.tiles;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.common.util.LazyOptional;
@@ -24,9 +25,10 @@ public abstract class ABaseInventoryTile extends ABaseTile implements InventoryT
         combinedInv = new CombinedInvWrapper(automationInput, automationOutput);
     }
 
+
     @Override
-    public void read(CompoundNBT compound) {
-        super.read(compound);
+    public void read(BlockState state, CompoundNBT compound) {
+        super.read(state, compound);
         input.deserializeNBT(compound.getCompound("input"));
         output.deserializeNBT(compound.getCompound("output"));
     }

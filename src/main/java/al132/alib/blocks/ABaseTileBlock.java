@@ -6,19 +6,13 @@ import al132.alib.tiles.ABaseTile;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameters;
-import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -54,7 +48,7 @@ public class ABaseTileBlock extends ABaseBlock {
                 stack.getTag().putInt("x", pos.getX());
                 stack.getTag().putInt("y", pos.getY());
                 stack.getTag().putInt("z", pos.getZ());
-                tile.read(stack.getTag());
+                tile.read(state,stack.getTag());
                 ((ABaseTile) tile).markDirtyClient();
             }
     }
@@ -70,6 +64,7 @@ public class ABaseTileBlock extends ABaseBlock {
         return tileSupplier.get();
     }
 
+    /*
     @Override
     public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
         if (!world.isRemote) {
@@ -89,4 +84,5 @@ public class ABaseTileBlock extends ABaseBlock {
         }
         return super.onBlockActivated(state, world, pos, player, hand, result);
     }
+     */
 }

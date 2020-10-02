@@ -1,6 +1,7 @@
 package al132.alib.client;
 
 import com.google.common.collect.Lists;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -35,15 +36,15 @@ public class CapabilityFluidDisplayWrapper extends CapabilityDisplayWrapper {
 
 
     @Override
-    public List<String> toStringList() {
+    public String toString() {
         FluidStack stack = fluid.get().getFluidInTank(0);
         String fluidName = "";
         String stored = numFormat.format(getStored());
         String capacity = numFormat.format(getCapacity());
         if (!stack.isEmpty() && stack.getAmount() > 0) {
-            fluidName = stack.getFluid().getAttributes().getName();
+            fluidName = I18n.format(stack.getFluid().getAttributes().getTranslationKey());
         }
         String out = stored + "/" + capacity + " mb " + fluidName;
-        return Lists.newArrayList(out);
+        return out;
     }
 }

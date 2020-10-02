@@ -13,14 +13,12 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -32,19 +30,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class ABaseTile extends TileEntity implements INamedContainerProvider {
 
-    public IEnergyStorage energy = new EnergyStorage(0);
-    public LazyOptional<IEnergyStorage> energyHolder = LazyOptional.of(() -> energy);
+    public IEnergyStorage energy;// = new EnergyStorage(0);
+    public LazyOptional<IEnergyStorage> energyHolder;// = LazyOptional.of(() -> energy);
 
 
     public ABaseTile(TileEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
         if (this instanceof EnergyTile) {
-            energy = new EnergyStorage(((EnergyTile) this).getTileMaxEnergy());
+            energy = ((EnergyTile) this).initEnergy();
+            energyHolder = LazyOptional.of(() -> energy);
         }
     }
 
 
-    public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+    public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand) {
         AtomicBoolean didInteract = new AtomicBoolean(false);
         if (this instanceof FluidTile) {
             ItemStack heldItem = player.getHeldItem(hand);
@@ -57,11 +56,16 @@ public abstract class ABaseTile extends TileEntity implements INamedContainerPro
     }
 
     @Override
-    public void read(CompoundNBT compound) {
-        super.read(compound);
+    public void read(BlockState state, CompoundNBT compound) {
+        super.read(state, compound);
         if (this instanceof EnergyTile) {
-            int max = ((EnergyTile) this).getTileMaxEnergy();
-            this.energy = new EnergyStorage(max, max, max, compound.getInt("energy"));
+            int max = ((EnergyTile) this).getEnergy().getMaxEnergyStored();
+            this.energy = ((EnergyTile) this).initEnergy();
+            if (energy instanceof CustomEnergyStorage) {
+                ((CustomEnergyStorage) energy).receiveEnergyInternal(compound.getInt("energy"), false);
+            } else {
+                energy.receiveEnergy(compound.getInt("energy"), false);
+            }
         }
     }
 
@@ -106,7 +110,7 @@ public abstract class ABaseTile extends TileEntity implements INamedContainerPro
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-        this.read(packet.getNbtCompound());
+        this.read(null, packet.getNbtCompound());
     }
 
     @Nonnull

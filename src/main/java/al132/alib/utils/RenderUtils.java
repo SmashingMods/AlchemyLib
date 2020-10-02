@@ -1,6 +1,6 @@
 package al132.alib.utils;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -44,7 +44,7 @@ public class RenderUtils {
     public static TextureAtlasSprite getStillTexture(Fluid fluid) {
         ResourceLocation iconKey = fluid.getAttributes().getStillTexture();
         if (iconKey == null) return null;
-        return Minecraft.getInstance().getTextureMap().getAtlasSprite(iconKey.toString());
+        return Minecraft.getInstance().getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(iconKey);
     }
 
     public static void renderGuiTank(FluidTank tank, double x, double y, double zLevel, double width, double height) {
@@ -64,7 +64,8 @@ public class RenderUtils {
         int color = fluid.getFluid().getAttributes().getColor(fluid);
         GL11.glColor3ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF));
 
-        GlStateManager.enableBlend();
+        //GlStateManager.enableBlend();
+        RenderSystem.enableBlend();
         int i = 0;
         while (i < width) {
             int j = 0;
@@ -75,10 +76,10 @@ public class RenderUtils {
                 int drawX = (int) (x + i);
                 int drawY = (int) posY + j;
 
-                double minU = (double) icon.getMinU();
-                double maxU = (double) icon.getMaxU();
-                double minV = (double) icon.getMinV();
-                double maxV = (double) icon.getMaxV();
+                float minU = icon.getMinU();
+                float maxU = icon.getMaxU();
+                float minV = icon.getMinV();
+                float maxV = icon.getMaxV();
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buf = tessellator.getBuffer();
@@ -92,6 +93,7 @@ public class RenderUtils {
             }
             i += 16;
         }
-        GlStateManager.disableBlend();
+        RenderSystem.disableBlend();
+        //GlStateManager.disableBlend();
     }
 }

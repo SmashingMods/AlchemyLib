@@ -34,10 +34,10 @@ public class CapabilityEnergyDisplayWrapper extends CapabilityDisplayWrapper {
     }
 
     @Override
-    public List<String> toStringList() {
+    public String toString() {
         String stored = numFormat.format(getStored());
         String capacity = numFormat.format(getCapacity());
         String tooltip = stored + "/" + capacity + " FE";
-        return Lists.newArrayList(tooltip);
+        return tooltip;
     }
 }
