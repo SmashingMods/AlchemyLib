@@ -1,14 +1,37 @@
 package al132.alib.blocks;
 
 
-import al132.alib.ModData;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
+
 
 abstract public class ABaseBlock extends Block {
 
-    public ABaseBlock(ModData data, String name, Properties properties) {
+    public ABaseBlock(Properties properties) {
         super(properties);
-        setRegistryName(data.MODID, name);
-        data.BLOCKS.add(this);
+        //setRegistryName(modid, name);
+        //data.BLOCKS.add(this);
     }
+
+
+    //@Override
+    /*
+    public ActionResultType use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockRayTraceResult hit) {
+        if (!world.isClientSide) {
+            BlockEntity tile = world.getBlockEntity(pos);
+            boolean interactionSuccessful = true;
+            if (tile instanceof ABaseTile) {
+                interactionSuccessful = ((ABaseTile) tile).onBlockActivated(state, world, pos, player, hand, hit);
+            }
+            if (!interactionSuccessful) {
+                if (tile instanceof Nameable) {
+                    NetworkHooks.openGui((ServerPlayerEntity) player, (Nameable) tile, tile.getBlockPos());
+                } else {
+                    throw new IllegalStateException("The named container provider is missing!");
+                }
+            }
+            return ActionResultType.CONSUME;
+        }
+        return ActionResultType.SUCCESS;
+    }
+    */
 }

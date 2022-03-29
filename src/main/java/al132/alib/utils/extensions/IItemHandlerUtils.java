@@ -1,10 +1,11 @@
 package al132.alib.utils.extensions;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class IItemHandlerUtils {
     public static boolean tryInsertInto(IItemHandler self, IItemHandler other) {

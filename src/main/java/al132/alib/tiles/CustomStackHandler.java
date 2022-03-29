@@ -1,8 +1,8 @@
 package al132.alib.tiles;
 
 import al132.alib.utils.extensions.IItemHandlerUtils;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -22,7 +22,7 @@ public class CustomStackHandler extends ItemStackHandler {
     @Override
     public void onContentsChanged(int slot) {
         super.onContentsChanged(slot);
-        this.tile.markDirty();
+        this.tile.setChanged();
     }
 
     public void clear() {
@@ -56,7 +56,7 @@ public class CustomStackHandler extends ItemStackHandler {
 
     public boolean eject(Direction direction) {
         IItemHandler originHandler = this.tile.getCapability(ITEM_HANDLER_CAPABILITY, direction).orElse(null);
-        IItemHandler targetHandler = this.tile.getWorld().getTileEntity(tile.getPos().offset(direction))
+        IItemHandler targetHandler = this.tile.getLevel().getBlockEntity(tile.getBlockPos().offset(direction.getNormal()))
                 .getCapability(ITEM_HANDLER_CAPABILITY, direction.getOpposite()).orElse(null);
         if (originHandler != null && targetHandler != null)
             return IItemHandlerUtils.tryInsertInto(originHandler, targetHandler);

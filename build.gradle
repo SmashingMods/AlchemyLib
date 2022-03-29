@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -17,10 +17,12 @@ version = mc_version + '-' + mod_version
 group = 'al132.alib' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'alib'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'snapshot', version: snapshot_version
+    mappings channel: 'official', version: '1.18'
+
+    //mappings channel: 'snapshot', version: snapshot_version
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
     // accessTransformer = file('build/resources/main/META-INF/accesstransformer.cfg')

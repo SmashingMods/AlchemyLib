@@ -1,38 +1,51 @@
 package al132.alib.blocks;
 
 
-import al132.alib.ModData;
 import al132.alib.tiles.ABaseTile;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class ABaseTileBlock extends ABaseBlock {
+public class ABaseTileBlock<T extends BlockEntity, U extends AbstractContainerMenu> extends ABaseBlock implements EntityBlock {
 
-    Supplier<TileEntity> tileSupplier;
+    Class<T> entityClass;
+    Class<U> containerClass;
 
-    public ABaseTileBlock(ModData data, String name, Block.Properties properties, Supplier<TileEntity> tileSupplier) {
-        super(data, name, properties);
-        this.tileSupplier = tileSupplier;
+    public ABaseTileBlock(Block.Properties properties, Class<T> entityClass, Class<U> containerClass) {
+        super(properties);
+        this.entityClass = entityClass;
+        this.containerClass = containerClass;
     }
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
         List<ItemStack> output = super.getDrops(state, builder);
-        ItemStack stack = output.stream().filter(x -> Block.getBlockFromItem(x.getItem()) == this).findFirst().orElse(ItemStack.EMPTY);
+        ItemStack stack = output.stream().filter(x -> Block.byItem(x.getItem()) == this).findFirst().orElse(ItemStack.EMPTY);
         if (!stack.isEmpty()) {
-            stack.setTag(builder.get(LootParameters.BLOCK_ENTITY).getUpdateTag());
+            stack.setTag(builder.getParameter(LootContextParams.BLOCK_ENTITY).getUpdateTag());
             stack.getTag().remove("x");
             stack.getTag().remove("y");
             stack.getTag().remove("z");
@@ -41,48 +54,70 @@ public class ABaseTileBlock extends ABaseBlock {
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-        TileEntity tile  = worldIn.getTileEntity(pos);
-        if (tile instanceof ABaseTile && stack.hasTag()){
-                stack.getTag().putInt("x", pos.getX());
-                stack.getTag().putInt("y", pos.getY());
-                stack.getTag().putInt("z", pos.getZ());
-                tile.read(state,stack.getTag());
-                ((ABaseTile) tile).markDirtyClient();
-            }
+    public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
+        BlockEntity tile = worldIn.getBlockEntity(pos);
+        if (tile instanceof ABaseTile && stack.hasTag()) {
+            stack.getTag().putInt("x", pos.getX());
+            stack.getTag().putInt("y", pos.getY());
+            stack.getTag().putInt("z", pos.getZ());
+            tile.load(stack.getTag());
+            //((ABaseTile) tile).markDirtyClient();
+        }
     }
 
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        try {
+            return entityClass.getConstructor(BlockPos.class, BlockState.class).newInstance(pos, state);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult trace) {
+        if (!level.isClientSide) {
+            BlockEntity tile = level.getBlockEntity(pos);
+            boolean interactionSuccessful = true;
+            if (tile instanceof ABaseTile) {
+                interactionSuccessful = ((ABaseTile) tile).onBlockActivated(state, level, pos, player, hand, trace);
+            }
+            MenuProvider provider = new MenuProvider() {
+                @Override
+                public Component getDisplayName() {
+                    return new TextComponent("");
+                }
+
+                @Nullable
+                @Override
+                public AbstractContainerMenu createMenu(int id, Inventory inv, Player p_39956_) {
+                    try {
+                        return containerClass.getConstructor(int.class, Level.class, BlockPos.class, Inventory.class)
+                                .newInstance(id, level, pos, inv);
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                        return null;
+                    }
+                }
+            };
+
+            if (!interactionSuccessful) {
+                if (tile instanceof Nameable) {
+                    NetworkHooks.openGui((ServerPlayer) player, provider, tile.getBlockPos());
+                } else {
+                    throw new IllegalStateException("The named container provider is missing!");
+                }
+            }
+            return InteractionResult.CONSUME;
+        }
+        return InteractionResult.SUCCESS;
+    }
+/*
     @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
+*/
 
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        return tileSupplier.get();
-    }
-
-    /*
-    @Override
-    public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
-        if (!world.isRemote) {
-            TileEntity tile = world.getTileEntity(pos);
-            boolean interactionSuccessful = true;
-            if (tile instanceof ABaseTile) {
-                interactionSuccessful = ((ABaseTile) tile).onBlockActivated(state, world, pos, player, hand, result);
-            }
-            if (!interactionSuccessful) {
-                if (tile instanceof INamedContainerProvider) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, (INamedContainerProvider) tile, tile.getPos());
-                } else {
-                    throw new IllegalStateException("Our named container provider is missing!");
-                }
-            }
-            return true;
-        }
-        return super.onBlockActivated(state, world, pos, player, hand, result);
-    }
-     */
 }

@@ -51,6 +51,10 @@ public class CustomEnergyStorage extends EnergyStorage {
         return received;
     }
 
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
     public void onEnergyChanged() {
     }
 }

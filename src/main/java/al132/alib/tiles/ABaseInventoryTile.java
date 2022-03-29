@@ -1,8 +1,10 @@
 package al132.alib.tiles;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
@@ -16,8 +18,8 @@ public abstract class ABaseInventoryTile extends ABaseTile implements InventoryT
     private CombinedInvWrapper combinedInv;
     protected LazyOptional<IItemHandler> inventoryHolder = LazyOptional.of(() -> combinedInv);
 
-    public ABaseInventoryTile(TileEntityType<?> tileEntityTypeIn) {
-        super(tileEntityTypeIn);
+    public ABaseInventoryTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+        super(tileEntityTypeIn, pos, state);
         this.input = this.initInput();
         this.output = this.initOutput();
         this.automationInput = this.initAutomationInput(input);
@@ -25,19 +27,18 @@ public abstract class ABaseInventoryTile extends ABaseTile implements InventoryT
         combinedInv = new CombinedInvWrapper(automationInput, automationOutput);
     }
 
-
     @Override
-    public void read(BlockState state, CompoundNBT compound) {
-        super.read(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         input.deserializeNBT(compound.getCompound("input"));
         output.deserializeNBT(compound.getCompound("output"));
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public void saveAdditional(CompoundTag compound) {
+        super.saveAdditional(compound);
         compound.put("input", input.serializeNBT());
         compound.put("output", output.serializeNBT());
-        return super.write(compound);
     }
 
     @Override

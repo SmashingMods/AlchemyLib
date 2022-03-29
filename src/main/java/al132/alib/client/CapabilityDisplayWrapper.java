@@ -1,10 +1,7 @@
 package al132.alib.client;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 public abstract class CapabilityDisplayWrapper {
 
@@ -22,7 +19,9 @@ public abstract class CapabilityDisplayWrapper {
 
     public abstract int getCapacity();
 
-    public ITextComponent toTextComponent(){
-        return ITextComponent.getTextComponentOrEmpty(toString());
+    public Component toTextComponent() {
+        String temp = "";
+        if (this.toString() != null) temp = this.toString();
+        return new TextComponent(temp);
     }
 }

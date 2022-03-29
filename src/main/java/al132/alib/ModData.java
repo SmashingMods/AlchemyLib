@@ -1,15 +1,16 @@
 package al132.alib;
 
+
 import al132.alib.blocks.ABaseBlock;
 import al132.alib.items.ABaseItem;
 import al132.alib.tiles.ABaseTile;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 
 import java.util.ArrayList;
@@ -18,39 +19,40 @@ import java.util.function.Supplier;
 
 public abstract class ModData {
 
-    public final String MODID;
-    public final List<ABaseBlock> BLOCKS = new ArrayList<>();
-    public final List<ABaseItem> ITEMS = new ArrayList<>();
-    public final List<TileEntityType<?>> TILES = new ArrayList<>();
-    public final List<ContainerType> CONTAINERS = new ArrayList<>();
+    //public final String MODID;
+    //public final List<ABaseBlock> BLOCKS = new ArrayList<>();
+    //public final List<ABaseItem> ITEMS = new ArrayList<>();
+    //public final List<BlockEntityType<?>> TILES = new ArrayList<>();
+    //public final List<MenuType> CONTAINERS = new ArrayList<>();
 
-    public final ItemGroup itemGroup;
-
+    /*public final CreativeModeTab itemGroup;
     public ModData(String modid, ItemStack itemIcon) {
         this.MODID = modid;
-        itemGroup = new ItemGroup(MODID){
+        itemGroup = new CreativeModeTab(MODID){
 
             @Override
-            public ItemStack createIcon() {
+            public ItemStack makeIcon() {
                 return new ItemStack(Blocks.DIRT);
             }
         };
-    }
+    }*/
+/*
+    public abstract void registerTiles(RegistryEvent.Register<BlockEntityType<?>> e);
 
-    public abstract void registerTiles(RegistryEvent.Register<TileEntityType<?>> e);
+    public abstract void registerContainers(RegistryEvent.Register<MenuType<?>> e);
 
-    public abstract void registerContainers(RegistryEvent.Register<ContainerType<?>> e);
-
-    public <T extends ABaseTile> TileEntityType<T> registerTile(Supplier<T> factory, Block block, String name) {
-        TileEntityType<T> type = TileEntityType.Builder.create(factory, block).build(null);
+    public <T extends ABaseTile> BlockEntityType<T> registerTile(BlockEntityType.BlockEntitySupplier<T> factory, Block block, String name) {
+        BlockEntityType<T> type = BlockEntityType.Builder.of(factory, block).build(null);
         type.setRegistryName(MODID, name);
         TILES.add(type);
         return type;
     }
 
-    public <T extends Container> ContainerType<T> registerContainer(ContainerType<T> type, String id) {
+    public <T extends Container> MenuType registerContainer(MenuType type, String id) {
         type.setRegistryName(MODID, id);
         CONTAINERS.add(type);
         return type;
     }
+
+ */
 }
