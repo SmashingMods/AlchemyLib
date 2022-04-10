@@ -26,3 +26,6 @@ classes
 gradle
 utilityscripts
 .py
+
+# project
+secrets.properties
