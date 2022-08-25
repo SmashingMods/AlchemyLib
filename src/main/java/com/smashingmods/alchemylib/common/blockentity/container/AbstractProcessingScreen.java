@@ -2,19 +2,14 @@ package com.smashingmods.alchemylib.common.blockentity.container;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.smashingmods.alchemylib.common.network.PacketHandler;
-import com.smashingmods.alchemylib.common.network.ToggleLockButtonPacket;
-import com.smashingmods.alchemylib.common.network.TogglePauseButtonPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -26,20 +21,9 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
 
     protected final String modId;
 
-    protected final Button lockButton;
-    protected final Button unlockButton;
-
-    protected final Button pauseButton;
-    protected final Button resumeButton;
-
     public AbstractProcessingScreen(M pMenu, Inventory pPlayerInventory, Component pTitle, String pModId) {
         super(pMenu, pPlayerInventory, pTitle);
-
         this.modId = pModId;
-        this.lockButton = new Button(0, 0, 100, 20, new TranslatableComponent("alchemylib.container.lock_recipe"), handleLock());
-        this.unlockButton = new Button(0, 0, 100, 20, new TranslatableComponent("alchemylib.container.unlock_recipe"), handleLock());
-        this.pauseButton = new Button(0, 0, 100, 20, new TranslatableComponent("alchemylib.container.pause"), handlePause());
-        this.resumeButton = new Button(0, 0, 100, 20, new TranslatableComponent("alchemylib.container.resume"), handlePause());
     }
 
     @Override
@@ -47,7 +31,6 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
         renderBackground(pPoseStack);
         renderBg(pPoseStack, pPartialTick, pMouseX, pMouseY);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        renderWidgets();
     }
 
     public void drawFluidTank(FluidDisplayData pData, int pTextureX, int pTextureY) {
@@ -197,27 +180,5 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
             }
             addRenderableWidget(pWidget);
         }
-    }
-
-    public void renderWidgets() {
-        renderables.clear();
-        if (menu.getBlockEntity().isRecipeLocked()) {
-            renderWidget(unlockButton, leftPos - 104, topPos);
-        } else {
-            renderWidget(lockButton, leftPos - 104, topPos);
-        }
-        if (menu.getBlockEntity().isProcessingPaused()) {
-            renderWidget(resumeButton, leftPos - 104, topPos + 24);
-        } else {
-            renderWidget(pauseButton, leftPos - 104, topPos + 24);
-        }
-    }
-
-    private Button.OnPress handleLock() {
-        return pButton -> PacketHandler.INSTANCE.sendToServer(new ToggleLockButtonPacket(menu.getBlockEntity().getBlockPos(), !menu.getBlockEntity().isRecipeLocked()));
-    }
-
-    private Button.OnPress handlePause() {
-        return pButton -> PacketHandler.INSTANCE.sendToServer(new TogglePauseButtonPacket(menu.getBlockEntity().getBlockPos(), !menu.getBlockEntity().isProcessingPaused()));
     }
 }
