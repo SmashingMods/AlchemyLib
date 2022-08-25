@@ -130,7 +130,7 @@ publishing {
                 artifact project.jar
             }
             setGroupId 'smashingmods'
-            setArtifactId 'alchemistry'
+            setArtifactId 'alchemylib'
         }
     }
     repositories {
