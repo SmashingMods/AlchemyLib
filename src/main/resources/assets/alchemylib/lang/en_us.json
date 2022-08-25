@@ -1,0 +1,6 @@
+{
+  "alchemylib.container.lock_recipe": "Lock recipe",
+  "alchemylib.container.unlock_recipe": "Unlock recipe",
+  "alchemylib.container.pause": "Pause",
+  "alchemylib.container.resume": "Resume"
+}

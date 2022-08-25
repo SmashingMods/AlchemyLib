@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="All rights reserved"
+
+[[mods]]
+modId="alchemylib"
+version="${file.jarVersion}"
+displayName="AlchemyLib"
+authors="SmashingMods"
+description='''
+AlchemyLib provides common code for multiple mods.
+'''
+
+[[dependencies.alchemylib]]
+modId="forge"
+mandatory=true
+versionRange="[40.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.alchemylib]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.18.2,)"
+ordering="NONE"
+side="BOTH"
