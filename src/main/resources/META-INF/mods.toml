@@ -1,14 +1,16 @@
 modLoader="javafml"
 loaderVersion="[40,)"
-license="All rights reserved"
+license="LGPLv2.1"
+issueTrackerURL="https://github.com/smashingmods/alchemylib/issues"
 
 [[mods]]
 modId="alchemylib"
 version="${file.jarVersion}"
 displayName="AlchemyLib"
+logoFile="alchemylib-logo.png"
 authors="SmashingMods"
 description='''
-AlchemyLib provides common code for multiple mods.
+AlchemyLib contains shared code for machines and screens.
 '''
 
 [[dependencies.alchemylib]]
@@ -22,5 +24,12 @@ side="BOTH"
 modId="minecraft"
 mandatory=true
 versionRange="[1.18.2,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.alchemylib]]
+modId="chemlib"
+mandatory=true
+versionRange="[1.18.2-2.0.13,)"
 ordering="NONE"
 side="BOTH"
