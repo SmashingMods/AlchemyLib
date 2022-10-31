@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,7 +40,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     protected final PauseButton pauseButton;
     protected final LinkedList<AbstractWidget> widgets = new LinkedList<>();
 
-    public AbstractProcessingScreen(M pMenu, Inventory pPlayerInventory, MutableComponent pTitle) {
+    public AbstractProcessingScreen(M pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.imageWidth = 184;
         this.imageHeight = 162;
