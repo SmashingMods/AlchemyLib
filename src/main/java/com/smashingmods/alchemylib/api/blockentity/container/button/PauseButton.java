@@ -5,8 +5,8 @@ import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import com.smashingmods.alchemylib.api.network.TogglePauseButtonPacket;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +29,7 @@ public class PauseButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public Component getMessage() {
-        return blockEntity.isProcessingPaused() ? new TranslatableComponent("alchemylib.container.resume") : new TranslatableComponent("alchemylib.container.pause");
+    public MutableComponent getMessage() {
+        return blockEntity.isProcessingPaused() ? MutableComponent.create(new TranslatableContents("alchemylib.container.resume")) : MutableComponent.create(new TranslatableContents("alchemylib.container.pause"));
     }
 }

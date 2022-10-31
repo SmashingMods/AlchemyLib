@@ -2,8 +2,8 @@ package com.smashingmods.alchemylib.api.blockentity.container.data;
 
 import com.smashingmods.alchemylib.api.blockentity.container.Direction2D;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.LiteralContents;
 
 public class ProgressDisplayData extends AbstractDisplayData {
 
@@ -31,7 +31,7 @@ public class ProgressDisplayData extends AbstractDisplayData {
     }
 
     @Override
-    public Component toTextComponent() {
-        return new TextComponent("Show Recipes");
+    public MutableComponent toTextComponent() {
+        return MutableComponent.create(new LiteralContents("Show Recipes"));
     }
 }

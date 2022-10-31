@@ -171,7 +171,7 @@ curseforge {
     apiKey = secrets.getProperty("apiKey")
     project {
         id = '293426'
-        releaseType = 'release'
+        releaseType = 'beta'
         changelogType = 'markdown'
         changelog = file("changelog.md")
         addGameVersion 'Forge'

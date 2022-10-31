@@ -5,8 +5,8 @@ import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import com.smashingmods.alchemylib.api.network.ToggleLockButtonPacket;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ public class LockButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public Component getMessage() {
-        return blockEntity.isRecipeLocked() ? new TranslatableComponent("alchemylib.container.unlock_recipe") : new TranslatableComponent("alchemylib.container.lock_recipe");
+    public MutableComponent getMessage() {
+        return blockEntity.isRecipeLocked() ? MutableComponent.create(new TranslatableContents("alchemylib.container.unlock_recipe")) : MutableComponent.create(new TranslatableContents("alchemylib.container.lock_recipe"));
     }
 }

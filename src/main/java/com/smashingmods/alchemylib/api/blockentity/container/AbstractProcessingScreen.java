@@ -17,12 +17,12 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.network.chat.BaseComponent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.LinkedList;
@@ -39,7 +39,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     protected final PauseButton pauseButton;
     protected final LinkedList<AbstractWidget> widgets = new LinkedList<>();
 
-    public AbstractProcessingScreen(M pMenu, Inventory pPlayerInventory, Component pTitle) {
+    public AbstractProcessingScreen(M pMenu, Inventory pPlayerInventory, MutableComponent pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
         this.imageWidth = 184;
         this.imageHeight = 162;
@@ -69,8 +69,9 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     public void drawFluidTank(FluidDisplayData pData) {
         if (pData.getValue() > 0) {
             FluidStack fluidStack = pData.getFluidHandler().getFluidStack();
-            setShaderColor(fluidStack.getFluid().getAttributes().getColor());
-            TextureAtlasSprite icon = getResourceTexture(fluidStack.getFluid().getAttributes().getStillTexture());
+            IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(fluidStack.getFluid());
+            setShaderColor(fluidTypeExtensions.getTintColor());
+            TextureAtlasSprite icon = getResourceTexture(fluidTypeExtensions.getStillTexture());
             drawTexture(pData, icon, leftPos + pData.getX(), topPos + pData.getY());
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
@@ -241,7 +242,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
         });
     }
 
-    public void renderItemTooltip(PoseStack pPoseStack, ItemStack pItemStack, BaseComponent pComponent, int pMouseX, int pMouseY) {
+    public void renderItemTooltip(PoseStack pPoseStack, ItemStack pItemStack, MutableComponent pComponent, int pMouseX, int pMouseY) {
         renderTooltip(pPoseStack, RecipeDisplayUtil.getItemTooltipComponent(pItemStack, pComponent), Optional.empty(), pMouseX, pMouseY);
     }
 

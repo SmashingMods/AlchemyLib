@@ -1,7 +1,7 @@
 package com.smashingmods.alchemylib.api.blockentity.container.data;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.LiteralContents;
 
 public abstract class AbstractDisplayData implements DisplayData {
 
@@ -17,12 +17,12 @@ public abstract class AbstractDisplayData implements DisplayData {
         this.height = pHeight;
     }
 
-    public Component toTextComponent() {
+    public MutableComponent toTextComponent() {
         String temp = "";
         if (this.toString() != null) {
             temp = this.toString();
         }
-        return new TextComponent(temp);
+        return MutableComponent.create(new LiteralContents(temp));
     }
 
     @Override

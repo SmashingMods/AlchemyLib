@@ -4,11 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraftforge.client.ForgeHooksClient;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     public RecipeSelectorButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
@@ -35,7 +35,7 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public Component getMessage() {
-        return blockEntity.isRecipeSelectorOpen() ? new TranslatableComponent("alchemylib.container.close_recipe_select") : new TranslatableComponent("alchemylib.container.open_recipe_select");
+    public MutableComponent getMessage() {
+        return blockEntity.isRecipeSelectorOpen() ? MutableComponent.create(new TranslatableContents("alchemylib.container.close_recipe_select")) : MutableComponent.create(new TranslatableContents("alchemylib.container.open_recipe_select"));
     }
 }

@@ -8,7 +8,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -18,9 +19,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -44,7 +46,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
 
     public AbstractProcessingBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pBlockEntityType, pWorldPosition, pBlockState);
-        this.name = new TranslatableComponent(String.format("%s.container.%s", pModId, Objects.requireNonNull(getType().getRegistryName()).getPath()));
+        this.name = MutableComponent.create(new TranslatableContents(String.format("%s.container.%s", pModId, ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(getType()))));
     }
 
     @Override
@@ -189,7 +191,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     @Override
     @Nonnull
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == CapabilityEnergy.ENERGY) {
+        if (pCapability == ForgeCapabilities.ENERGY) {
             return lazyEnergyHandler.cast();
         }
         return super.getCapability(pCapability, pDirection);
