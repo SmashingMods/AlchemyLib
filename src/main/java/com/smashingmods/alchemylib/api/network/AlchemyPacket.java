@@ -12,7 +12,8 @@ public interface AlchemyPacket {
     void handle(NetworkEvent.Context pContext);
 
     static <MSG extends AlchemyPacket> void handle(final MSG pMessage, Supplier<NetworkEvent.Context> pContext) {
-        pContext.get().enqueueWork(() -> pMessage.handle(pContext.get()));
-        pContext.get().setPacketHandled(true);
+        NetworkEvent.Context context = pContext.get();
+        context.enqueueWork(() -> pMessage.handle(context));
+        context.setPacketHandled(true);
     }
 }

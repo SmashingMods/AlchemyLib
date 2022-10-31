@@ -16,13 +16,14 @@ public class TogglePauseButtonPacket implements AlchemyPacket {
         this.paused = pPause;
     }
 
+    public TogglePauseButtonPacket(FriendlyByteBuf pBuffer) {
+        this.blockPos = pBuffer.readBlockPos();
+        this.paused = pBuffer.readBoolean();
+    }
+
     public void encode(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
         pBuffer.writeBoolean(paused);
-    }
-
-    public static TogglePauseButtonPacket decode(FriendlyByteBuf pBuffer) {
-        return new TogglePauseButtonPacket(pBuffer.readBlockPos(), pBuffer.readBoolean());
     }
 
     public void handle(NetworkEvent.Context pContext) {

@@ -16,13 +16,14 @@ public class ToggleLockButtonPacket implements AlchemyPacket {
         this.locked = pLock;
     }
 
+    public ToggleLockButtonPacket(FriendlyByteBuf pBuffer) {
+        this.blockPos = pBuffer.readBlockPos();
+        this.locked = pBuffer.readBoolean();
+    }
+
     public void encode(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
         pBuffer.writeBoolean(locked);
-    }
-
-    public static ToggleLockButtonPacket decode(FriendlyByteBuf pBuffer) {
-        return new ToggleLockButtonPacket(pBuffer.readBlockPos(), pBuffer.readBoolean());
     }
 
     public void handle(NetworkEvent.Context pContext) {

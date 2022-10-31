@@ -25,6 +25,10 @@ archivesBaseName = 'alchemylib'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+java {
+    withSourcesJar()
+}
+
 minecraft {
     mappings channel: 'parchment', version: "$parchment_version-$minecraft_version"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -51,6 +55,7 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             jvmArgs '-XX:+AllowEnhancedClassRedefinition'
+            args 'nogui'
 
             mods {
                 alchemylib {
@@ -101,7 +106,6 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
     implementation fg.deobf("smashingmods:chemlib:${minecraft_version}-${chemlib_version}")
 }
 
@@ -119,12 +123,8 @@ jar {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
 artifacts {
+    archives jar
     archives sourcesJar
 }
 
@@ -143,6 +143,7 @@ fileTree("secrets").matching {
 }
 
 jar.finalizedBy('reobfJar')
+sourcesJar.finalizedBy('reobfJar')
 
 publishing {
     publications {

@@ -16,13 +16,14 @@ public class SearchPacket implements AlchemyPacket {
         this.searchText = pSearchText;
     }
 
+    public SearchPacket(FriendlyByteBuf pBuffer) {
+        this.blockPos = pBuffer.readBlockPos();
+        this.searchText = pBuffer.readUtf();
+    }
+
     public void encode(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
         pBuffer.writeUtf(searchText);
-    }
-
-    public static SearchPacket decode(FriendlyByteBuf pBuffer) {
-        return new SearchPacket(pBuffer.readBlockPos(), pBuffer.readUtf());
     }
 
     @Override

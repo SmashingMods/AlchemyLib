@@ -7,45 +7,27 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 @SuppressWarnings("SameParameterValue")
 public abstract class AbstractPacketHandler {
 
-    private static int PACKET_ID;
-
-    public AbstractPacketHandler() {
-
-    }
+    private int PACKET_ID;
 
     protected static SimpleChannel createChannel(ResourceLocation pChannelName, String pProtocolVersion) {
-        return NetworkRegistry.ChannelBuilder.named(pChannelName)
-                .clientAcceptedVersions(pProtocolVersion::equals)
-                .serverAcceptedVersions(pProtocolVersion::equals)
-                .networkProtocolVersion(() -> pProtocolVersion)
-                .simpleChannel();
+        return NetworkRegistry.newSimpleChannel(pChannelName, () -> pProtocolVersion, pProtocolVersion::equals, pProtocolVersion::equals);
     }
 
-    public abstract void register();
+    public abstract AbstractPacketHandler register();
 
     protected abstract SimpleChannel getChannel();
 
-    protected <MSG extends AlchemyPacket> void registerClientToServer(Class<MSG> pMessageType, Function<FriendlyByteBuf, MSG> pDecoder) {
-        registerMessage(pMessageType, pDecoder, NetworkDirection.PLAY_TO_SERVER);
-    }
-
-    protected <MSG extends AlchemyPacket> void registerServerToClient(Class<MSG> pMessageType, Function<FriendlyByteBuf, MSG> pDecoder) {
-        registerMessage(pMessageType, pDecoder, NetworkDirection.PLAY_TO_CLIENT);
-    }
-
-    protected <MSG extends AlchemyPacket> void registerMessage(Class<MSG> pMessageType, Function<FriendlyByteBuf, MSG> pDecoder, NetworkDirection pDirection) {
-        getChannel().registerMessage(PACKET_ID++, pMessageType, AlchemyPacket::encode, pDecoder, AlchemyPacket::handle, Optional.of(pDirection));
+    protected <MSG extends AlchemyPacket> void registerMessage(Class<MSG> pMessageType, Function<FriendlyByteBuf, MSG> pDecoder) {
+        getChannel().registerMessage(PACKET_ID++, pMessageType, AlchemyPacket::encode, pDecoder, AlchemyPacket::handle);
     }
 
     public <MSG> void sendToServer(MSG pMessage) {

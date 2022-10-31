@@ -18,10 +18,11 @@ public class PacketHandler extends AbstractPacketHandler {
     }
 
     @Override
-    public void register() {
-        registerClientToServer(ToggleLockButtonPacket.class, ToggleLockButtonPacket::decode);
-        registerClientToServer(TogglePauseButtonPacket.class, TogglePauseButtonPacket::decode);
-        registerClientToServer(SearchPacket.class, SearchPacket::decode);
-        registerServerToClient(BlockEntityPacket.class, BlockEntityPacket::decode);
+    public PacketHandler register() {
+        registerMessage(ToggleLockButtonPacket.class, ToggleLockButtonPacket::new);
+        registerMessage(TogglePauseButtonPacket.class, TogglePauseButtonPacket::new);
+        registerMessage(SearchPacket.class, SearchPacket::new);
+        registerMessage(BlockEntityPacket.class, BlockEntityPacket::new);
+        return this;
     }
 }

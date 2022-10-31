@@ -35,7 +35,9 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        AlchemyLib.getPacketHandler().sendToTrackingChunk(new BlockEntityPacket(getBlockEntity().getBlockPos(), getBlockEntity().getUpdateTag()), getLevel(), getBlockEntity().getBlockPos());
+        if (level != null && !level.isClientSide()) {
+            AlchemyLib.getPacketHandler().sendToTrackingChunk(new BlockEntityPacket(getBlockEntity().getBlockPos(), getBlockEntity().getUpdateTag()), getLevel(), getBlockEntity().getBlockPos());
+        }
     }
 
     @Override

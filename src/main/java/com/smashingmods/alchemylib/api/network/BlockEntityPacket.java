@@ -20,13 +20,14 @@ public class BlockEntityPacket implements AlchemyPacket {
         this.tag = pTag;
     }
 
+    public BlockEntityPacket(FriendlyByteBuf pBuffer) {
+        this.blockPos = pBuffer.readBlockPos();
+        this.tag = pBuffer.readNbt();
+    }
+
     public void encode(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
         pBuffer.writeNbt(tag);
-    }
-
-    public static BlockEntityPacket decode(FriendlyByteBuf pBuffer) {
-        return new BlockEntityPacket(pBuffer.readBlockPos(), Objects.requireNonNull(pBuffer.readNbt()));
     }
 
     public void handle(NetworkEvent.Context pContext) {
