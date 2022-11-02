@@ -5,9 +5,7 @@ import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -18,17 +16,21 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("unused")
-public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEntity implements FluidBlockEntity {
+public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEntity implements FluidBlockEntity, InventoryBlockEntity {
 
     private final FluidStorageHandler fluidStorage = initializeFluidStorage();
     private final LazyOptional<IFluidHandler> lazyFluidHandler = LazyOptional.of(() -> fluidStorage);
-    private final ProcessingSlotHandler itemHandler = initializeSlotHandler();
-    private final LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.of(() -> itemHandler);
+
+    private final ProcessingSlotHandler inputHandler = initializeInputHandler();
+    private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
+    private final CombinedInvWrapper combinedInvWrapper = new CombinedInvWrapper(inputHandler, outputHandler);
+    private final LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.of(() -> combinedInvWrapper);
 
     public AbstractFluidBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pModId, pBlockEntityType, pWorldPosition, pBlockState);
@@ -48,8 +50,18 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     }
 
     @Override
-    public ProcessingSlotHandler getSlotHandler() {
-        return itemHandler;
+    public ProcessingSlotHandler getInputHandler() {
+        return inputHandler;
+    }
+
+    @Override
+    public ProcessingSlotHandler getOutputHandler() {
+        return outputHandler;
+    }
+
+    @Override
+    public CombinedInvWrapper getCombinedInvWrapper() {
+        return combinedInvWrapper;
     }
 
     @Override
@@ -77,7 +89,8 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     @Override
     protected void saveAdditional(CompoundTag pTag) {
-        pTag.put("item", itemHandler.serializeNBT());
+        pTag.put("input", inputHandler.serializeNBT());
+        pTag.put("output", outputHandler.serializeNBT());
         pTag.put("fluid", fluidStorage.writeToNBT(new CompoundTag()));
         super.saveAdditional(pTag);
     }
@@ -85,19 +98,9 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     @Override
     public void load(CompoundTag pTag) {
         super.load(pTag);
-        itemHandler.deserializeNBT(pTag.getCompound("item"));
+        inputHandler.deserializeNBT(pTag.getCompound("input"));
+        outputHandler.deserializeNBT(pTag.getCompound("output"));
         fluidStorage.readFromNBT(pTag.getCompound("fluid"));
-    }
-
-    @Override
-    public void dropContents() {
-        if (level != null && !level.isClientSide()) {
-            SimpleContainer container = new SimpleContainer(itemHandler.getSlots());
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
-                container.setItem(i, itemHandler.getStackInSlot(i));
-            }
-            Containers.dropContents(level, worldPosition, container);
-        }
     }
 
     public boolean onBlockActivated(Level pLevel, BlockPos pBlockPos, Player pPlayer, InteractionHand pHand) {

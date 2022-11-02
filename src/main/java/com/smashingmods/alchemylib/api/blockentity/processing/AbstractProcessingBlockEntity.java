@@ -1,7 +1,5 @@
 package com.smashingmods.alchemylib.api.blockentity.processing;
 
-import com.smashingmods.alchemylib.AlchemyLib;
-import com.smashingmods.alchemylib.api.network.SearchPacket;
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +12,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.Nameable;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
-public abstract class AbstractProcessingBlockEntity extends BlockEntity implements ProcessingBlockEntity, EnergyBlockEntity, MenuProvider, Nameable {
+public abstract class AbstractProcessingBlockEntity extends BlockEntity implements ProcessingBlockEntity, EnergyBlockEntity, MenuProvider {
 
     private final Component name;
     private int energyPerTick = 0;
@@ -38,8 +35,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private boolean canProcess = false;
     private boolean recipeLocked = false;
     private boolean paused = false;
-    private boolean recipeSelectorOpen = false;
-    private String searchText = "";
 
     private final EnergyStorageHandler energyHandler = initializeEnergyStorage();
     private final LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.of(() -> energyHandler);
@@ -50,16 +45,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    public Component getName() {
-        return name != null ? name : this.getDefaultName();
-    }
-
-    @Override
     public Component getDisplayName() {
-        return getName();
-    }
-
-    protected Component getDefaultName() {
         return name;
     }
 
@@ -97,10 +83,12 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         }
     }
 
+    @Override
     public boolean getCanProcess() {
         return canProcess;
     }
 
+    @Override
     public void setCanProcess(boolean pCanProcess) {
         canProcess = pCanProcess;
     }
@@ -151,31 +139,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    public void setRecipeSelectorOpen(boolean pOpen) {
-        this.recipeSelectorOpen = pOpen;
-    }
-
-    @Override
-    public boolean isRecipeSelectorOpen() {
-        return recipeSelectorOpen;
-    }
-
-    @Override
-    public String getSearchText() {
-        return searchText;
-    }
-
-    @Override
-    public void setSearchText(@Nullable String pText) {
-        if (pText != null && !pText.isEmpty()) {
-            searchText = pText;
-            if (level != null && level.isClientSide()) {
-                AlchemyLib.getPacketHandler().sendToServer(new SearchPacket(getBlockPos(), searchText));
-            }
-        }
-    }
-
-    @Override
     public EnergyStorageHandler getEnergyHandler() {
         return energyHandler;
     }
@@ -208,7 +171,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         pTag.putInt("progress", progress);
         pTag.putBoolean("locked", isRecipeLocked());
         pTag.putBoolean("paused", isProcessingPaused());
-        pTag.putString("searchText", searchText);
         pTag.put("energy", energyHandler.serializeNBT());
         super.saveAdditional(pTag);
     }
@@ -219,7 +181,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         setProgress(pTag.getInt("progress"));
         setRecipeLocked(pTag.getBoolean("locked"));
         setPaused(pTag.getBoolean("paused"));
-        setSearchText(pTag.getString("searchText"));
         energyHandler.deserializeNBT(pTag.get("energy"));
     }
 }

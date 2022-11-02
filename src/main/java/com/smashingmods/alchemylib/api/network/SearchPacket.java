@@ -1,6 +1,6 @@
 package com.smashingmods.alchemylib.api.network;
 
-import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
+import com.smashingmods.alchemylib.api.blockentity.processing.AbstractSearchableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +30,7 @@ public class SearchPacket implements AlchemyPacket {
     public void handle(NetworkEvent.Context pContext) {
         Player player = pContext.getSender();
         if (player != null) {
-            AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level.getBlockEntity(blockPos);
+            AbstractSearchableBlockEntity blockEntity = (AbstractSearchableBlockEntity) player.level.getBlockEntity(blockPos);
 
             if (blockEntity != null) {
                 blockEntity.setSearchText(searchText);

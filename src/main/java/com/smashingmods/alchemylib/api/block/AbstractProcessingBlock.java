@@ -1,6 +1,6 @@
 package com.smashingmods.alchemylib.api.block;
 
-import com.smashingmods.alchemylib.api.blockentity.processing.ProcessingBlockEntity;
+import com.smashingmods.alchemylib.api.blockentity.processing.InventoryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -52,7 +52,6 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;
     }
@@ -62,8 +61,8 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         if (pState.getBlock() != pNewState.getBlock()) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
-            if (blockEntity instanceof ProcessingBlockEntity processingBlockEntity) {
-                processingBlockEntity.dropContents();
+            if (blockEntity instanceof InventoryBlockEntity inventoryBlockEntity) {
+                inventoryBlockEntity.dropContents(pLevel, pPos);
             }
         }
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);

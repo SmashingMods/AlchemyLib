@@ -44,14 +44,4 @@ public interface ProcessingBlockEntity {
     boolean isProcessingPaused();
 
     void setPaused(boolean pPaused);
-
-    void setRecipeSelectorOpen(boolean pOpen);
-
-    boolean isRecipeSelectorOpen();
-
-    String getSearchText();
-
-    void setSearchText(String pText);
-
-    void dropContents();
 }

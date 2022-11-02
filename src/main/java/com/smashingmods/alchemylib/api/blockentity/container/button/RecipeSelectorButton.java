@@ -2,6 +2,7 @@ package com.smashingmods.alchemylib.api.blockentity.container.button;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
+import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
@@ -13,12 +14,14 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     public RecipeSelectorButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
         super(pParent, pParent.getBlockEntity(), pButton -> {
-            if (pParent.getBlockEntity().isRecipeSelectorOpen()) {
-                ForgeHooksClient.popGuiLayer(Minecraft.getInstance());
-                pParent.getBlockEntity().setRecipeSelectorOpen(false);
-            } else {
-                pParent.getBlockEntity().setRecipeSelectorOpen(true);
-                ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), pNewScreen);
+            if (pParent.getBlockEntity() instanceof SearchableBlockEntity searchableBlockEntity) {
+                if (searchableBlockEntity.isRecipeSelectorOpen()) {
+                    ForgeHooksClient.popGuiLayer(Minecraft.getInstance());
+                    searchableBlockEntity.setRecipeSelectorOpen(false);
+                } else {
+                    searchableBlockEntity.setRecipeSelectorOpen(true);
+                    ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), pNewScreen);
+                }
             }
         });
     }
@@ -26,7 +29,7 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
     @Override
     public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-            boolean open = parent.getBlockEntity().isRecipeSelectorOpen();
+            boolean open = ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen();
             int u = open ? 25 : 45;
             int v = open ? 80 : 60;
 
@@ -36,6 +39,6 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isRecipeSelectorOpen() ? MutableComponent.create(new TranslatableContents("alchemylib.container.close_recipe_select")) : MutableComponent.create(new TranslatableContents("alchemylib.container.open_recipe_select"));
+        return ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen() ? MutableComponent.create(new TranslatableContents("alchemylib.container.close_recipe_select")) : MutableComponent.create(new TranslatableContents("alchemylib.container.open_recipe_select"));
     }
 }
