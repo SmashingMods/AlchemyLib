@@ -5,6 +5,9 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.smashingmods.chemlib.ChemLib;
+import com.smashingmods.chemlib.common.items.ChemicalItem;
+import com.smashingmods.chemlib.common.items.ElementItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,8 +17,11 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class FakeItemRenderer {
@@ -27,7 +33,7 @@ public class FakeItemRenderer {
     public static void renderFakeItem(ItemStack pItemStack, int pX, int pY, float pAlpha) {
 
         if (!pItemStack.isEmpty()) {
-            BakedModel model = ITEM_RENDERER.getModel(pItemStack, null, MINECRAFT.player, 0);
+            BakedModel model = getBakedModel(pItemStack);
 
             TEXTURE_MANAGER.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(true, false);
             RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
@@ -55,7 +61,6 @@ public class FakeItemRenderer {
                     OverlayTexture.NO_OVERLAY,
                     model);
             bufferSource.endBatch();
-
             RenderSystem.enableDepthTest();
 
             if (!model.usesBlockLight()) {
@@ -67,8 +72,33 @@ public class FakeItemRenderer {
         }
     }
 
-    public static MultiBufferSource getWrappedBuffer(MultiBufferSource pBufferSource, float pAlpha) {
+    private static MultiBufferSource getWrappedBuffer(MultiBufferSource pBufferSource, float pAlpha) {
         return pRenderType -> new WrappedVertexConsumer(pBufferSource.getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS)), 1F, 1F, 1F, pAlpha);
+    }
+
+    private static BakedModel getBakedModel(ItemStack pItemStack) {
+        ModelResourceLocation chemicalModel = getChemicalModel(pItemStack);
+        return chemicalModel != null ? ITEM_RENDERER.getItemModelShaper().getModelManager().getModel(chemicalModel) : ITEM_RENDERER.getModel(pItemStack, null, MINECRAFT.player, 0);
+    }
+
+    @Nullable
+    private static ModelResourceLocation getChemicalModel(ItemStack pItemStack) {
+        ModelResourceLocation modelResourceLocation = null;
+        if (pItemStack.getItem() instanceof ElementItem elementItem) {
+            switch (elementItem.getMatterState()) {
+                case LIQUID -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "element_liquid_model"), "inventory");
+                case GAS -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "element_gas_model"), "inventory");
+                default -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "element_solid_model"), "inventory");
+            }
+        } else if (pItemStack.getItem() instanceof ChemicalItem chemicalItem) {
+            switch (chemicalItem.getItemType()) {
+                case DUST -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "chemical_dust_model"), "inventory");
+                case NUGGET -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "chemical_nugget_model"), "inventory");
+                case INGOT -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "chemical_ingot_model"), "inventory");
+                case PLATE -> modelResourceLocation = new ModelResourceLocation(new ResourceLocation(ChemLib.MODID, "chemical_plate_model"), "inventory");
+            }
+        }
+        return modelResourceLocation;
     }
 }
 
