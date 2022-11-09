@@ -1,7 +1,7 @@
 package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.AlchemyLib;
-import com.smashingmods.alchemylib.api.network.SearchPacket;
+import com.smashingmods.alchemylib.common.network.SearchPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;

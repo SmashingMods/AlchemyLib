@@ -1,11 +1,13 @@
 package com.smashingmods.alchemylib.api.capability;
 
+import io.netty.util.internal.UnstableApi;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.LiteralContents;
 
 @SuppressWarnings("unused")
+@UnstableApi
 public class HeatHandler implements HeatCapability {
 
     private int heat;

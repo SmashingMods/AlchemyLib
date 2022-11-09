@@ -1,5 +1,6 @@
-package com.smashingmods.alchemylib.api.network;
+package com.smashingmods.alchemylib.common.network;
 
+import com.smashingmods.alchemylib.api.network.AlchemyPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

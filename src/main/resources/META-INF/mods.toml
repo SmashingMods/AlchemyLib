@@ -10,7 +10,7 @@ displayName="AlchemyLib"
 logoFile="alchemylib-logo.png"
 authors="SmashingMods"
 description='''
-AlchemyLib contains shared code for machines and screens.
+AlchemyLib is a library mod for ChemLib addon mods such as Alchemistry and Techemistry. Anyone can use AlchemyLib to help bootstrap their mod development. Everything you need is in the api package.
 '''
 
 [[dependencies.alchemylib]]

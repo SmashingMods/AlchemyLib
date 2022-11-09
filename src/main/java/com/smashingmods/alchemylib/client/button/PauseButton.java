@@ -1,23 +1,24 @@
-package com.smashingmods.alchemylib.api.blockentity.container.button;
+package com.smashingmods.alchemylib.client.button;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
-import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
-import com.smashingmods.alchemylib.api.network.TogglePauseButtonPacket;
+import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
+import com.smashingmods.alchemylib.common.network.TogglePauseButtonPacket;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 import javax.annotation.Nonnull;
 
+@SuppressWarnings("unused")
 public class PauseButton extends AbstractAlchemyButton {
 
-    public PauseButton(AbstractProcessingScreen<?> pParent, AbstractProcessingBlockEntity pBlockEntity) {
-        super(pParent, pBlockEntity, pButton -> {
-            boolean togglePause = !pBlockEntity.isProcessingPaused();
-            pBlockEntity.setPaused(!togglePause);
-            pBlockEntity.setChanged();
-            AlchemyLib.getPacketHandler().sendToServer(new TogglePauseButtonPacket(pBlockEntity.getBlockPos(), togglePause));
+    public PauseButton(AbstractProcessingScreen<?> pParent) {
+        super(pParent, pButton -> {
+            boolean togglePause = !pParent.getBlockEntity().isProcessingPaused();
+            pParent.getBlockEntity().setPaused(!togglePause);
+            pParent.getBlockEntity().setChanged();
+            AlchemyLib.getPacketHandler().sendToServer(new TogglePauseButtonPacket(pParent.getBlockEntity().getBlockPos(), togglePause));
         });
     }
 

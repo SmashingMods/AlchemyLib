@@ -1,7 +1,8 @@
-package com.smashingmods.alchemylib.api.blockentity.container.button;
+package com.smashingmods.alchemylib.client.button;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
+import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
 import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,7 +14,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     public RecipeSelectorButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
-        super(pParent, pParent.getBlockEntity(), pButton -> {
+        super(pParent, pButton -> {
             if (pParent.getBlockEntity() instanceof SearchableBlockEntity searchableBlockEntity) {
                 if (searchableBlockEntity.isRecipeSelectorOpen()) {
                     ForgeHooksClient.popGuiLayer(Minecraft.getInstance());

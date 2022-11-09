@@ -23,6 +23,10 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * This class can be used to render a 2D ItemStack to the screen with optional transparency. The item being rendered
+ * doesn't need to represent a real ItemStack held in an inventory or container.
+ */
 @SuppressWarnings("unused")
 public class FakeItemRenderer {
 
@@ -30,6 +34,20 @@ public class FakeItemRenderer {
     private static final ItemRenderer ITEM_RENDERER = MINECRAFT.getItemRenderer();
     private static final TextureManager TEXTURE_MANAGER = MINECRAFT.getTextureManager();
 
+    /**
+     * Renders a fake item to the screen using 1.0F alpha (no transparency).
+     *
+     * @param pItemStack ItemStack to render.
+     * @param pX integer value for X position on screen.
+     * @param pY integer value for Y position on screen.
+     */
+    public static void renderFakeItem(ItemStack pItemStack, int pX, int pY) {
+        renderFakeItem(pItemStack, pX, pY, 1.0F);
+    }
+
+    /**
+     * @param pAlpha Optional transparency value between 0.0F and 1.0F.
+     */
     public static void renderFakeItem(ItemStack pItemStack, int pX, int pY, float pAlpha) {
 
         if (!pItemStack.isEmpty()) {
@@ -72,15 +90,26 @@ public class FakeItemRenderer {
         }
     }
 
+    /**
+     * @return {@link WrappedVertexConsumer}
+     */
     private static MultiBufferSource getWrappedBuffer(MultiBufferSource pBufferSource, float pAlpha) {
         return pRenderType -> new WrappedVertexConsumer(pBufferSource.getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS)), 1F, 1F, 1F, pAlpha);
     }
 
+    /**
+     * @return BakedModel of an ItemStack. Built in compatibility for {@link ElementItem} or {@link com.smashingmods.chemlib.common.items.CompoundItem CompoundItem}.
+     */
     private static BakedModel getBakedModel(ItemStack pItemStack) {
         ModelResourceLocation chemicalModel = getChemicalModel(pItemStack);
         return chemicalModel != null ? ITEM_RENDERER.getItemModelShaper().getModelManager().getModel(chemicalModel) : ITEM_RENDERER.getModel(pItemStack, null, MINECRAFT.player, 0);
     }
 
+    /**
+     * Compatbility method to get a model resource location for an {@link ElementItem} or {@link com.smashingmods.chemlib.common.items.CompoundItem CompoundItem}.
+     *
+     * @return ModelResourceLocation for a specific chemical based on its matter state.
+     */
     @Nullable
     private static ModelResourceLocation getChemicalModel(ItemStack pItemStack) {
         ModelResourceLocation modelResourceLocation = null;
@@ -102,6 +131,10 @@ public class FakeItemRenderer {
     }
 }
 
+/**
+ * This is a custom wrapper implementation of {@link VertexConsumer} for the purpose of adding an alpha channel for optional
+ * transparency when rendering ItemStacks.
+ */
 class WrappedVertexConsumer implements VertexConsumer {
 
     protected final VertexConsumer consumer;
