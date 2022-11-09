@@ -5,6 +5,12 @@ import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessing
 import java.text.NumberFormat;
 import java.util.Locale;
 
+/**
+ * Extends {@link AbstractDisplayData} by passing an {@link AbstractProcessingBlockEntity} into the constructor.
+ * The block entity is used as a reference to get the energy stored and max energy stored values and return them
+ * in {@link #getValue()} and {@link #getMaxValue()} respectively.
+ */
+@SuppressWarnings("unused")
 public class EnergyDisplayData extends AbstractDisplayData {
 
     private final AbstractProcessingBlockEntity blockEntity;

@@ -5,6 +5,9 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import java.util.Arrays;
 import java.util.Collection;
 
+/**
+ * {@link net.minecraft.world.level.block.state.BlockState BlockState} property wrapper for {@link PowerState} for persisting that state.
+ */
 @SuppressWarnings("unused")
 public class PowerStateProperty extends EnumProperty<PowerState> {
     public static final PowerStateProperty POWER_STATE = PowerStateProperty.create("power_state", PowerState.values());

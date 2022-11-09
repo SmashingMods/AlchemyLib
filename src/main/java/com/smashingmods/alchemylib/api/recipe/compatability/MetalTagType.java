@@ -2,8 +2,12 @@ package com.smashingmods.alchemylib.api.recipe.compatability;
 
 import net.minecraft.util.StringRepresentable;
 
+/**
+ * This enum defines a set of strings representing the standard metal item tags
+ * used for datagen.
+ */
 @SuppressWarnings("unused")
-public enum ItemTagType implements StringRepresentable {
+public enum MetalTagType implements StringRepresentable {
     INGOTS("ingots"),
     DUSTS("dusts"),
     PLATES("plates"),
@@ -12,7 +16,7 @@ public enum ItemTagType implements StringRepresentable {
 
     private final String type;
 
-    ItemTagType(String pType) {
+    MetalTagType(String pType) {
         this.type = pType;
     }
 

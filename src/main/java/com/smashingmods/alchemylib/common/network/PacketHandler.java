@@ -1,6 +1,7 @@
-package com.smashingmods.alchemylib.api.network;
+package com.smashingmods.alchemylib.common.network;
 
 import com.smashingmods.alchemylib.AlchemyLib;
+import com.smashingmods.alchemylib.api.network.AbstractPacketHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.simple.SimpleChannel;
 
@@ -13,6 +14,7 @@ public class PacketHandler extends AbstractPacketHandler {
     }
 
     @Override
+    @SuppressWarnings("unused")
     protected SimpleChannel getChannel() {
         return simpleChannel;
     }

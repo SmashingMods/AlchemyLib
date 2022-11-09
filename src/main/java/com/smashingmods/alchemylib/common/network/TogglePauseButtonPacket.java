@@ -1,29 +1,30 @@
-package com.smashingmods.alchemylib.api.network;
+package com.smashingmods.alchemylib.common.network;
 
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
+import com.smashingmods.alchemylib.api.network.AlchemyPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
-public class ToggleLockButtonPacket implements AlchemyPacket {
+public class TogglePauseButtonPacket implements AlchemyPacket {
 
     private final BlockPos blockPos;
-    private final boolean locked;
+    private final boolean paused;
 
-    public ToggleLockButtonPacket(BlockPos pBlockPos, boolean pLock) {
+    public TogglePauseButtonPacket(BlockPos pBlockPos, boolean pPause) {
         this.blockPos = pBlockPos;
-        this.locked = pLock;
+        this.paused = pPause;
     }
 
-    public ToggleLockButtonPacket(FriendlyByteBuf pBuffer) {
+    public TogglePauseButtonPacket(FriendlyByteBuf pBuffer) {
         this.blockPos = pBuffer.readBlockPos();
-        this.locked = pBuffer.readBoolean();
+        this.paused = pBuffer.readBoolean();
     }
 
     public void encode(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
-        pBuffer.writeBoolean(locked);
+        pBuffer.writeBoolean(paused);
     }
 
     public void handle(NetworkEvent.Context pContext) {
@@ -32,7 +33,7 @@ public class ToggleLockButtonPacket implements AlchemyPacket {
             AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level.getBlockEntity(blockPos);
 
             if (blockEntity != null) {
-                blockEntity.setRecipeLocked(locked);
+                blockEntity.setPaused(paused);
                 blockEntity.setChanged();
             }
         }

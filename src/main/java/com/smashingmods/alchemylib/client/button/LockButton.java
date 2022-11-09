@@ -1,25 +1,24 @@
-package com.smashingmods.alchemylib.api.blockentity.container.button;
+package com.smashingmods.alchemylib.client.button;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
-import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
-import com.smashingmods.alchemylib.api.network.ToggleLockButtonPacket;
+import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
+import com.smashingmods.alchemylib.common.network.ToggleLockButtonPacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nonnull;
 
+@SuppressWarnings("unused")
 public class LockButton extends AbstractAlchemyButton {
 
-    public LockButton(AbstractProcessingScreen<?> pParent, AbstractProcessingBlockEntity pBlockEntity) {
-        super(pParent,
-                pBlockEntity,
-                pButton -> {
-                    boolean toggleLock = !pBlockEntity.isRecipeLocked();
-                    pBlockEntity.setRecipeLocked(toggleLock);
-                    pBlockEntity.setChanged();
-                    AlchemyLib.getPacketHandler().sendToServer(new ToggleLockButtonPacket(pBlockEntity.getBlockPos(), toggleLock));
+    public LockButton(AbstractProcessingScreen<?> pParent) {
+        super(pParent, pButton -> {
+                    boolean toggleLock = !pParent.getBlockEntity().isRecipeLocked();
+                    pParent.getBlockEntity().setRecipeLocked(toggleLock);
+                    pParent.getBlockEntity().setChanged();
+                    AlchemyLib.getPacketHandler().sendToServer(new ToggleLockButtonPacket(pParent.getBlockEntity().getBlockPos(), toggleLock));
                 });
     }
 

@@ -5,6 +5,12 @@ import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessing
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 
+/**
+ * Extends {@link AbstractDisplayData} by passing an {@link AbstractProcessingBlockEntity} into the constructor.
+ * The block entity is used as a reference to get the current progress and max progress values and return them
+ * in {@link #getValue()} and {@link #getMaxValue()} respectively.
+ */
+@SuppressWarnings("unused")
 public class ProgressDisplayData extends AbstractDisplayData {
 
     private final AbstractProcessingBlockEntity blockEntity;

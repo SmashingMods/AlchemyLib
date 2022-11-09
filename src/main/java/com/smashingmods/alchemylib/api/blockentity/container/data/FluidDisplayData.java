@@ -1,6 +1,7 @@
 package com.smashingmods.alchemylib.api.blockentity.container.data;
 
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractFluidBlockEntity;
+import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import com.smashingmods.alchemylib.api.storage.FluidStorageHandler;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.fluids.FluidStack;
@@ -9,6 +10,12 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+/**
+ * Extends {@link AbstractDisplayData} by passing an {@link AbstractProcessingBlockEntity} into the constructor.
+ * The block entity is used as a reference to get the fluid amount stored and fluid capacity values and return them
+ * in {@link #getValue()} and {@link #getMaxValue()} respectively.
+ */
+@SuppressWarnings("unused")
 public class FluidDisplayData extends AbstractDisplayData {
 
     private final AbstractFluidBlockEntity blockEntity;
