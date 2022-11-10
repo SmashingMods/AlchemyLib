@@ -15,12 +15,14 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     public RecipeSelectorButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
         super(pParent, pButton -> {
-            if (pParent.getBlockEntity().isRecipeSelectorOpen()) {
-                ForgeHooksClient.popGuiLayer(Minecraft.getInstance());
-                pParent.getBlockEntity().setRecipeSelectorOpen(false);
-            } else {
-                pParent.getBlockEntity().setRecipeSelectorOpen(true);
-                ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), pNewScreen);
+            if (pParent.getBlockEntity() instanceof SearchableBlockEntity searchableBlockEntity) {
+                if (searchableBlockEntity.isRecipeSelectorOpen()) {
+                    ForgeHooksClient.popGuiLayer(Minecraft.getInstance());
+                    searchableBlockEntity.setRecipeSelectorOpen(false);
+                } else {
+                    searchableBlockEntity.setRecipeSelectorOpen(true);
+                    ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), pNewScreen);
+                }
             }
         });
     }

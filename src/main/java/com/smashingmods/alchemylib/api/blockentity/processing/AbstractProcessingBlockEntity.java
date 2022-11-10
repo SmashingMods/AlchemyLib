@@ -1,7 +1,5 @@
 package com.smashingmods.alchemylib.api.blockentity.processing;
 
-import com.smashingmods.alchemylib.AlchemyLib;
-import com.smashingmods.alchemylib.api.network.SearchPacket;
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,8 +34,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private boolean canProcess = false;
     private boolean recipeLocked = false;
     private boolean paused = false;
-    private boolean recipeSelectorOpen = false;
-    private String searchText = "";
 
     private final EnergyStorageHandler energyHandler = initializeEnergyStorage();
     private final LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.of(() -> energyHandler);
@@ -149,31 +145,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    public void setRecipeSelectorOpen(boolean pOpen) {
-        this.recipeSelectorOpen = pOpen;
-    }
-
-    @Override
-    public boolean isRecipeSelectorOpen() {
-        return recipeSelectorOpen;
-    }
-
-    @Override
-    public String getSearchText() {
-        return searchText;
-    }
-
-    @Override
-    public void setSearchText(@Nullable String pText) {
-        if (pText != null && !pText.isEmpty()) {
-            searchText = pText;
-            if (level != null && level.isClientSide()) {
-                AlchemyLib.getPacketHandler().sendToServer(new SearchPacket(getBlockPos(), searchText));
-            }
-        }
-    }
-
-    @Override
     public EnergyStorageHandler getEnergyHandler() {
         return energyHandler;
     }
@@ -206,7 +177,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         pTag.putInt("progress", progress);
         pTag.putBoolean("locked", isRecipeLocked());
         pTag.putBoolean("paused", isProcessingPaused());
-        pTag.putString("searchText", searchText);
         pTag.put("energy", energyHandler.serializeNBT());
         super.saveAdditional(pTag);
     }
@@ -217,7 +187,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         setProgress(pTag.getInt("progress"));
         setRecipeLocked(pTag.getBoolean("locked"));
         setPaused(pTag.getBoolean("paused"));
-        setSearchText(pTag.getString("searchText"));
         energyHandler.deserializeNBT(pTag.get("energy"));
     }
 }
