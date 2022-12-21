@@ -1,3 +1,4 @@
-# AlchemyLib 1.18.2-1.0.15 BETA
+# AlchemyLib 1.18.2-1.0.19 Release
 
-AlchembyLib is the revival of the previously named ALib. It will provide commonly shared code for ChemLib addon mods.
+Changes:
+- Backport AlchemyLib 1.19.x changes to 1.18.x.
