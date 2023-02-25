@@ -20,6 +20,7 @@ import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEntity implements FluidBlockEntity, InventoryBlockEntity {
@@ -29,8 +30,9 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     private final ProcessingSlotHandler inputHandler = initializeInputHandler();
     private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
+    private final LazyOptional<IItemHandler> lazyInputHandler = LazyOptional.of(() -> inputHandler);
+    private final LazyOptional<IItemHandler> lazyOutputHandler = LazyOptional.of(() -> outputHandler);
     private final CombinedInvWrapper combinedInvWrapper = new CombinedInvWrapper(inputHandler, outputHandler);
-    private final LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.of(() -> combinedInvWrapper);
 
     public AbstractFluidBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pModId, pBlockEntityType, pWorldPosition, pBlockState);
@@ -66,19 +68,24 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     @Override
     @Nonnull
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction pDirection) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        } else if (cap == ForgeCapabilities.FLUID_HANDLER) {
+    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
+        if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
+            return switch (Objects.requireNonNull(pDirection)) {
+                case UP, WEST -> lazyInputHandler.cast();
+                case DOWN, EAST -> lazyOutputHandler.cast();
+                default -> super.getCapability(pCapability, pDirection);
+            };
+        } else if (pCapability == ForgeCapabilities.FLUID_HANDLER) {
             return lazyFluidHandler.cast();
         }
-        return super.getCapability(cap, pDirection);
+        return super.getCapability(pCapability, pDirection);
     }
 
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
-        lazyItemHandler.invalidate();
+        lazyInputHandler.invalidate();
+        lazyOutputHandler.invalidate();
         lazyFluidHandler.invalidate();
     }
 

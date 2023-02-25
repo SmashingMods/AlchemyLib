@@ -11,16 +11,19 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlockEntity implements InventoryBlockEntity {
 
     private final ProcessingSlotHandler inputHandler = initializeInputHandler();
     private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
+    private final LazyOptional<IItemHandler> lazyInputHandler = LazyOptional.of(() -> inputHandler);
+    private final LazyOptional<IItemHandler> lazyOutputHandler = LazyOptional.of(() -> outputHandler);
     private final CombinedInvWrapper combinedInvWrapper = new CombinedInvWrapper(inputHandler, outputHandler);
-    private final LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.of(() -> combinedInvWrapper);
 
     public AbstractInventoryBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pModId, pBlockEntityType, pWorldPosition, pBlockState);
@@ -49,18 +52,23 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
         return combinedInvWrapper;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
         if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
+            return switch (Objects.requireNonNull(pDirection)) {
+                case UP, WEST -> lazyInputHandler.cast();
+                case DOWN, EAST -> lazyOutputHandler.cast();
+                default -> super.getCapability(pCapability, pDirection);
+            };
         }
         return super.getCapability(pCapability, pDirection);
     }
 
     @Override
     public void invalidateCaps() {
-        lazyItemHandler.invalidate();
+        lazyInputHandler.invalidate();
+        lazyOutputHandler.invalidate();
         super.invalidateCaps();
     }
 

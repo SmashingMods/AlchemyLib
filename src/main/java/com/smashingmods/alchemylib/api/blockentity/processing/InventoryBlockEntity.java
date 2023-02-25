@@ -44,12 +44,13 @@ public interface InventoryBlockEntity {
     ProcessingSlotHandler getOutputHandler();
 
     /**
-     * Implementers will need to create a CombinedInvWrapper field of the input and output handlers. This makes automation
-     * easier by returning the combined inventory in {@link net.minecraftforge.common.extensions.IForgeBlockEntity#getCapability(Capability, Direction) IForgeBlockEntity#getCapability(Capability, Direction)}.
+     * Implementers will need to create a CombinedInvWrapper field of the input and output handlers. This is used in {@link InventoryBlockEntity#dropContents(Level, BlockPos)}
+     * to drop the contents of the input and output handlers.
      *
      * @return {@link CombinedInvWrapper}
      *
-     * @see AbstractInventoryBlockEntity#lazyItemHandler
+     * @see AbstractInventoryBlockEntity#lazyInputHandler
+     * @see AbstractInventoryBlockEntity#lazyOutputHandler
      * @see AbstractInventoryBlockEntity#getCapability(Capability, Direction)
      */
     CombinedInvWrapper getCombinedInvWrapper();
