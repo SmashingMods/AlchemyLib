@@ -1,6 +1,8 @@
 package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
+import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -21,9 +23,7 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
 
     private final ProcessingSlotHandler inputHandler = initializeInputHandler();
     private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
-    private final LazyOptional<IItemHandler> lazyInputHandler = LazyOptional.of(() -> inputHandler);
-    private final LazyOptional<IItemHandler> lazyOutputHandler = LazyOptional.of(() -> outputHandler);
-    private final CombinedInvWrapper combinedInvWrapper = new CombinedInvWrapper(inputHandler, outputHandler);
+    private final SidedProcessingSlotWrapper combinedHandler = new SidedProcessingSlotWrapper(inputHandler, outputHandler);
 
     public AbstractInventoryBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pModId, pBlockEntityType, pWorldPosition, pBlockState);
@@ -48,27 +48,22 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
     }
 
     @Override
-    public CombinedInvWrapper getCombinedInvWrapper() {
-        return combinedInvWrapper;
+    public SidedProcessingSlotWrapper getCombinedSlotHandler() {
+        return combinedHandler;
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
         if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
-            return switch (Objects.requireNonNull(pDirection)) {
-                case UP, WEST -> lazyInputHandler.cast();
-                case DOWN, EAST -> lazyOutputHandler.cast();
-                default -> super.getCapability(pCapability, pDirection);
-            };
+            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
         }
         return super.getCapability(pCapability, pDirection);
     }
 
     @Override
     public void invalidateCaps() {
-        lazyInputHandler.invalidate();
-        lazyOutputHandler.invalidate();
+        combinedHandler.invalidate();
         super.invalidateCaps();
     }
 
@@ -76,6 +71,7 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
     protected void saveAdditional(CompoundTag pTag) {
         pTag.put("input", inputHandler.serializeNBT());
         pTag.put("output", outputHandler.serializeNBT());
+        pTag.putShort("sides", combinedHandler.sideModesToShort());
         super.saveAdditional(pTag);
     }
 
@@ -84,5 +80,10 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
         super.load(pTag);
         inputHandler.deserializeNBT(pTag.getCompound("input"));
         outputHandler.deserializeNBT(pTag.getCompound("output"));
+        if (pTag.contains("sides")) {
+            combinedHandler.setSideModesFromShort(pTag.getShort("sides"));
+        } else {
+            combinedHandler.setSideModesFromShort(SidedProcessingSlotWrapper.LEGACY_SIDES_CONFIGURATION);
+        }
     }
 }

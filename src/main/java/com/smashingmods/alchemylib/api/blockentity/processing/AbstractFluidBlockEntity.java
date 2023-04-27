@@ -2,6 +2,8 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.api.storage.FluidStorageHandler;
 import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
+import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -30,9 +32,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     private final ProcessingSlotHandler inputHandler = initializeInputHandler();
     private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
-    private final LazyOptional<IItemHandler> lazyInputHandler = LazyOptional.of(() -> inputHandler);
-    private final LazyOptional<IItemHandler> lazyOutputHandler = LazyOptional.of(() -> outputHandler);
-    private final CombinedInvWrapper combinedInvWrapper = new CombinedInvWrapper(inputHandler, outputHandler);
+    private final SidedProcessingSlotWrapper combinedHandler = new SidedProcessingSlotWrapper(inputHandler, outputHandler);
 
     public AbstractFluidBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pModId, pBlockEntityType, pWorldPosition, pBlockState);
@@ -62,19 +62,15 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     }
 
     @Override
-    public CombinedInvWrapper getCombinedInvWrapper() {
-        return combinedInvWrapper;
+    public SidedProcessingSlotWrapper getCombinedSlotHandler() {
+        return combinedHandler;
     }
 
-    @Override
     @Nonnull
+    @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
         if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
-            return switch (Objects.requireNonNull(pDirection)) {
-                case UP, WEST -> lazyInputHandler.cast();
-                case DOWN, EAST -> lazyOutputHandler.cast();
-                default -> super.getCapability(pCapability, pDirection);
-            };
+            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
         } else if (pCapability == ForgeCapabilities.FLUID_HANDLER) {
             return lazyFluidHandler.cast();
         }
@@ -83,10 +79,9 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     @Override
     public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyInputHandler.invalidate();
-        lazyOutputHandler.invalidate();
+        combinedHandler.invalidate();
         lazyFluidHandler.invalidate();
+        super.invalidateCaps();
     }
 
     @Override
@@ -99,6 +94,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
         pTag.put("input", inputHandler.serializeNBT());
         pTag.put("output", outputHandler.serializeNBT());
         pTag.put("fluid", fluidStorage.writeToNBT(new CompoundTag()));
+        pTag.putShort("sides", combinedHandler.sideModesToShort());
         super.saveAdditional(pTag);
     }
 
@@ -108,6 +104,11 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
         inputHandler.deserializeNBT(pTag.getCompound("input"));
         outputHandler.deserializeNBT(pTag.getCompound("output"));
         fluidStorage.readFromNBT(pTag.getCompound("fluid"));
+        if (pTag.contains("sides")) {
+            combinedHandler.setSideModesFromShort(pTag.getShort("sides"));
+        } else {
+            combinedHandler.setSideModesFromShort(SidedProcessingSlotWrapper.LEGACY_SIDES_CONFIGURATION);
+        }
     }
 
     public boolean onBlockActivated(Level pLevel, BlockPos pBlockPos, Player pPlayer, InteractionHand pHand) {
