@@ -8,6 +8,6 @@ public class DataGenerators {
     public static void gatherData(GatherDataEvent pEvent) {
         DataGenerator generator = pEvent.getGenerator();
 
-        generator.addProvider(pEvent.includeServer(), new LocalizationGenerator(generator.getPackOutput(), "en_us"));
+        generator.addProvider(pEvent.includeServer(), new LocalizationGenerator(generator.getPackOutput()));
     }
 }
