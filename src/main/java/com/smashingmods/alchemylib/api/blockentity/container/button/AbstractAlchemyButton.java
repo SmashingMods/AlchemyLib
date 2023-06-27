@@ -45,7 +45,7 @@ public abstract class AbstractAlchemyButton extends Button {
      * @param pOnPress {@link Button#onPress} the callback method to be executed when the button is pressed.
      */
     public AbstractAlchemyButton(int pX, int pY, int pWidth, int pHeight, MutableComponent pComponent, AbstractProcessingScreen<?> pParent, Button.OnPress pOnPress) {
-        super(pX, pY, pWidth, pHeight, pComponent, pOnPress);
+        super(pX, pY, pWidth, pHeight, pComponent, pOnPress, DEFAULT_NARRATION);
         this.parent = pParent;
         this.blockEntity = pParent.getBlockEntity();
     }
@@ -70,7 +70,7 @@ public abstract class AbstractAlchemyButton extends Button {
      * Renders the button's tooltip defined in its constructor to the parent screen.
      */
     public void renderButtonTooltip(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY) {
-        if (pMouseX >= x && pMouseX <= x + width && pMouseY >= y && pMouseY <= y + height) {
+        if (pMouseX >= getX() && pMouseX <= getX() + width && pMouseY >= getY() && pMouseY <= getY() + height) {
             parent.renderTooltip(pPoseStack, getMessage(), pMouseX, pMouseY);
         }
     }

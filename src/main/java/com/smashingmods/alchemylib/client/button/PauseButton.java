@@ -25,7 +25,7 @@ public class PauseButton extends AbstractAlchemyButton {
     @Override
     public void renderButton(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        blit(pPoseStack, x, y, 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
+        blit(pPoseStack, getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
         renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
     }
 

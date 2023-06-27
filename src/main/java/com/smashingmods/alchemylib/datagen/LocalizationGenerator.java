@@ -1,13 +1,13 @@
 package com.smashingmods.alchemylib.datagen;
 
 import com.smashingmods.alchemylib.AlchemyLib;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class LocalizationGenerator extends LanguageProvider {
 
-    public LocalizationGenerator(DataGenerator pGenerator, String pLocale) {
-        super(pGenerator, AlchemyLib.MODID, pLocale);
+    public LocalizationGenerator(PackOutput pOutput) {
+        super(pOutput, AlchemyLib.MODID, "en_us");
     }
 
     @Override

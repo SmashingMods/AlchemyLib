@@ -25,7 +25,7 @@ public class LockButton extends AbstractAlchemyButton {
     @Override
     public void renderButton(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        blit(pPoseStack, x, y, 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
+        blit(pPoseStack, getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
         renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
     }
 

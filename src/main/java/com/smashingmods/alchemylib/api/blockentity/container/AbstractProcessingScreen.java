@@ -7,7 +7,7 @@ import com.smashingmods.alchemylib.api.blockentity.container.data.*;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -341,7 +341,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *  <p>Extenders of {@link AbstractWidget} can have their X/Y screen positions set while other types of widgets might
      *  handle positioning differently.</p>
      *
-     * @param pWidget Extends {@link GuiEventListener} & {@link Widget} & {@link NarratableEntry}
+     * @param pWidget Extends {@link GuiEventListener} & {@link Renderable} & {@link NarratableEntry}
      * @param pX Integer for X position on the screen.
      * @param pY Integer for Y position on the screen.
      * @param <W> extends GuiEventListener & Widget & NarratableEntry
@@ -349,11 +349,11 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      * @see AbstractWidget
      * @see com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton AbstractAlchemyButton
      */
-    public <W extends GuiEventListener & Widget & NarratableEntry> void renderWidget(W pWidget, int pX, int pY) {
+    public <W extends GuiEventListener & Renderable & NarratableEntry> void renderWidget(W pWidget, int pX, int pY) {
         if (!renderables.contains(pWidget)) {
             if (pWidget instanceof AbstractWidget widget) {
-                widget.x = pX;
-                widget.y = pY;
+                widget.setX(pX);
+                widget.setY(pY);
             }
             addRenderableWidget(pWidget);
         }

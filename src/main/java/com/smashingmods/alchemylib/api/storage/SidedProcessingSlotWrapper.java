@@ -1,16 +1,13 @@
 package com.smashingmods.alchemylib.api.storage;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 
 /**
  * A wrapper around two {@link ProcessingSlotHandler} instances that can be used for
@@ -20,14 +17,12 @@ import net.minecraftforge.items.ItemStackHandler;
  * the insertion of items into output slots as per {@link IItemHandler#insertItem(int, net.minecraft.world.item.ItemStack, boolean)}
  * and similarly won't allow the extraction in input slots.
  *
- * <p>TThe {@link SideMode} of each side can be configured through {@link #setSideMode(Direction, SideMode)}
- *
- * <p>If direct, unfiltered, access is required {@link #getDelegate()} can be used.
+ * <p>The {@link SideMode} of each side can be configured through {@link #setSideMode(Direction, SideMode)}
  *
  * <p>The amount of slots of the input and output handler should not change throughout runtime as the slot
  * IDs of the output handler are added ontop of the slot IDs of the input handler in order to combine both item handlers.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ConstantConditions"})
 public class SidedProcessingSlotWrapper {
     public static final int LEGACY_SIDES_CONFIGURATION = SideMode.PULL.ordinal() << (Direction.UP.ordinal() * 2)
             | SideMode.PULL.ordinal() << (Direction.WEST.ordinal() * 2)
@@ -43,7 +38,7 @@ public class SidedProcessingSlotWrapper {
     private class SidedItemHandlerView implements IItemHandlerModifiable {
         private final Direction side;
 
-        public SidedItemHandlerView(Direction side) {
+        public SidedItemHandlerView(@Nullable Direction side) {
             this.side = side;
         }
 
@@ -53,6 +48,7 @@ public class SidedProcessingSlotWrapper {
         }
 
         @Override
+        @Nonnull
         public ItemStack getStackInSlot(int slot) {
             if (slot < inputHandler.getSlots()) {
                 return inputHandler.getStackInSlot(slot);
@@ -62,6 +58,7 @@ public class SidedProcessingSlotWrapper {
         }
 
         @Override
+        @Nonnull
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (!getSideMode(side).isPullEnabled() || slot >= inputHandler.getSlots()) {
                 return stack;
@@ -70,6 +67,7 @@ public class SidedProcessingSlotWrapper {
         }
 
         @Override
+        @Nonnull
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             if (!getSideMode(side).isPushEnabled() || slot < inputHandler.getSlots()) {
                 return ItemStack.EMPTY;

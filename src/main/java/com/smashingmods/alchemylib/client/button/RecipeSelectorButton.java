@@ -34,7 +34,7 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
             int u = open ? 25 : 45;
             int v = open ? 80 : 60;
 
-            blit(pPoseStack, x, y, u, v, width, height);
+            blit(pPoseStack, getX(), getY(), u, v, width, height);
             renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
     }
 

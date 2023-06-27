@@ -10,7 +10,6 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 
 /**
  * Attach optional input and output handler inventories to a {@link AbstractProcessingBlockEntity}.
@@ -52,8 +51,6 @@ public interface InventoryBlockEntity {
      *
      * @return {@link SidedProcessingSlotWrapper}
      *
-     * @see AbstractInventoryBlockEntity#lazyInputHandler
-     * @see AbstractInventoryBlockEntity#lazyOutputHandler
      * @see AbstractInventoryBlockEntity#getCapability(Capability, Direction)
      */
     SidedProcessingSlotWrapper getCombinedSlotHandler();

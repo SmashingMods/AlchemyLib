@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[43,)"
+loaderVersion="[44,)"
 license="LGPLv2.1"
 issueTrackerURL="https://github.com/smashingmods/alchemylib/issues"
 
@@ -16,20 +16,20 @@ AlchemyLib is a library mod for ChemLib addon mods such as Alchemistry and Teche
 [[dependencies.alchemylib]]
 modId="forge"
 mandatory=true
-versionRange="[43.1.0,)"
+versionRange="[44.1.0,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.alchemylib]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.19.2,)"
+versionRange="[1.19.3,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.alchemylib]]
 modId="chemlib"
 mandatory=true
-versionRange="[1.19.2-2.0.13,)"
+versionRange="[1.19.3-2.0.17,)"
 ordering="NONE"
 side="BOTH"
