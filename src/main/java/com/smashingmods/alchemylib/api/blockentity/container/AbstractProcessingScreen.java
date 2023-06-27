@@ -341,10 +341,10 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *  <p>Extenders of {@link AbstractWidget} can have their X/Y screen positions set while other types of widgets might
      *  handle positioning differently.</p>
      *
-     * @param pWidget Extends {@link GuiEventListener} & {@link Renderable} & {@link NarratableEntry}
+     * @param pWidget Extends {@link GuiEventListener} &amp; {@link Renderable} &amp; {@link NarratableEntry}
      * @param pX Integer for X position on the screen.
      * @param pY Integer for Y position on the screen.
-     * @param <W> extends GuiEventListener & Widget & NarratableEntry
+     * @param <W> extends GuiEventListener &amp; Widget &amp; NarratableEntry
      *
      * @see AbstractWidget
      * @see com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton AbstractAlchemyButton
