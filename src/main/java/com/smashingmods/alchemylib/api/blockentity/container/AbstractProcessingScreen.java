@@ -263,7 +263,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      */
     public void directionalArrow(PoseStack pPoseStack, int pX, int pY, ProgressDisplayData pData) {
         int uOffset = 0;
-        int vOffset = 100;
+        int vOffset = 99;
         int width = 0;
         int height = 0;
         switch (pData.getDirection()) {
