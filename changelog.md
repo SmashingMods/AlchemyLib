@@ -1,4 +1,4 @@
-# AlchemyLib 1.19.3-1.0.22 RELEASE
+# AlchemyLib 1.19.4-1.0.22 RELEASE
 
 Changes:
-- Fix uo offset misalignment for progress arrows.
+- Port to 1.19.4.

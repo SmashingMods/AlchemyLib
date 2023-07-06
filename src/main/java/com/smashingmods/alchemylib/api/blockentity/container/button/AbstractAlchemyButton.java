@@ -55,7 +55,7 @@ public abstract class AbstractAlchemyButton extends Button {
      * Sets up the widgets texture and prepares the RenderSystem for rendering the button texture to the screen.
      */
     @Override
-    public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void renderWidget(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         ResourceLocation buttonTexture = new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png");
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

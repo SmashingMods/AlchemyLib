@@ -1,5 +1,6 @@
 package com.smashingmods.alchemylib.api.recipe;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +45,7 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      * crafting ignores this in favor of handling this logic within block entities.
      */
     @Override
-    public ItemStack assemble(Inventory pContainer) {
+    public ItemStack assemble(Inventory pContainer, RegistryAccess pRegistryAccess) {
         return ItemStack.EMPTY;
     }
 
@@ -53,7 +54,7 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      * an empty ItemStack. If your implementing class does return an ItemStack, override this.
      */
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess pRegistryAccess) {
         return ItemStack.EMPTY;
     }
 

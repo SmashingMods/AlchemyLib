@@ -37,6 +37,6 @@ public class ProgressDisplayData extends AbstractDisplayData {
 
     @Override
     public MutableComponent toTextComponent() {
-        return MutableComponent.create(new TranslatableContents("alchemylib.container.show_recipes"));
+        return MutableComponent.create(new TranslatableContents("alchemylib.container.show_recipes", null, TranslatableContents.NO_ARGS));
     }
 }

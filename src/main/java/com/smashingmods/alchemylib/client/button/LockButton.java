@@ -23,14 +23,14 @@ public class LockButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public void renderButton(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderWidget(pPoseStack, pMouseX, pMouseY, pPartialTick);
         blit(pPoseStack, getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
         renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isRecipeLocked() ? MutableComponent.create(new TranslatableContents("alchemylib.container.unlock_recipe")) : MutableComponent.create(new TranslatableContents("alchemylib.container.lock_recipe"));
+        return blockEntity.isRecipeLocked() ? MutableComponent.create(new TranslatableContents("alchemylib.container.unlock_recipe", null, TranslatableContents.NO_ARGS)) : MutableComponent.create(new TranslatableContents("alchemylib.container.lock_recipe", null, TranslatableContents.NO_ARGS));
     }
 }

@@ -23,14 +23,14 @@ public class PauseButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public void renderButton(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderWidget(pPoseStack, pMouseX, pMouseY, pPartialTick);
         blit(pPoseStack, getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
         renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isProcessingPaused() ? MutableComponent.create(new TranslatableContents("alchemylib.container.resume")) : MutableComponent.create(new TranslatableContents("alchemylib.container.pause"));
+        return blockEntity.isProcessingPaused() ? MutableComponent.create(new TranslatableContents("alchemylib.container.resume", null, TranslatableContents.NO_ARGS)) : MutableComponent.create(new TranslatableContents("alchemylib.container.pause", null, TranslatableContents.NO_ARGS));
     }
 }

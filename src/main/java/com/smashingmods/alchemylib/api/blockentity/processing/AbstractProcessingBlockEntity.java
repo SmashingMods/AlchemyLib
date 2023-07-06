@@ -41,7 +41,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
 
     public AbstractProcessingBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pBlockEntityType, pWorldPosition, pBlockState);
-        this.name = MutableComponent.create(new TranslatableContents(String.format("%s.container.%s", pModId, ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(getType()))));
+        this.name = MutableComponent.create(new TranslatableContents(String.format("%s.container.%s", pModId, ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(getType())), null, TranslatableContents.NO_ARGS));
     }
 
     @Override
