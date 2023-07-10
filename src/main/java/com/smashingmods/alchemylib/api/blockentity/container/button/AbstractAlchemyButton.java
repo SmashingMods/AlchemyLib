@@ -1,17 +1,15 @@
 package com.smashingmods.alchemylib.api.blockentity.container.button;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.LiteralContents;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Extend this class to make a Button to render to the screen using {@link AbstractProcessingScreen}.
@@ -51,27 +49,11 @@ public abstract class AbstractAlchemyButton extends Button {
     }
 
     /**
-     * This method should be overridden by extending classes and call super.renderButton().
-     * Sets up the widgets texture and prepares the RenderSystem for rendering the button texture to the screen.
-     */
-    @Override
-    public void renderWidget(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        ResourceLocation buttonTexture = new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png");
-
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, buttonTexture);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-    }
-
-    /**
      * Renders the button's tooltip defined in its constructor to the parent screen.
      */
-    public void renderButtonTooltip(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY) {
+    public void renderButtonTooltip(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
         if (pMouseX >= getX() && pMouseX <= getX() + width && pMouseY >= getY() && pMouseY <= getY() + height) {
-            parent.renderTooltip(pPoseStack, getMessage(), pMouseX, pMouseY);
+            pGuiGraphics.renderComponentTooltip(Minecraft.getInstance().font, List.of(getMessage()), pMouseX, pMouseY);
         }
     }
 }

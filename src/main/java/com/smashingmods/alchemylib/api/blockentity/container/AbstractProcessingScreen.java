@@ -6,6 +6,7 @@ import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.data.*;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -23,7 +24,6 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.smashingmods.alchemylib.api.blockentity.container.Direction2D.*;
 
@@ -61,10 +61,10 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      * which is set up by extenders, and renders all widgets added to the widgets field.
      */
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(pPoseStack);
-        renderBg(pPoseStack, pPartialTick, pMouseX, pMouseY);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        renderBackground(pGuiGraphics);
+        renderBg(pGuiGraphics, pPartialTick, pMouseX, pMouseY);
+        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
         for (int index = 0; index < widgets.size(); index++) {
             renderWidget(widgets.get(index), leftPos - 24, topPos + (index * 24));
@@ -78,7 +78,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *
      * @param pData {@link FluidDisplayData}
      *
-     * @see AbstractProcessingScreen#renderDisplayData(List, PoseStack, int, int)
+     * @see AbstractProcessingScreen#renderDisplayData(List, GuiGraphics, int, int)
      */
     public void drawFluidTank(FluidDisplayData pData) {
         if (pData.getValue() > 0) {
@@ -189,17 +189,17 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *
      * @param pData {@link EnergyDisplayData}
      */
-    public void drawEnergyBar(PoseStack pPoseStack, EnergyDisplayData pData) {
+    public void drawEnergyBar(GuiGraphics pGuiGraphics, EnergyDisplayData pData) {
         int x = pData.getX() + (this.width - this.imageWidth) / 2;
         int y = pData.getY() + (this.height - this.imageHeight) / 2;
-        directionalBlit(pPoseStack, x, y + pData.getHeight(), 0, 0, pData.getWidth(), pData.getHeight(), pData.getValue(), pData.getMaxValue(), UP, true);
+        directionalBlit(pGuiGraphics, x, y + pData.getHeight(), 0, 0, pData.getWidth(), pData.getHeight(), pData.getValue(), pData.getMaxValue(), UP, true);
     }
 
     /**
      * Overload for directionalBlit with scale offset set to false.
      */
-    private void directionalBlit(PoseStack pPoseStack, int pX, int pY, int pUOffset, int pVOffset, int pU, int pV, int pValue, int pMaxValue, Direction2D pDirection2D) {
-        directionalBlit(pPoseStack, pX, pY, pUOffset, pVOffset, pU, pV, pValue, pMaxValue, pDirection2D, false);
+    private void directionalBlit(GuiGraphics pGuiGraphics, int pX, int pY, int pUOffset, int pVOffset, int pU, int pV, int pValue, int pMaxValue, Direction2D pDirection2D) {
+        directionalBlit(pGuiGraphics, pX, pY, pUOffset, pVOffset, pU, pV, pValue, pMaxValue, pDirection2D, false);
     }
 
     /**
@@ -220,7 +220,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *                     it's low on energy, it will be redder. The actual texture covers the entire spectrum and this value
      *                     is changing where on the texture is being rendered to the screen.
      */
-    private void directionalBlit(PoseStack pPoseStack, int pX, int pY, int pUOffset, int pVOffset, int pU, int pV, int pValue, int pMaxValue, Direction2D pDirection2D, boolean pScaleOffset) {
+    private void directionalBlit(GuiGraphics pGuiGraphics, int pX, int pY, int pUOffset, int pVOffset, int pU, int pV, int pValue, int pMaxValue, Direction2D pDirection2D, boolean pScaleOffset) {
 
         int x = pX;
         int y = pY;
@@ -250,8 +250,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
             }
             case DOWN -> vHeight = pVScaled;
         }
-        RenderSystem.setShaderTexture(0, new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"));
-        blit(pPoseStack, x, y, uOffset, vOffset, uWidth, vHeight);
+        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), x, y, uOffset, vOffset, uWidth, vHeight);
     }
 
     /**
@@ -261,7 +260,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *
      * @param pData {@link ProgressDisplayData}
      */
-    public void directionalArrow(PoseStack pPoseStack, int pX, int pY, ProgressDisplayData pData) {
+    public void directionalArrow(GuiGraphics pGuiGraphics, int pX, int pY, ProgressDisplayData pData) {
         int uOffset = 0;
         int vOffset = 99;
         int width = 0;
@@ -288,19 +287,19 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
                 width = 30;
             }
         }
-        directionalBlit(pPoseStack, pX + pData.getX(), pY + pData.getY(), uOffset, vOffset, height, width, pData.getValue(), pData.getMaxValue(), pData.getDirection());
+        directionalBlit(pGuiGraphics, pX + pData.getX(), pY + pData.getY(), uOffset, vOffset, height, width, pData.getValue(), pData.getMaxValue(), pData.getDirection());
     }
 
     /**
      * Calls the relevant rendering method depending on the type of {@link AbstractDisplayData}.
      */
-    public void renderDisplayData(List<AbstractDisplayData> pDisplayData, PoseStack pPoseStack, int pX, int pY) {
+    public void renderDisplayData(List<AbstractDisplayData> pDisplayData, GuiGraphics pGuiGraphics, int pX, int pY) {
         pDisplayData.forEach(data -> {
             if (data instanceof ProgressDisplayData progressData) {
-                directionalArrow(pPoseStack, pX, pY, progressData);
+                directionalArrow(pGuiGraphics, pX, pY, progressData);
             }
             if (data instanceof EnergyDisplayData energyData) {
-                drawEnergyBar(pPoseStack, energyData);
+                drawEnergyBar(pGuiGraphics, energyData);
             }
             if (data instanceof FluidDisplayData fluidData) {
                 drawFluidTank(fluidData);
@@ -312,7 +311,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      * Tests the location of the mouse position against the X/Y positions of all display data objects held by this screen
      * to render a tooltip calling {@link DisplayData#toTextComponent()}.
      */
-    public void renderDisplayTooltip(List<AbstractDisplayData> pDisplayData, PoseStack pPoseStack, int pX, int pY, int pMouseX, int pMouseY) {
+    public void renderDisplayTooltip(List<AbstractDisplayData> pDisplayData, GuiGraphics pGuiGraphics, int pX, int pY, int pMouseX, int pMouseY) {
         pDisplayData.stream().filter(data ->
                 pMouseX >= data.getX() + pX &&
                         pMouseX <= data.getX() + pX + data.getWidth() &&
@@ -320,7 +319,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
                         pMouseY <= data.getY() + pY + data.getHeight()
         ).forEach(data -> {
             if (!(data instanceof ProgressDisplayData)) {
-                renderTooltip(pPoseStack, data.toTextComponent(), pMouseX, pMouseY);
+                pGuiGraphics.renderComponentTooltip(Minecraft.getInstance().font, List.of(data.toTextComponent()), pMouseX, pMouseY);
             }
         });
     }
@@ -329,8 +328,8 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      * Helper method that calls {@link RecipeDisplayUtil#getItemTooltipComponent(ItemStack, MutableComponent)} for a given ItemStack
      * and MutableComponent to render to the screen.
      */
-    public void renderItemTooltip(PoseStack pPoseStack, ItemStack pItemStack, MutableComponent pComponent, int pMouseX, int pMouseY) {
-        renderTooltip(pPoseStack, RecipeDisplayUtil.getItemTooltipComponent(pItemStack, pComponent), Optional.empty(), pMouseX, pMouseY);
+    public void renderItemTooltip(GuiGraphics pGuiGraphics, ItemStack pItemStack, MutableComponent pComponent, int pMouseX, int pMouseY) {
+        pGuiGraphics.renderComponentTooltip(Minecraft.getInstance().font, RecipeDisplayUtil.getItemTooltipComponent(pItemStack, pComponent), pMouseX, pMouseY);
     }
 
     /**

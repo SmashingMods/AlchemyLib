@@ -1,12 +1,13 @@
 package com.smashingmods.alchemylib.client.button;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
 import com.smashingmods.alchemylib.common.network.ToggleLockButtonPacket;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
@@ -23,10 +24,10 @@ public class LockButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public void renderWidget(@Nonnull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderWidget(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        blit(pPoseStack, getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
-        renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
+    public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
+        renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override

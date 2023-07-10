@@ -32,7 +32,7 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
         this.inputSlots = pInputSlots;
         this.outputSlots = pOutputSlots;
         this.blockEntity = ((AbstractProcessingBlockEntity) pBlockEntity);
-        this.level = pInventory.player.level;
+        this.level = pInventory.player.level();
 
         addPlayerInventorySlots(pInventory);
     }

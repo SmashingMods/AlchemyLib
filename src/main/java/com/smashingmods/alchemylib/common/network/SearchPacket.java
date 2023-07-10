@@ -31,7 +31,7 @@ public class SearchPacket implements AlchemyPacket {
     public void handle(NetworkEvent.Context pContext) {
         Player player = pContext.getSender();
         if (player != null) {
-            AbstractSearchableBlockEntity blockEntity = (AbstractSearchableBlockEntity) player.level.getBlockEntity(blockPos);
+            AbstractSearchableBlockEntity blockEntity = (AbstractSearchableBlockEntity) player.level().getBlockEntity(blockPos);
 
             if (blockEntity != null) {
                 blockEntity.setSearchText(searchText);

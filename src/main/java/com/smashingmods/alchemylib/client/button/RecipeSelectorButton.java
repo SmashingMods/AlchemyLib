@@ -1,13 +1,15 @@
 package com.smashingmods.alchemylib.client.button;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
 import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 
 @SuppressWarnings({"unused", "UnstableApiUsage"})
@@ -28,14 +30,14 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
     }
 
     @Override
-    public void renderWidget(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-            super.renderWidget(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+            super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
             boolean open = ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen();
             int u = open ? 25 : 45;
             int v = open ? 80 : 60;
 
-            blit(pPoseStack, getX(), getY(), u, v, width, height);
-            renderButtonTooltip(pPoseStack, pMouseX, pMouseY);
+            pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+            renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override

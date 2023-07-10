@@ -30,7 +30,7 @@ public class ToggleLockButtonPacket implements AlchemyPacket {
     public void handle(NetworkEvent.Context pContext) {
         Player player = pContext.getSender();
         if (player != null) {
-            AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level.getBlockEntity(blockPos);
+            AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level().getBlockEntity(blockPos);
 
             if (blockEntity != null) {
                 blockEntity.setRecipeLocked(locked);
