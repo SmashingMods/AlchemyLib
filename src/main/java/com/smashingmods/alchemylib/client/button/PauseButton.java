@@ -25,7 +25,6 @@ public class PauseButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }

@@ -16,11 +16,11 @@ public class LockButton extends AbstractAlchemyButton {
 
     public LockButton(AbstractProcessingScreen<?> pParent) {
         super(pParent, pButton -> {
-                    boolean toggleLock = !pParent.getBlockEntity().isRecipeLocked();
-                    pParent.getBlockEntity().setRecipeLocked(toggleLock);
-                    pParent.getBlockEntity().setChanged();
-                    AlchemyLib.getPacketHandler().sendToServer(new ToggleLockButtonPacket(pParent.getBlockEntity().getBlockPos(), toggleLock));
-                });
+            boolean toggleLock = !pParent.getBlockEntity().isRecipeLocked();
+            pParent.getBlockEntity().setRecipeLocked(toggleLock);
+            pParent.getBlockEntity().setChanged();
+            AlchemyLib.getPacketHandler().sendToServer(new ToggleLockButtonPacket(pParent.getBlockEntity().getBlockPos(), toggleLock));
+        });
     }
 
     @Override
