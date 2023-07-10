@@ -25,13 +25,15 @@ public class LockButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isRecipeLocked() ? MutableComponent.create(new TranslatableContents("alchemylib.container.unlock_recipe", null, TranslatableContents.NO_ARGS)) : MutableComponent.create(new TranslatableContents("alchemylib.container.lock_recipe", null, TranslatableContents.NO_ARGS));
+        return blockEntity.isRecipeLocked() ?
+                MutableComponent.create(new TranslatableContents("alchemylib.container.unlock_recipe", "Unlock recipe", TranslatableContents.NO_ARGS))
+                :
+                MutableComponent.create(new TranslatableContents("alchemylib.container.lock_recipe", "Lock recipe", TranslatableContents.NO_ARGS));
     }
 }

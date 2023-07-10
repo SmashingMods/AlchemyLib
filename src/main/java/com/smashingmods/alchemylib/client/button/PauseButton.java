@@ -32,6 +32,9 @@ public class PauseButton extends AbstractAlchemyButton {
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isProcessingPaused() ? MutableComponent.create(new TranslatableContents("alchemylib.container.resume", null, TranslatableContents.NO_ARGS)) : MutableComponent.create(new TranslatableContents("alchemylib.container.pause", null, TranslatableContents.NO_ARGS));
+        return blockEntity.isProcessingPaused() ?
+                MutableComponent.create(new TranslatableContents("alchemylib.container.resume", "Resume", TranslatableContents.NO_ARGS))
+                :
+                MutableComponent.create(new TranslatableContents("alchemylib.container.pause", "Pause", TranslatableContents.NO_ARGS));
     }
 }

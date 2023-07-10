@@ -31,7 +31,6 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-            super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
             boolean open = ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen();
             int u = open ? 25 : 45;
             int v = open ? 80 : 60;
@@ -42,6 +41,9 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     @Override
     public MutableComponent getMessage() {
-        return ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen() ? MutableComponent.create(new TranslatableContents("alchemylib.container.close_recipe_select", null, TranslatableContents.NO_ARGS)) : MutableComponent.create(new TranslatableContents("alchemylib.container.open_recipe_select", null, TranslatableContents.NO_ARGS));
+        return ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen() ?
+                MutableComponent.create(new TranslatableContents("alchemylib.container.close_recipe_select", "Close Recipe Selection", TranslatableContents.NO_ARGS))
+                :
+                MutableComponent.create(new TranslatableContents("alchemylib.container.open_recipe_select", "Open Recipe Selection", TranslatableContents.NO_ARGS));
     }
 }
