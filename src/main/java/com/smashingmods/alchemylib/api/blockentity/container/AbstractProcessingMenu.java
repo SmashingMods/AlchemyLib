@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /**
  * This abstract class extends {@link AbstractContainerMenu} by adding overrides for mod support. It also provides
  * a number of helper methods for adding slots to the container menu.
- * 
+ *
  */
 @SuppressWarnings("unused")
 public abstract class AbstractProcessingMenu extends AbstractContainerMenu {

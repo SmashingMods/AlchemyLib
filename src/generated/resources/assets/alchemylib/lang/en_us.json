@@ -4,5 +4,6 @@
   "alchemylib.container.open_recipe_select": "Open Recipe Selection",
   "alchemylib.container.pause": "Pause",
   "alchemylib.container.resume": "Resume",
+  "alchemylib.container.show_recipes": "Show Recipes",
   "alchemylib.container.unlock_recipe": "Unlock recipe"
 }

@@ -1,31 +1,17 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-    }
-}
-
 plugins {
+    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'maven-publish'
     id 'java'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'maven-publish'
-
 version = "$minecraft_version-$mod_version"
 group = 'com.smashingmods'
-archivesBaseName = 'alchemylib'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 java {
+    archivesBaseName = 'alchemylib'
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
     withSourcesJar()
 }
 
@@ -98,8 +84,6 @@ minecraft {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 repositories {
     maven { url "https://maven.tamaized.com/releases" }
 }
@@ -142,9 +126,6 @@ fileTree("secrets").matching {
         }
 }
 
-jar.finalizedBy('reobfJar')
-sourcesJar.finalizedBy('reobfJar')
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -176,7 +157,7 @@ curseforge {
         changelog = file("changelog.md")
         addGameVersion 'Forge'
         addGameVersion 'Java 17'
-        addGameVersion '1.18.2'
+        addGameVersion '1.19.2'
         mainArtifact(jar) {
             displayName = "AlchemyLib - $project.version"
             relations {
@@ -185,6 +166,10 @@ curseforge {
         }
     }
 }
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+jar.finalizedBy('reobfJar')
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

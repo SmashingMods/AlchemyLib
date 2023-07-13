@@ -35,6 +35,6 @@ public class EnergyDisplayData extends AbstractDisplayData {
         NumberFormat numFormat = NumberFormat.getInstance(Locale.US);
         String stored = numFormat.format(getValue());
         String capacity = numFormat.format(getMaxValue());
-        return stored + "/" + capacity + " FE";
+        return String.format("%s/%s FE", stored, capacity);
     }
 }
