@@ -13,16 +13,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import net.minecraftforge.items.CapabilityItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 @SuppressWarnings("unused")
 public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEntity implements FluidBlockEntity, InventoryBlockEntity {
@@ -69,9 +67,9 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
+        if (pCapability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        } else if (pCapability == ForgeCapabilities.FLUID_HANDLER) {
+        } else if (pCapability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return lazyFluidHandler.cast();
         }
         return super.getCapability(pCapability, pDirection);
@@ -80,7 +78,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
-        lazyItemHandler.invalidate();
+        combinedHandler.invalidate();
         lazyFluidHandler.invalidate();
     }
 

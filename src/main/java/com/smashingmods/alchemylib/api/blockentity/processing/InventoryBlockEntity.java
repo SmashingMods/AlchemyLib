@@ -1,13 +1,14 @@
 package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
+import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.items.wrapper.CombinedInvWrapper;
+import net.minecraftforge.items.IItemHandler;
 
 /**
  * Attach optional input and output handler inventories to a {@link AbstractProcessingBlockEntity}.
@@ -44,16 +45,16 @@ public interface InventoryBlockEntity {
     ProcessingSlotHandler getOutputHandler();
 
     /**
-     * Implementers will need to create a CombinedInvWrapper field of the input and output handlers. This makes automation
-     * easier by returning the combined inventory in {@link net.minecraftforge.common.extensions.IForgeBlockEntity#getCapability(Capability, Direction) IForgeBlockEntity#getCapability(Capability, Direction)}.
+     * Implementers will need to create a CombinedInvWrapper field of the input and output handlers. This is used in {@link InventoryBlockEntity#dropContents(Level, BlockPos)}
+     * to drop the contents of the input and output handlers.
      *
-     * @return {@link CombinedInvWrapper}
+     * @return {@link SidedProcessingSlotWrapper}
      *
-     * @see AbstractInventoryBlockEntity#lazyItemHandler
+     * @see AbstractInventoryBlockEntity#getInputHandler()
+     * @see AbstractInventoryBlockEntity#getOutputHandler()
      * @see AbstractInventoryBlockEntity#getCapability(Capability, Direction)
      */
-    @SuppressWarnings("JavadocReference")
-    CombinedInvWrapper getCombinedInvWrapper();
+    SidedProcessingSlotWrapper getCombinedSlotHandler();
 
     /**
      * When the block entity is broken, drop the contents held in all the handlers into the world so that the
@@ -66,9 +67,10 @@ public interface InventoryBlockEntity {
      */
     default void dropContents(Level pLevel, BlockPos pPos) {
         if (!pLevel.isClientSide()) {
-            SimpleContainer container = new SimpleContainer(getCombinedInvWrapper().getSlots());
-            for (int i = 0; i < getCombinedInvWrapper().getSlots(); i++) {
-                container.setItem(i, getCombinedInvWrapper().getStackInSlot(i));
+            IItemHandler combinedHandler = getCombinedSlotHandler().getView(null);
+            SimpleContainer container = new SimpleContainer(combinedHandler.getSlots());
+            for (int i = 0; i < combinedHandler.getSlots(); i++) {
+                container.setItem(i, combinedHandler.getStackInSlot(i));
             }
             Containers.dropContents(pLevel, pPos, container);
         }

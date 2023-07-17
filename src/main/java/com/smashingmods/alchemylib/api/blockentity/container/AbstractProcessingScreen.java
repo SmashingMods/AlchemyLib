@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.network.chat.BaseComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -260,7 +261,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      */
     public void directionalArrow(PoseStack pPoseStack, int pX, int pY, ProgressDisplayData pData) {
         int uOffset = 0;
-        int vOffset = 100;
+        int vOffset = 99;
         int width = 0;
         int height = 0;
         switch (pData.getDirection()) {
