@@ -1,4 +1,4 @@
-# AlchemyLib 1.20.1-1.0.24 RELEASE
+# AlchemyLib 1.20.1-1.0.25 RELEASE
 
 Changes:
-- Port to 1.20.1
+- Remove custom FakeItemRenderer as it's not longer necessary in 1.20 using GuiGraphics.
