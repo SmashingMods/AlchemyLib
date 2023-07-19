@@ -1,4 +1,4 @@
-# AlchemyLib 1.20.1-1.0.25 RELEASE
+# AlchemyLib 1.20.1-1.0.26 RELEASE
 
 Changes:
-- Remove custom FakeItemRenderer as it's not longer necessary in 1.20 using GuiGraphics.
+- Add new FakeItemRenderer to handle setting shader opacity here.
