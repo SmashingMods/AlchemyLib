@@ -3,6 +3,7 @@ package com.smashingmods.alchemylib.client.button;
 import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingScreen;
 import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
+import com.smashingmods.alchemylib.api.blockentity.processing.AbstractSearchableBlockEntity;
 import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,20 +11,21 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.ForgeHooksClient;
 
-@SuppressWarnings({"unused", "UnstableApiUsage"})
+@SuppressWarnings("unused")
 public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     public RecipeSelectorButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
         super(pParent, pButton -> {
-            if (pParent.getBlockEntity() instanceof SearchableBlockEntity searchableBlockEntity) {
+            if (pParent.getBlockEntity() instanceof AbstractSearchableBlockEntity searchableBlockEntity) {
                 if (searchableBlockEntity.isRecipeSelectorOpen()) {
-                    ForgeHooksClient.popGuiLayer(Minecraft.getInstance());
+                    Minecraft.getInstance().popGuiLayer();
                     searchableBlockEntity.setRecipeSelectorOpen(false);
                 } else {
-                    searchableBlockEntity.setRecipeSelectorOpen(true);
-                    ForgeHooksClient.pushGuiLayer(Minecraft.getInstance(), pNewScreen);
+                    if (!searchableBlockEntity.isSideConfigScreenOpen()) {
+                        searchableBlockEntity.setRecipeSelectorOpen(true);
+                        Minecraft.getInstance().pushGuiLayer(pNewScreen);
+                    }
                 }
             }
         });
