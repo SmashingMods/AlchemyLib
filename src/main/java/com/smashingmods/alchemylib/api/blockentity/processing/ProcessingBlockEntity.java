@@ -135,4 +135,16 @@ public interface ProcessingBlockEntity {
      * @param pPaused Boolean to pause the processing of the machine. Check {@link #isProcessingPaused()} when attempting to process.
      */
     void setPaused(boolean pPaused);
+
+    /**
+     *
+     * @return Boolean if the IO Configuration screen is currently open.
+     */
+    boolean isSideConfigScreenOpen();
+
+    /**
+     *
+     * @param pState Set the current open/closed state of the IO Configuration screen.
+     */
+    void setSideConfigScreenState(boolean pState);
 }

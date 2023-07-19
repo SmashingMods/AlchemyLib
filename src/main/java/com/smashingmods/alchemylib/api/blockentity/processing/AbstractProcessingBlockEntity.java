@@ -36,6 +36,8 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private boolean recipeLocked = false;
     private boolean paused = false;
 
+    private boolean ioScreenOpen = false;
+
     private final EnergyStorageHandler energyHandler = initializeEnergyStorage();
     private final LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.of(() -> energyHandler);
 
@@ -136,6 +138,16 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     @Override
     public void setPaused(boolean pPaused) {
         this.paused = pPaused;
+    }
+
+    @Override
+    public boolean isSideConfigScreenOpen() {
+        return ioScreenOpen;
+    }
+
+    @Override
+    public void setSideConfigScreenState(boolean pState) {
+        this.ioScreenOpen = pState;
     }
 
     @Override
