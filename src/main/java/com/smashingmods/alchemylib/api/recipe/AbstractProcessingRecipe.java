@@ -66,4 +66,9 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
     public boolean canCraftInDimensions(int pWidth, int pHeight) {
         return false;
     }
+
+    @Override
+    public boolean equals(Object pOther) {
+        return pOther instanceof AbstractProcessingRecipe recipe && compareTo(recipe) == 0;
+    }
 }
