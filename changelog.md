@@ -1,5 +1,4 @@
-# AlchemyLib 1.20.1-1.0.29 RELEASE
+# AlchemyLib 1.20.1-1.0.30 RELEASE
 
 Changes:
-- Move SideModeButton out of Alchemistry and into AlchemyLib.
-- Refactor RecipeSelectorButton such that it won't open the screen if the side mode screen is already open.
+- Includes PR #7 which should fix machines that stop working after a recipe change. Thanks to contributor cyb0124.
