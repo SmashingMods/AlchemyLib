@@ -7,9 +7,7 @@ import com.smashingmods.alchemylib.common.network.ToggleLockButtonPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-
-import javax.annotation.Nonnull;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @SuppressWarnings("unused")
 public class LockButton extends AbstractAlchemyButton {
@@ -19,13 +17,13 @@ public class LockButton extends AbstractAlchemyButton {
             boolean toggleLock = !pParent.getBlockEntity().isRecipeLocked();
             pParent.getBlockEntity().setRecipeLocked(toggleLock);
             pParent.getBlockEntity().setChanged();
-            AlchemyLib.getPacketHandler().sendToServer(new ToggleLockButtonPacket(pParent.getBlockEntity().getBlockPos(), toggleLock));
+            PacketDistributor.sendToServer(new ToggleLockButtonPacket(pParent.getBlockEntity().getBlockPos(), toggleLock));
         });
     }
 
     @Override
-    public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
+    public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        pGuiGraphics.blit(AlchemyLib.modLoc("textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 

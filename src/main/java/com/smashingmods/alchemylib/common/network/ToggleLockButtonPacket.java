@@ -1,41 +1,42 @@
 package com.smashingmods.alchemylib.common.network;
 
+import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
-import com.smashingmods.alchemylib.api.network.AlchemyPacket;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class ToggleLockButtonPacket implements AlchemyPacket {
+public record ToggleLockButtonPacket(BlockPos blockPos, boolean locked) implements CustomPacketPayload {
+    public static final Type<ToggleLockButtonPacket> TYPE = new Type<>(AlchemyLib.modLoc("toggle_lock_button"));
 
-    private final BlockPos blockPos;
-    private final boolean locked;
+    public static final StreamCodec<ByteBuf, ToggleLockButtonPacket> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC,
+            ToggleLockButtonPacket::blockPos,
 
-    public ToggleLockButtonPacket(BlockPos pBlockPos, boolean pLock) {
-        this.blockPos = pBlockPos;
-        this.locked = pLock;
-    }
+            ByteBufCodecs.BOOL,
+            ToggleLockButtonPacket::locked,
 
-    public ToggleLockButtonPacket(FriendlyByteBuf pBuffer) {
-        this.blockPos = pBuffer.readBlockPos();
-        this.locked = pBuffer.readBoolean();
-    }
-
-    public void encode(FriendlyByteBuf pBuffer) {
-        pBuffer.writeBlockPos(blockPos);
-        pBuffer.writeBoolean(locked);
-    }
-
-    public void handle(NetworkEvent.Context pContext) {
-        Player player = pContext.getSender();
-        if (player != null) {
-            AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level().getBlockEntity(blockPos);
+            ToggleLockButtonPacket::new
+    );
+    
+    public static void handle(ToggleLockButtonPacket packet, IPayloadContext pContext) {
+        pContext.enqueueWork(() -> {
+            Player player = pContext.player();
+            AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level().getBlockEntity(packet.blockPos);
 
             if (blockEntity != null) {
-                blockEntity.setRecipeLocked(locked);
+                blockEntity.setRecipeLocked(packet.locked);
                 blockEntity.setChanged();
             }
-        }
+        });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

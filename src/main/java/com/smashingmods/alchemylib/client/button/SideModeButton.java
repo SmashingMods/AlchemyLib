@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("unused")
 public class SideModeButton extends AbstractAlchemyButton {
@@ -32,11 +31,11 @@ public class SideModeButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        boolean open = ((ProcessingBlockEntity) parent.getBlockEntity()).isSideConfigScreenOpen();
+        boolean open = parent.getBlockEntity().isSideConfigScreenOpen();
         int u = open ? 25 : 85;
         int v = open ? 80 : 0;
 
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+        pGuiGraphics.blit(AlchemyLib.modLoc("textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 

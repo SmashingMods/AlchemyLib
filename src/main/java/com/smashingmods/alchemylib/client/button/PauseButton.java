@@ -7,7 +7,7 @@ import com.smashingmods.alchemylib.common.network.TogglePauseButtonPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 
@@ -19,13 +19,13 @@ public class PauseButton extends AbstractAlchemyButton {
             boolean togglePause = !pParent.getBlockEntity().isProcessingPaused();
             pParent.getBlockEntity().setPaused(!togglePause);
             pParent.getBlockEntity().setChanged();
-            AlchemyLib.getPacketHandler().sendToServer(new TogglePauseButtonPacket(pParent.getBlockEntity().getBlockPos(), togglePause));
+            PacketDistributor.sendToServer(new TogglePauseButtonPacket(pParent.getBlockEntity().getBlockPos(), togglePause));
         });
     }
 
     @Override
     public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
+        pGuiGraphics.blit(AlchemyLib.modLoc("textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 

@@ -17,7 +17,7 @@ AlchemyLib is a library mod for ChemLib addon mods such as Alchemistry and Teche
 file="META-INF/accesstransformer.cfg"
 
 [[dependencies.alchemylib]]
-modId="forge"
+modId="neoforge"
 required=true
 versionRange="${neoforgeVersionRange}"
 ordering="NONE"
@@ -33,6 +33,6 @@ side="BOTH"
 [[dependencies.alchemylib]]
 modId="chemlib"
 required=true
-versionRange="[${minecraftVersion}-${chemlibVersion},)"
+versionRange="${chemlibVersionRange}"
 ordering="NONE"
 side="BOTH"

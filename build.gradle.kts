@@ -11,6 +11,8 @@ val neoVersion: String by extra
 val parchmentMappingsVersion: String by extra
 val parchmentMinecraftVersion: String by extra
 val neoforgeVersionRange: String by extra
+val chemlibVersionRange: String by extra
+val chemlibVersion: String by extra
 
 val localRuntime: Configuration by configurations.creating
 
@@ -92,12 +94,12 @@ configurations {
 }
 
 dependencies {
-    implementation("maven.modrinth:chemlib-updated:2.0.19")
+    implementation("maven.modrinth:chemlib-updated:$chemlibVersion")
 }
 
 tasks.processResources {
     var replaceProperties = mapOf("minecraftVersion" to minecraftVersion, "neoVersion" to neoVersion,
-        "neoforgeVersionRange" to neoforgeVersionRange, "modVersion" to modVersion
+        "neoforgeVersionRange" to neoforgeVersionRange, "modVersion" to modVersion, "chemlibVersionRange" to chemlibVersionRange
     )
 
     inputs.properties(replaceProperties)
@@ -141,20 +143,4 @@ publishing {
         }
     }
 }
- */
-
-
-
-
-
-/*
-
-minecraft {
-
-    runs {
-
-        }
-    }
-}
-
  */

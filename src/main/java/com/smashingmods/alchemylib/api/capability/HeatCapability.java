@@ -3,11 +3,10 @@ package com.smashingmods.alchemylib.api.capability;
 import io.netty.util.internal.UnstableApi;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
 @SuppressWarnings("unused")
-@AutoRegisterCapability
+//@AutoRegisterCapability TODO
 @UnstableApi
 public interface HeatCapability extends INBTSerializable<CompoundTag> {
 

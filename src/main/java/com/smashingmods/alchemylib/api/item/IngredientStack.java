@@ -1,6 +1,7 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -8,6 +9,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,9 +43,8 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        this.registryName = new ResourceLocation(pIngredient.values[0].serialize().has("item") ?
-                pIngredient.values[0].serialize().get("item").getAsString()
-                : pIngredient.values[0].serialize().get("tag").getAsString());
+        // TODO
+        this.registryName = null; //new ResourceLocation(pIngredient.values[0].serialize().has("item") ? pIngredient.values[0].serialize().get("item").getAsString() : pIngredient.values[0].serialize().get("tag").getAsString());
     }
 
     public IngredientStack(Ingredient pIngredient) {
@@ -72,8 +73,9 @@ public class IngredientStack {
      * @param pBuffer {@link FriendlyByteBuf}
      */
     public void toNetwork(FriendlyByteBuf pBuffer) {
-        ingredient.toNetwork(pBuffer);
-        pBuffer.writeInt(count);
+        throw new NotImplementedException();
+        //ingredient.toNetwork(pBuffer); TODO
+        //pBuffer.writeInt(count);
     }
 
     /**
@@ -84,9 +86,10 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromNetwork(FriendlyByteBuf pBuffer) {
-        Ingredient ingredient = Ingredient.fromNetwork(pBuffer);
-        int count = pBuffer.readInt();
-        return new IngredientStack(ingredient, count);
+        throw new NotImplementedException();
+        //Ingredient ingredient = Ingredient.fromNetwork(pBuffer); TODO
+        //int count = pBuffer.readInt();
+        //return new IngredientStack(ingredient, count);
     }
 
     /**
@@ -96,7 +99,7 @@ public class IngredientStack {
      */
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
-        json.add("ingredient", ingredient.toJson());
+        //json.add("ingredient", ingredient);
         json.addProperty("count", count);
         return json;
     }
@@ -108,7 +111,7 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromJson(JsonObject pJson) {
-        Ingredient ingredient = Ingredient.fromJson(pJson.getAsJsonObject("ingredient"));
+        Ingredient ingredient = Ingredient.CODEC.parse(JsonOps.INSTANCE, pJson).result().orElseThrow();
         int count = GsonHelper.getAsInt(pJson, "count", 1);
         return new IngredientStack(ingredient, count);
     }

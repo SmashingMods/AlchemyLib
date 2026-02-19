@@ -1,7 +1,7 @@
 package com.smashingmods.alchemylib.api.blockentity.container.data;
 
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.PlainTextContents;
 
 /**
  *  This abstract class defines getters and setters for shared fields for all {@link DisplayData} implementers.
@@ -61,6 +61,6 @@ public abstract class AbstractDisplayData implements DisplayData {
         if (this.toString() != null) {
             temp = this.toString();
         }
-        return MutableComponent.create(new LiteralContents(temp));
+        return MutableComponent.create(new PlainTextContents.LiteralContents(temp));
     }
 }

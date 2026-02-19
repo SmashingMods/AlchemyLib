@@ -112,7 +112,7 @@ public class SidedProcessingSlotWrapper {
     }
 
     public IItemHandler getView(@Nullable Direction side) {
-        return getViewLazily(side).orElse(null);
+        return getViewLazily(side).get();
     }
 
     public Lazy<IItemHandler> getViewLazily(@Nullable Direction side) {
@@ -143,7 +143,7 @@ public class SidedProcessingSlotWrapper {
     public void invalidate() {
         for (Lazy<IItemHandler> view : views) {
             if (view != null) {
-                view();
+                view.invalidate();
             }
         }
     }

@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("unused")
 public class RecipeSelectorButton extends AbstractAlchemyButton {
@@ -37,7 +36,7 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
             int u = open ? 25 : 45;
             int v = open ? 80 : 60;
 
-            pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+            pGuiGraphics.blit(AlchemyLib.modLoc("textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
             renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 

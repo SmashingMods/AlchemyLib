@@ -2,18 +2,11 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
 import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
 
 @SuppressWarnings("unused")
 public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlockEntity implements InventoryBlockEntity {
@@ -49,6 +42,7 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
         return combinedHandler;
     }
 
+    /* TODO
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
@@ -57,28 +51,29 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
         }
         return super.getCapability(pCapability, pDirection);
     }
-
+     */
+    
     @Override
-    public void invalidateCaps() {
+    public void invalidateCapabilities() {
         combinedHandler.invalidate();
-        super.invalidateCaps();
+        super.invalidateCapabilities();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        pTag.put("input", inputHandler.serializeNBT());
-        pTag.put("output", outputHandler.serializeNBT());
-        pTag.putShort("sides", combinedHandler.sideModesToShort());
-        super.saveAdditional(pTag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.put("input", inputHandler.serializeNBT(registries));
+        tag.put("output", outputHandler.serializeNBT(registries));
+        tag.putShort("sides", combinedHandler.sideModesToShort());
+        super.saveAdditional(tag, registries);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        inputHandler.deserializeNBT(pTag.getCompound("input"));
-        outputHandler.deserializeNBT(pTag.getCompound("output"));
-        if (pTag.contains("sides")) {
-            combinedHandler.setSideModesFromShort(pTag.getShort("sides"));
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        inputHandler.deserializeNBT(registries, tag.getCompound("input"));
+        outputHandler.deserializeNBT(registries, tag.getCompound("output"));
+        if (tag.contains("sides")) {
+            combinedHandler.setSideModesFromShort(tag.getShort("sides"));
         } else {
             combinedHandler.setSideModesFromShort(SidedProcessingSlotWrapper.LEGACY_SIDES_CONFIGURATION);
         }

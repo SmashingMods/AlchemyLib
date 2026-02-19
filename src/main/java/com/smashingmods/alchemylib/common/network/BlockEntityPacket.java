@@ -1,39 +1,42 @@
 package com.smashingmods.alchemylib.common.network;
 
-import com.smashingmods.alchemylib.api.network.AlchemyPacket;
+import com.smashingmods.alchemylib.AlchemyLib;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Objects;
 
-public class BlockEntityPacket implements AlchemyPacket {
+public record BlockEntityPacket(BlockPos blockPos, CompoundTag tag) implements CustomPacketPayload {
+    public static final Type<BlockEntityPacket> TYPE = new Type<>(AlchemyLib.modLoc("block_entity"));
 
-    private final BlockPos blockPos;
-    private final CompoundTag tag;
+    public static final StreamCodec<ByteBuf, BlockEntityPacket> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC,
+            BlockEntityPacket::blockPos,
 
-    public BlockEntityPacket(BlockPos pBlockPos, CompoundTag pTag) {
-        this.blockPos = pBlockPos;
-        this.tag = pTag;
+            ByteBufCodecs.COMPOUND_TAG,
+            BlockEntityPacket::tag,
+
+            BlockEntityPacket::new
+    );
+
+    public static void handle(BlockEntityPacket packet, IPayloadContext pContext) {
+        pContext.enqueueWork(() -> {
+            Level level = Minecraft.getInstance().level;
+            BlockEntity blockEntity = Objects.requireNonNull(level).getBlockEntity(packet.blockPos);
+            //Objects.requireNonNull(blockEntity).load(packet.tag); TODO
+        });
     }
 
-    public BlockEntityPacket(FriendlyByteBuf pBuffer) {
-        this.blockPos = pBuffer.readBlockPos();
-        this.tag = pBuffer.readNbt();
-    }
-
-    public void encode(FriendlyByteBuf pBuffer) {
-        pBuffer.writeBlockPos(blockPos);
-        pBuffer.writeNbt(tag);
-    }
-
-    public void handle(NetworkEvent.Context pContext) {
-        Level level = Minecraft.getInstance().level;
-        BlockEntity blockEntity = Objects.requireNonNull(level).getBlockEntity(blockPos);
-        Objects.requireNonNull(blockEntity).load(tag);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

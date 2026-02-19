@@ -2,6 +2,7 @@ package com.smashingmods.alchemylib;
 
 import com.smashingmods.alchemylib.common.network.PacketHandler;
 import com.smashingmods.alchemylib.datagen.DataGenerators;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 
@@ -16,14 +17,13 @@ public class AlchemyLib {
 
     public static final String MODID = "alchemylib";
     public static AlchemyLib instance;
-    private final PacketHandler packetHandler = new PacketHandler().register();
 
     public AlchemyLib(IEventBus modEventBus) {
         instance = this;
         modEventBus.addListener(DataGenerators::gatherData);
     }
 
-    public static PacketHandler getPacketHandler() {
-        return instance.packetHandler;
+    public static ResourceLocation modLoc(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }
