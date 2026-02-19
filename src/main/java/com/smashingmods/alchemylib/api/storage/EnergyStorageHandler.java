@@ -1,6 +1,6 @@
 package com.smashingmods.alchemylib.api.storage;
 
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.EnergyStorage;
 
 /**
  * This class is a wrapper around {@link EnergyStorage} which adds a call to {@link EnergyStorageHandler#onEnergyChanged()}

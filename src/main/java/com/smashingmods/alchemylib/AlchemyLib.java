@@ -2,9 +2,8 @@ package com.smashingmods.alchemylib;
 
 import com.smashingmods.alchemylib.common.network.PacketHandler;
 import com.smashingmods.alchemylib.datagen.DataGenerators;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
 
 
 /**
@@ -19,9 +18,8 @@ public class AlchemyLib {
     public static AlchemyLib instance;
     private final PacketHandler packetHandler = new PacketHandler().register();
 
-    public AlchemyLib() {
+    public AlchemyLib(IEventBus modEventBus) {
         instance = this;
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(DataGenerators::gatherData);
     }
 

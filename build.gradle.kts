@@ -22,7 +22,15 @@ version = "$minecraftVersion-$modVersion"
 group = "com.smashingmods.alchemylib"
 
 repositories {
-    
+    exclusiveContent {
+        forRepository {
+            maven("https://api.modrinth.com/maven")
+        }
+        
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
 }
 
 base {
@@ -84,7 +92,7 @@ configurations {
 }
 
 dependencies {
-    
+    implementation("maven.modrinth:chemlib-updated:2.0.19")
 }
 
 tasks.processResources {

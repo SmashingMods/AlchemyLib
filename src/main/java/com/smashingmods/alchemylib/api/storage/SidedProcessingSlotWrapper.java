@@ -3,11 +3,11 @@ package com.smashingmods.alchemylib.api.storage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.neoforged.neoforge.common.util.Lazy;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 /**
  * A wrapper around two {@link ProcessingSlotHandler} instances that can be used for
@@ -33,7 +33,7 @@ public class SidedProcessingSlotWrapper {
     private final ProcessingSlotHandler outputHandler;
     private final SideMode[] sideModes = new SideMode[7]; // 4 cardinal directions + up/down + unspecified side = 7 sides total
     @SuppressWarnings("unchecked") // Java does not allow creating arrays with generics for some ungodly reason
-    private final LazyOptional<IItemHandler>[] views = new LazyOptional[7];
+    private final Lazy<IItemHandler>[] views = new Lazy[7];
 
     private class SidedItemHandlerView implements IItemHandlerModifiable {
         private final Direction side;
@@ -115,10 +115,10 @@ public class SidedProcessingSlotWrapper {
         return getViewLazily(side).orElse(null);
     }
 
-    public LazyOptional<IItemHandler> getViewLazily(@Nullable Direction side) {
-        LazyOptional<IItemHandler> view = views[side == null ? 6 : side.ordinal()];
+    public Lazy<IItemHandler> getViewLazily(@Nullable Direction side) {
+        Lazy<IItemHandler> view = views[side == null ? 6 : side.ordinal()];
         if (view == null) {
-            view = LazyOptional.of(() -> new SidedItemHandlerView(side));
+            view = Lazy.of(() -> new SidedItemHandlerView(side));
             views[side == null ? 6 : side.ordinal()] = view;
         }
         return view;
@@ -141,9 +141,9 @@ public class SidedProcessingSlotWrapper {
     }
 
     public void invalidate() {
-        for (LazyOptional<IItemHandler> view : views) {
+        for (Lazy<IItemHandler> view : views) {
             if (view != null) {
-                view.invalidate();
+                view();
             }
         }
     }
