@@ -2,14 +2,9 @@ package com.smashingmods.alchemylib.api.blockentity.container.data;
 
 import com.smashingmods.alchemylib.api.blockentity.container.Direction2D;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 
-/**
- * Extends {@link AbstractDisplayData} by passing an {@link AbstractProcessingBlockEntity} into the constructor.
- * The block entity is used as a reference to get the current progress and max progress values and return them
- * in {@link #getValue()} and {@link #getMaxValue()} respectively.
- */
 public class ProgressDisplayData extends AbstractDisplayData {
 
     private final AbstractProcessingBlockEntity blockEntity;
@@ -37,6 +32,6 @@ public class ProgressDisplayData extends AbstractDisplayData {
 
     @Override
     public MutableComponent toTextComponent() {
-        return MutableComponent.create(new TranslatableContents("alchemylib.container.show_recipes", null, TranslatableContents.NO_ARGS));
+        return Component.translatable("alchemylib.container.show_recipes");
     }
 }

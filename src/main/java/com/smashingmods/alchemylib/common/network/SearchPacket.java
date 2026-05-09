@@ -1,42 +1,43 @@
 package com.smashingmods.alchemylib.common.network;
 
+import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractSearchableBlockEntity;
 import com.smashingmods.alchemylib.api.network.AlchemyPacket;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public class SearchPacket implements AlchemyPacket {
+public record SearchPacket(BlockPos blockPos, String searchText) implements AlchemyPacket {
 
-    private final BlockPos blockPos;
-    private final String searchText;
+    public static final Type<SearchPacket> TYPE = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "search"));
 
-    public SearchPacket(BlockPos pBlockPos, String pSearchText) {
-        this.blockPos = pBlockPos;
-        this.searchText = pSearchText;
-    }
+    public static final StreamCodec<RegistryFriendlyByteBuf, SearchPacket> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC, SearchPacket::blockPos,
+            ByteBufCodecs.STRING_UTF8, SearchPacket::searchText,
+            SearchPacket::new
+    );
 
-    public SearchPacket(FriendlyByteBuf pBuffer) {
-        this.blockPos = pBuffer.readBlockPos();
-        this.searchText = pBuffer.readUtf();
-    }
-
-    public void encode(FriendlyByteBuf pBuffer) {
-        pBuffer.writeBlockPos(blockPos);
-        pBuffer.writeUtf(searchText);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
     @Override
-    public void handle(NetworkEvent.Context pContext) {
-        Player player = pContext.getSender();
-        if (player != null) {
-            AbstractSearchableBlockEntity blockEntity = (AbstractSearchableBlockEntity) player.level().getBlockEntity(blockPos);
-
-            if (blockEntity != null) {
-                blockEntity.setSearchText(searchText);
-                blockEntity.setChanged();
+    public void handle(IPayloadContext pContext) {
+        pContext.enqueueWork(() -> {
+            Player player = pContext.player();
+            if (player != null) {
+                if (player.level().getBlockEntity(blockPos) instanceof AbstractSearchableBlockEntity blockEntity) {
+                    blockEntity.setSearchText(searchText);
+                    blockEntity.setChanged();
+                }
             }
-        }
+        });
     }
 }

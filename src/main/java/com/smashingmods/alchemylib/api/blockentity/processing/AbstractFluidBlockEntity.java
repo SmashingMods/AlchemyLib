@@ -6,26 +6,22 @@ import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
 
 @SuppressWarnings("unused")
 public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEntity implements FluidBlockEntity, InventoryBlockEntity {
 
     private final FluidStorageHandler fluidStorage = initializeFluidStorage();
-    private final LazyOptional<IFluidHandler> lazyFluidHandler = LazyOptional.of(() -> fluidStorage);
 
     private final ProcessingSlotHandler inputHandler = initializeInputHandler();
     private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
@@ -63,22 +59,20 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
         return combinedHandler;
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
-            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        } else if (pCapability == ForgeCapabilities.FLUID_HANDLER) {
-            return lazyFluidHandler.cast();
-        }
-        return super.getCapability(pCapability, pDirection);
+    /**
+     * Returns the item handler exposed for the given side. Used by capability registration via
+     * {@link net.neoforged.neoforge.capabilities.Capabilities.ItemHandler#BLOCK}.
+     */
+    public IItemHandler getItemHandler(@Nullable Direction side) {
+        return combinedHandler.getView(side);
     }
 
-    @Override
-    public void invalidateCaps() {
-        combinedHandler.invalidate();
-        lazyFluidHandler.invalidate();
-        super.invalidateCaps();
+    /**
+     * Returns the fluid handler exposed for the given side. Used by capability registration via
+     * {@link net.neoforged.neoforge.capabilities.Capabilities.FluidHandler#BLOCK}.
+     */
+    public IFluidHandler getFluidHandler(@Nullable Direction side) {
+        return fluidStorage;
     }
 
     @Override
@@ -87,20 +81,20 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        pTag.put("input", inputHandler.serializeNBT());
-        pTag.put("output", outputHandler.serializeNBT());
-        pTag.put("fluid", fluidStorage.writeToNBT(new CompoundTag()));
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        pTag.put("input", inputHandler.serializeNBT(provider));
+        pTag.put("output", outputHandler.serializeNBT(provider));
+        pTag.put("fluid", fluidStorage.writeToNBT(provider, new CompoundTag()));
         pTag.putShort("sides", combinedHandler.sideModesToShort());
-        super.saveAdditional(pTag);
+        super.saveAdditional(pTag, provider);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        inputHandler.deserializeNBT(pTag.getCompound("input"));
-        outputHandler.deserializeNBT(pTag.getCompound("output"));
-        fluidStorage.readFromNBT(pTag.getCompound("fluid"));
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.loadAdditional(pTag, provider);
+        inputHandler.deserializeNBT(provider, pTag.getCompound("input"));
+        outputHandler.deserializeNBT(provider, pTag.getCompound("output"));
+        fluidStorage.readFromNBT(provider, pTag.getCompound("fluid"));
         if (pTag.contains("sides")) {
             combinedHandler.setSideModesFromShort(pTag.getShort("sides"));
         } else {

@@ -3,11 +3,11 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -15,14 +15,9 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
@@ -35,15 +30,13 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private boolean canProcess = false;
     private boolean recipeLocked = false;
     private boolean paused = false;
-
     private boolean ioScreenOpen = false;
 
     private final EnergyStorageHandler energyHandler = initializeEnergyStorage();
-    private final LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.of(() -> energyHandler);
 
     public AbstractProcessingBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pBlockEntityType, pWorldPosition, pBlockState);
-        this.name = MutableComponent.create(new TranslatableContents(String.format("%s.container.%s", pModId, ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(getType())), null, TranslatableContents.NO_ARGS));
+        this.name = Component.translatable(String.format("%s.container.%s", pModId, BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(getType())));
     }
 
     @Override
@@ -52,17 +45,17 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        saveAdditional(tag);
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag tag = super.getUpdateTag(provider);
+        saveAdditional(tag, provider);
         return tag;
     }
 
     @Override
-    public void onDataPacket(Connection pConnection, ClientboundBlockEntityDataPacket pPacket) {
+    public void onDataPacket(Connection pConnection, ClientboundBlockEntityDataPacket pPacket, HolderLookup.Provider provider) {
         Objects.requireNonNull(pPacket.getTag());
-        this.load(pPacket.getTag());
-        super.onDataPacket(pConnection, pPacket);
+        this.loadAdditional(pPacket.getTag(), provider);
+        super.onDataPacket(pConnection, pPacket, provider);
     }
 
     @Nullable
@@ -155,6 +148,14 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         return energyHandler;
     }
 
+    /**
+     * Returns the energy storage exposed for the given side, or null if none.
+     * Used by capability registration via {@link net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage#BLOCK}.
+     */
+    public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
+        return energyHandler;
+    }
+
     public int getEnergyPerTick() {
         return energyPerTick;
     }
@@ -164,35 +165,22 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    @Nonnull
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ENERGY) {
-            return lazyEnergyHandler.cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        lazyEnergyHandler.invalidate();
-        super.invalidateCaps();
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag pTag) {
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
         pTag.putInt("progress", progress);
         pTag.putBoolean("locked", isRecipeLocked());
         pTag.putBoolean("paused", isProcessingPaused());
-        pTag.put("energy", energyHandler.serializeNBT());
-        super.saveAdditional(pTag);
+        pTag.putInt("energy", energyHandler.getEnergyStored());
+        super.saveAdditional(pTag, provider);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.loadAdditional(pTag, provider);
         setProgress(pTag.getInt("progress"));
         setRecipeLocked(pTag.getBoolean("locked"));
         setPaused(pTag.getBoolean("paused"));
-        energyHandler.deserializeNBT(pTag.get("energy"));
+        if (pTag.contains("energy")) {
+            energyHandler.setEnergy(pTag.getInt("energy"));
+        }
     }
 }

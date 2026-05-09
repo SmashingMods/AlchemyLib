@@ -4,16 +4,13 @@ import com.smashingmods.alchemylib.api.blockentity.processing.AbstractFluidBlock
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import com.smashingmods.alchemylib.api.storage.FluidStorageHandler;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * Extends {@link AbstractDisplayData} by passing an {@link AbstractProcessingBlockEntity} into the constructor.
- * The block entity is used as a reference to get the fluid amount stored and fluid capacity values and return them
- * in {@link #getValue()} and {@link #getMaxValue()} respectively.
+ * Display data backed by an {@link AbstractFluidBlockEntity}'s fluid storage.
  */
 public class FluidDisplayData extends AbstractDisplayData {
 
@@ -35,7 +32,7 @@ public class FluidDisplayData extends AbstractDisplayData {
     }
 
     public FluidStorageHandler getFluidHandler() {
-        return (FluidStorageHandler) blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).orElseGet(() -> new FluidStorageHandler(0, FluidStack.EMPTY));
+        return blockEntity.getFluidStorage();
     }
 
     @Override
@@ -43,9 +40,9 @@ public class FluidDisplayData extends AbstractDisplayData {
         NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
         FluidStack fluidStack = getFluidHandler().getFluidStack();
 
-        boolean emptyFluid = fluidStack.isFluidEqual(FluidStack.EMPTY);
+        boolean emptyFluid = fluidStack.isEmpty();
 
-        String fluidName = emptyFluid ? "" : String.format(" %s", I18n.get(fluidStack.getTranslationKey()).toLowerCase());
+        String fluidName = emptyFluid ? "" : String.format(" %s", I18n.get(fluidStack.getDescriptionId()).toLowerCase());
         String stored = numberFormat.format(getValue());
         String capacity = numberFormat.format(getMaxValue());
         return String.format("%s/%s mb%s", stored, capacity, fluidName);

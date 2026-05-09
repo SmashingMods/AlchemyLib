@@ -8,12 +8,14 @@ import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEnt
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("unused")
 public class RecipeSelectorButton extends AbstractAlchemyButton {
+
+    private static final ResourceLocation WIDGETS = ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png");
 
     public RecipeSelectorButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
         super(pParent, pButton -> {
@@ -33,19 +35,18 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-            boolean open = ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen();
-            int u = open ? 25 : 45;
-            int v = open ? 80 : 60;
+        boolean open = ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen();
+        int u = open ? 25 : 45;
+        int v = open ? 80 : 60;
 
-            pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
-            renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
+        pGuiGraphics.blit(WIDGETS, getX(), getY(), u, v, width, height);
+        renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen() ?
-                MutableComponent.create(new TranslatableContents("alchemylib.container.close_recipe_select", "Close Recipe Selection", TranslatableContents.NO_ARGS))
-                :
-                MutableComponent.create(new TranslatableContents("alchemylib.container.open_recipe_select", "Open Recipe Selection", TranslatableContents.NO_ARGS));
+        return ((SearchableBlockEntity) parent.getBlockEntity()).isRecipeSelectorOpen()
+                ? Component.translatable("alchemylib.container.close_recipe_select")
+                : Component.translatable("alchemylib.container.open_recipe_select");
     }
 }

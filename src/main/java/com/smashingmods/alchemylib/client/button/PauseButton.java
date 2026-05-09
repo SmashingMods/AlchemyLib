@@ -5,14 +5,16 @@ import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingS
 import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
 import com.smashingmods.alchemylib.common.network.TogglePauseButtonPacket;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("unused")
 public class PauseButton extends AbstractAlchemyButton {
+
+    private static final ResourceLocation WIDGETS = ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png");
 
     public PauseButton(AbstractProcessingScreen<?> pParent) {
         super(pParent, pButton -> {
@@ -25,15 +27,14 @@ public class PauseButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
+        pGuiGraphics.blit(WIDGETS, getX(), getY(), 25 + ((blockEntity.isProcessingPaused() ? 1 : 0) * 20), 20, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isProcessingPaused() ?
-                MutableComponent.create(new TranslatableContents("alchemylib.container.resume", "Resume", TranslatableContents.NO_ARGS))
-                :
-                MutableComponent.create(new TranslatableContents("alchemylib.container.pause", "Pause", TranslatableContents.NO_ARGS));
+        return blockEntity.isProcessingPaused()
+                ? Component.translatable("alchemylib.container.resume")
+                : Component.translatable("alchemylib.container.pause");
     }
 }

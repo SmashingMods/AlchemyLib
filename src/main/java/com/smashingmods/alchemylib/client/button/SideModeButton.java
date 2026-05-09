@@ -8,12 +8,14 @@ import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEnt
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("unused")
 public class SideModeButton extends AbstractAlchemyButton {
+
+    private static final ResourceLocation WIDGETS = ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png");
 
     public SideModeButton(AbstractProcessingScreen<?> pParent, Screen pNewScreen) {
         super(pParent, pButton -> {
@@ -36,12 +38,12 @@ public class SideModeButton extends AbstractAlchemyButton {
         int u = open ? 25 : 85;
         int v = open ? 80 : 0;
 
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+        pGuiGraphics.blit(WIDGETS, getX(), getY(), u, v, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return MutableComponent.create(new TranslatableContents("alchemistry.container.sides.button", "Input/Output Configuration", TranslatableContents.NO_ARGS));
+        return Component.translatable("alchemistry.container.sides.button");
     }
 }

@@ -2,10 +2,9 @@ package com.smashingmods.alchemylib;
 
 import com.smashingmods.alchemylib.common.network.PacketHandler;
 import com.smashingmods.alchemylib.datagen.DataGenerators;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 /**
  * AlchemyLib is a library mod for ChemLib addon mods such as Alchemistry
@@ -17,12 +16,16 @@ public class AlchemyLib {
 
     public static final String MODID = "alchemylib";
     public static AlchemyLib instance;
-    private final PacketHandler packetHandler = new PacketHandler().register();
+    private final PacketHandler packetHandler = new PacketHandler();
 
-    public AlchemyLib() {
+    public AlchemyLib(IEventBus modEventBus) {
         instance = this;
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modEventBus.addListener(this::registerPayloads);
         modEventBus.addListener(DataGenerators::gatherData);
+    }
+
+    private void registerPayloads(RegisterPayloadHandlersEvent event) {
+        packetHandler.register(event.registrar(MODID));
     }
 
     public static PacketHandler getPacketHandler() {

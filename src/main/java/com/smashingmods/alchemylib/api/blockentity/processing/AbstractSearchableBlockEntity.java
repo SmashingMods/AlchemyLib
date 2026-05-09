@@ -3,6 +3,7 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.common.network.SearchPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,14 +44,14 @@ public abstract class AbstractSearchableBlockEntity extends AbstractInventoryBlo
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
         pTag.putString("searchText", searchText);
-        super.saveAdditional(pTag);
+        super.saveAdditional(pTag, provider);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.loadAdditional(pTag, provider);
         setSearchText(pTag.getString("searchText"));
     }
 }

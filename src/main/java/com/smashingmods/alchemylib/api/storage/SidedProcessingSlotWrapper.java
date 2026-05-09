@@ -5,22 +5,14 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 /**
- * A wrapper around two {@link ProcessingSlotHandler} instances that can be used for
- * inserting and extracting items at the same time.
+ * Wraps two {@link ProcessingSlotHandler} instances with side-aware insert/extract restrictions.
  *
- * <p>However, this implementation is aware of input and output slot restrictions and won't allow
- * the insertion of items into output slots as per {@link IItemHandler#insertItem(int, net.minecraft.world.item.ItemStack, boolean)}
- * and similarly won't allow the extraction in input slots.
- *
- * <p>The {@link SideMode} of each side can be configured through {@link #setSideMode(Direction, SideMode)}
- *
- * <p>The amount of slots of the input and output handler should not change throughout runtime as the slot
- * IDs of the output handler are added ontop of the slot IDs of the input handler in order to combine both item handlers.
+ * <p>The {@link SideMode} per side is configured via {@link #setSideMode(Direction, SideMode)}.
+ * Output slots reject inserts; input slots reject extracts.
  */
 @SuppressWarnings({"unused", "ConstantConditions"})
 public class SidedProcessingSlotWrapper {
@@ -31,9 +23,8 @@ public class SidedProcessingSlotWrapper {
 
     private final ProcessingSlotHandler inputHandler;
     private final ProcessingSlotHandler outputHandler;
-    private final SideMode[] sideModes = new SideMode[7]; // 4 cardinal directions + up/down + unspecified side = 7 sides total
-    @SuppressWarnings("unchecked") // Java does not allow creating arrays with generics for some ungodly reason
-    private final LazyOptional<IItemHandler>[] views = new LazyOptional[7];
+    private final SideMode[] sideModes = new SideMode[7]; // 6 directions + null
+    private final IItemHandler[] views = new IItemHandler[7];
 
     private class SidedItemHandlerView implements IItemHandlerModifiable {
         private final Direction side;
@@ -72,7 +63,7 @@ public class SidedProcessingSlotWrapper {
             if (!getSideMode(side).isPushEnabled() || slot < inputHandler.getSlots()) {
                 return ItemStack.EMPTY;
             }
-            return outputHandler.extractItem(slot- inputHandler.getSlots(), amount, simulate);
+            return outputHandler.extractItem(slot - inputHandler.getSlots(), amount, simulate);
         }
 
         @Override
@@ -112,14 +103,11 @@ public class SidedProcessingSlotWrapper {
     }
 
     public IItemHandler getView(@Nullable Direction side) {
-        return getViewLazily(side).orElse(null);
-    }
-
-    public LazyOptional<IItemHandler> getViewLazily(@Nullable Direction side) {
-        LazyOptional<IItemHandler> view = views[side == null ? 6 : side.ordinal()];
+        int idx = side == null ? 6 : side.ordinal();
+        IItemHandler view = views[idx];
         if (view == null) {
-            view = LazyOptional.of(() -> new SidedItemHandlerView(side));
-            views[side == null ? 6 : side.ordinal()] = view;
+            view = new SidedItemHandlerView(side);
+            views[idx] = view;
         }
         return view;
     }
@@ -140,18 +128,8 @@ public class SidedProcessingSlotWrapper {
         return outputHandler;
     }
 
-    public void invalidate() {
-        for (LazyOptional<IItemHandler> view : views) {
-            if (view != null) {
-                view.invalidate();
-            }
-        }
-    }
-
     /**
-     * Serialise and pack side modes into an 16-bit integer (short).
-     *
-     * @return The packed representation of the current state of the sideModes array.
+     * Pack side modes into a 16-bit short.
      */
     public short sideModesToShort() {
         int value = 0;
@@ -162,9 +140,7 @@ public class SidedProcessingSlotWrapper {
     }
 
     /**
-     * Unpack and apply a packed 16-bit side modes array.
-     *
-     * @param value The packed value as obtained from {@link #sideModesToShort()}.
+     * Unpack and apply a packed short of side modes.
      */
     public void setSideModesFromShort(int value) {
         for (int i = 0; i < sideModes.length; i++) {

@@ -5,14 +5,16 @@ import com.smashingmods.alchemylib.api.blockentity.container.AbstractProcessingS
 import com.smashingmods.alchemylib.api.blockentity.container.button.AbstractAlchemyButton;
 import com.smashingmods.alchemylib.common.network.ToggleLockButtonPacket;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("unused")
 public class LockButton extends AbstractAlchemyButton {
+
+    private static final ResourceLocation WIDGETS = ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png");
 
     public LockButton(AbstractProcessingScreen<?> pParent) {
         super(pParent, pButton -> {
@@ -25,15 +27,14 @@ public class LockButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
+        pGuiGraphics.blit(WIDGETS, getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
     @Override
     public MutableComponent getMessage() {
-        return blockEntity.isRecipeLocked() ?
-                MutableComponent.create(new TranslatableContents("alchemylib.container.unlock_recipe", "Unlock recipe", TranslatableContents.NO_ARGS))
-                :
-                MutableComponent.create(new TranslatableContents("alchemylib.container.lock_recipe", "Lock recipe", TranslatableContents.NO_ARGS));
+        return blockEntity.isRecipeLocked()
+                ? Component.translatable("alchemylib.container.unlock_recipe")
+                : Component.translatable("alchemylib.container.lock_recipe");
     }
 }

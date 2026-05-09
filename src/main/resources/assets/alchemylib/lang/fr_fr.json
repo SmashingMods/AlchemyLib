@@ -1,0 +1,9 @@
+{
+  "alchemylib.container.close_recipe_select": "Fermer la sélection de recette",
+  "alchemylib.container.lock_recipe": "Verrouiller la recette",
+  "alchemylib.container.open_recipe_select": "Ouvrir la sélection de recette",
+  "alchemylib.container.pause": "Pause",
+  "alchemylib.container.resume": "Reprendre",
+  "alchemylib.container.show_recipes": "Afficher les recettes",
+  "alchemylib.container.unlock_recipe": "Déverrouiller la recette"
+}
