@@ -9,7 +9,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = "${mod_id}-neoforged"
+    archivesName = "${mod_id}"
 }
 
 java {
@@ -65,7 +65,7 @@ repositories {
 }
 
 dependencies {
-    implementation "me.f0x.chemlib:chemlib:${chemlib_version}"
+    implementation "com.smashingmods.chemlib:chemlib:${chemlib_version}"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
