@@ -14,6 +14,17 @@ public abstract class AbstractDisplayData implements DisplayData {
     private final int width;
     private final int height;
 
+    /**
+     * Set the x/y coordinates of child classes to be drawn on the screen. DisplayData renders from
+     * the left and top respectively.
+     *
+     * <p>The width and height passed here will determine the total area that is used to render the data.</p>
+     *
+     * @param pX integer representing the x position on the screen.
+     * @param pY integer representing the y position on the screen.
+     * @param pWidth integer value of the width of the display data.
+     * @param pHeight integer value of the height of the display data.
+     */
     public AbstractDisplayData(int pX, int pY, int pWidth, int pHeight) {
         this.x = pX;
         this.y = pY;

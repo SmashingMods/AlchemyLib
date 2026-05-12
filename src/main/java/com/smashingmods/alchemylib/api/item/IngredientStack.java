@@ -39,6 +39,16 @@ public class IngredientStack {
     private final int count;
     private final ResourceLocation registryName;
 
+    /**
+     * All other constructors reference this main constructor for creating a new IngredientStack.
+     *
+     * <p>{@link IngredientStack#registryName} is set by creating a new {@link ResourceLocation} from the 0th
+     * entry of the Ingredient's values array. The array is first serialized and then either the "item" or "tag" value
+     * is retrieved depending on which exists.</p>
+     *
+     * @param pIngredient {@link Ingredient}
+     * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
+     */
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
@@ -87,6 +97,13 @@ public class IngredientStack {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Pass-through for the Ingredient's test method. This is used to determine if an ItemStack matches the predicate of the
+     * Ingredient. For example, if an Ingredient was made using the tag key "forge:chests/wooden" and you tested an item
+     * with the Resource Location "minecraft:chest", then it would match because "minecraft:chest" is contained within that tag.
+     *
+     * @param pItemStack {@link ItemStack} to test against.
+     */
     public boolean matches(ItemStack pItemStack) {
         return ingredient.test(pItemStack);
     }
@@ -107,6 +124,12 @@ public class IngredientStack {
         return ingredient.isEmpty();
     }
 
+    /**
+     * Determines object equality of this IngredientStack against another object based on {@link ResourceLocation#equals(Object)}.
+     *
+     * @param pObject Object
+     * @return boolean
+     */
     @Override
     public boolean equals(Object pObject) {
         if (this == pObject) return true;
@@ -115,6 +138,11 @@ public class IngredientStack {
         return getRegistryName().equals(that.getRegistryName());
     }
 
+    /**
+     * Calculates the hash code for this IngredientStack based on its {@link ResourceLocation registryName} hash code.
+     *
+     * @return int
+     */
     @Override
     public int hashCode() {
         int result = getCount();
@@ -122,6 +150,12 @@ public class IngredientStack {
         return result;
     }
 
+    /**
+     * Creates a new copy of this IngredientStack, useful for when you need to modify an IngredientStack
+     * but don't want changes to cascade to other objects referencing this IngredientStack.
+     *
+     * @return IngredientStack
+     */
     public IngredientStack copy() {
         return new IngredientStack(ingredient, count);
     }

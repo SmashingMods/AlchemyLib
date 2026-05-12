@@ -22,18 +22,55 @@ public abstract class AbstractPacketHandler {
      */
     public abstract void register(PayloadRegistrar registrar);
 
+    /**
+     * Sends the packet passed as a parameter to the server via {@link PacketDistributor}.
+     *
+     * @param pMessage Your packet to send to the server.
+     * @param <MSG> extends AlchemyPacket
+     *
+     * @see AlchemyPacket
+     */
     public <MSG extends AlchemyPacket> void sendToServer(MSG pMessage) {
         PacketDistributor.sendToServer(pMessage);
     }
 
+    /**
+     * Sends a packet to the specific player specified in parameters via {@link PacketDistributor}.
+     *
+     * @param pMessage Your packet to send to the player.
+     * @param pPlayer And instance of ServerPlayer.
+     * @param <MSG> AlchemyPacket
+     *
+     * @see AlchemyPacket
+     */
     public <MSG extends AlchemyPacket> void sendToPlayer(MSG pMessage, ServerPlayer pPlayer) {
         PacketDistributor.sendToPlayer(pPlayer, pMessage);
     }
 
+    /**
+     * Sends the packet passed as a parameter to all players connected to the server via
+     * {@link PacketDistributor}. Note: this will work if you are in a single player instance,
+     * LAN, or a dedicated server.
+     *
+     * @param pMessage Your packet to send to all players.
+     * @param <MSG> AlchemyPacket
+     */
     public <MSG extends AlchemyPacket> void sendToAll(MSG pMessage) {
         PacketDistributor.sendToAllPlayers(pMessage);
     }
 
+    /**
+     * Sends the packet passed as a parameter to all players within a radius of the passed {@link BlockPos}
+     * in the {@link Level} parameter.
+     *
+     * @param pMessage Your packet to send.
+     * @param pLevel An instance of the Level (overworld, nether, end, etc) used to determine the context
+     *               of the BlockPos parameter.
+     * @param pBlockPos BlockPos that is the center location for where to send the packet.
+     * @param pRadius Distance in blocks from the center BlockPos, the packet is sent to everyone in this radius.
+     * @param <MSG> AlchemyPacket
+     *
+     */
     public <MSG extends AlchemyPacket> void sendToNear(MSG pMessage, Level pLevel, BlockPos pBlockPos, double pRadius) {
         if (pLevel instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersNear(serverLevel, null,
@@ -42,6 +79,19 @@ public abstract class AbstractPacketHandler {
         }
     }
 
+    /**
+     * Sends the packet to all players that are tracking a specific chunk based on the passed {@link Level} and {@link BlockPos}.
+     * All players that are tracking the chunk of the BlockPos will receive the packet.
+     *
+     * @param pMessage Your packet to send.
+     * @param pLevel An instance of the Level (overworld, nether, end, etc) used to determine the context
+     *               of the BlockPos parameter.
+     * @param pBlockPos BlockPos used to find the chunk being tracked.
+     * @param <MSG> AlchemyPacket
+     *
+     * @see Level
+     * @see BlockPos
+     */
     public <MSG extends AlchemyPacket> void sendToTrackingChunk(MSG pMessage, Level pLevel, BlockPos pBlockPos) {
         if (pLevel instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pBlockPos), pMessage);
