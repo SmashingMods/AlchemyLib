@@ -41,6 +41,7 @@ public class FluidStorageHandler extends FluidTank {
      */
     public void setAmount(int pValue) {
         fluid.setAmount(Math.max(Math.min(pValue, capacity), 0));
+        onContentsChanged();
     }
 
     /**
@@ -48,6 +49,7 @@ public class FluidStorageHandler extends FluidTank {
      */
     public void fillAmount(int pValue) {
         fluid.setAmount(Math.min(getFluidAmount() + pValue, capacity));
+        onContentsChanged();
     }
 
     /**
@@ -55,6 +57,7 @@ public class FluidStorageHandler extends FluidTank {
      */
     public void drainAmount(int pValue) {
         fluid.setAmount(Math.max(getFluidAmount() - pValue, 0));
+        onContentsChanged();
     }
 
     public FluidStack getFluidStack() {

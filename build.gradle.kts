@@ -94,7 +94,7 @@ configurations {
 }
 
 dependencies {
-    implementation("maven.modrinth:chemlib-updated:$chemlibVersion")
+    implementation(files("../ChemLib-1211/build/libs/chemlib-${chemlibVersion}.jar"))
 }
 
 tasks.processResources {

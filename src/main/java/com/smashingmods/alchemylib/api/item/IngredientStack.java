@@ -1,11 +1,19 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -26,6 +34,28 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class IngredientStack {
 
+    public static final Codec<IngredientStack> CODEC = Codec.PASSTHROUGH.comapFlatMap(dynamic -> {
+                JsonElement element = dynamic.convert(JsonOps.INSTANCE).getValue();
+                if (!element.isJsonObject()) {
+                    return DataResult.error(() -> "IngredientStack must be a JSON object");
+                }
+                try {
+                    return DataResult.success(fromJson(element.getAsJsonObject()));
+                } catch (RuntimeException exception) {
+                    return DataResult.error(exception::getMessage);
+                }
+            }, ingredientStack -> new Dynamic<>(JsonOps.INSTANCE, ingredientStack.toJson()));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, IngredientStack> STREAM_CODEC = StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC,
+            IngredientStack::getIngredient,
+
+            ByteBufCodecs.INT,
+            IngredientStack::getCount,
+
+            IngredientStack::new
+    );
+
     private final Ingredient ingredient;
     private final int count;
     private final ResourceLocation registryName;
@@ -43,8 +73,7 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        // TODO
-        this.registryName = null; //new ResourceLocation(pIngredient.values[0].serialize().has("item") ? pIngredient.values[0].serialize().get("item").getAsString() : pIngredient.values[0].serialize().get("tag").getAsString());
+        this.registryName = resolveRegistryName(pIngredient);
     }
 
     public IngredientStack(Ingredient pIngredient) {
@@ -73,9 +102,10 @@ public class IngredientStack {
      * @param pBuffer {@link FriendlyByteBuf}
      */
     public void toNetwork(FriendlyByteBuf pBuffer) {
-        throw new NotImplementedException();
-        //ingredient.toNetwork(pBuffer); TODO
-        //pBuffer.writeInt(count);
+        if (!(pBuffer instanceof RegistryFriendlyByteBuf registryFriendlyByteBuf)) {
+            throw new NotImplementedException("IngredientStack network serialization requires RegistryFriendlyByteBuf");
+        }
+        STREAM_CODEC.encode(registryFriendlyByteBuf, this);
     }
 
     /**
@@ -86,10 +116,10 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromNetwork(FriendlyByteBuf pBuffer) {
-        throw new NotImplementedException();
-        //Ingredient ingredient = Ingredient.fromNetwork(pBuffer); TODO
-        //int count = pBuffer.readInt();
-        //return new IngredientStack(ingredient, count);
+        if (!(pBuffer instanceof RegistryFriendlyByteBuf registryFriendlyByteBuf)) {
+            throw new NotImplementedException("IngredientStack network deserialization requires RegistryFriendlyByteBuf");
+        }
+        return STREAM_CODEC.decode(registryFriendlyByteBuf);
     }
 
     /**
@@ -98,8 +128,11 @@ public class IngredientStack {
      * @return {@link JsonObject}
      */
     public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        //json.add("ingredient", ingredient);
+        JsonElement ingredientJson = Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, ingredient).result().orElseThrow();
+        if (!ingredientJson.isJsonObject()) {
+            throw new IllegalStateException("IngredientStack ingredient must encode to a JSON object");
+        }
+        JsonObject json = ingredientJson.getAsJsonObject().deepCopy();
         json.addProperty("count", count);
         return json;
     }
@@ -111,8 +144,17 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromJson(JsonObject pJson) {
-        Ingredient ingredient = Ingredient.CODEC.parse(JsonOps.INSTANCE, pJson).result().orElseThrow();
         int count = GsonHelper.getAsInt(pJson, "count", 1);
+        // Support both nested {"ingredient": {"item":"..."}, "count": N}
+        // and flat {"item":"...", "count": N} formats
+        JsonObject ingredientJson;
+        if (pJson.has("ingredient") && pJson.get("ingredient").isJsonObject()) {
+            ingredientJson = pJson.getAsJsonObject("ingredient");
+        } else {
+            ingredientJson = pJson.deepCopy();
+            ingredientJson.remove("count");
+        }
+        Ingredient ingredient = Ingredient.CODEC.parse(JsonOps.INSTANCE, ingredientJson).result().orElseThrow();
         return new IngredientStack(ingredient, count);
     }
 
@@ -153,6 +195,32 @@ public class IngredientStack {
 
     public boolean isEmpty() {
         return ingredient.isEmpty();
+    }
+
+    private static ResourceLocation resolveRegistryName(Ingredient ingredient) {
+        JsonElement ingredientJson = Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, ingredient).result().orElseThrow();
+        JsonObject ingredientObject = firstIngredientObject(ingredientJson);
+        if (ingredientObject.has("item")) {
+            return ResourceLocation.parse(ingredientObject.get("item").getAsString());
+        }
+        if (ingredientObject.has("tag")) {
+            return ResourceLocation.parse(ingredientObject.get("tag").getAsString());
+        }
+        ItemStack[] items = ingredient.getItems();
+        if (items.length == 0) {
+            return BuiltInRegistries.ITEM.getKey(net.minecraft.world.item.Items.AIR);
+        }
+        return BuiltInRegistries.ITEM.getKey(items[0].getItem());
+    }
+
+    private static JsonObject firstIngredientObject(JsonElement ingredientJson) {
+        if (ingredientJson.isJsonObject()) {
+            return ingredientJson.getAsJsonObject();
+        }
+        if (ingredientJson.isJsonArray() && !ingredientJson.getAsJsonArray().isEmpty() && ingredientJson.getAsJsonArray().get(0).isJsonObject()) {
+            return ingredientJson.getAsJsonArray().get(0).getAsJsonObject();
+        }
+        throw new IllegalStateException("Unsupported ingredient JSON format");
     }
 
     /**

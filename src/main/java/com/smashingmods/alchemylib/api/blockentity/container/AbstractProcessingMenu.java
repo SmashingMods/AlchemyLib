@@ -1,15 +1,20 @@
 package com.smashingmods.alchemylib.api.blockentity.container;
 
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
+import com.smashingmods.alchemylib.api.blockentity.processing.AbstractFluidBlockEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * This abstract class extends {@link AbstractContainerMenu} by adding overrides for mod support. It also provides
@@ -23,6 +28,7 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
     private final Level level;
     private final int inputSlots;
     private final int outputSlots;
+    private final Player menuPlayer;
 
     protected AbstractProcessingMenu(MenuType<?> pMenuType, int pContainerId, Inventory pInventory, BlockEntity pBlockEntity, int pInputSlots, int pOutputSlots) {
         super(pMenuType, pContainerId);
@@ -31,8 +37,66 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
         this.outputSlots = pOutputSlots;
         this.blockEntity = ((AbstractProcessingBlockEntity) pBlockEntity);
         this.level = pInventory.player.level();
+        this.menuPlayer = pInventory.player;
 
         addPlayerInventorySlots(pInventory);
+        
+        // Agregar sincronización de progreso desde el BlockEntity al cliente
+        addDataSlots(createProgressData());
+    }
+
+    /**
+     * Crea los DataSlots para sincronizar el estado del progreso desde el BlockEntity al cliente.
+     * @return ContainerData con [progress, maxProgress, canProcess, recipeLocked, paused]
+     */
+    private ContainerData createProgressData() {
+        final boolean isFluidMachine = blockEntity instanceof AbstractFluidBlockEntity;
+        return new ContainerData() {
+            @Override
+            public int get(int pIndex) {
+                if (pIndex <= 4) {
+                    int[] data = blockEntity.createIntArray();
+                    return pIndex < data.length ? data[pIndex] : 0;
+                }
+
+                if (isFluidMachine) {
+                    AbstractFluidBlockEntity fluidBlockEntity = (AbstractFluidBlockEntity) blockEntity;
+                    return switch (pIndex) {
+                        case 5 -> fluidBlockEntity.getFluidStorage().getFluidAmount();
+                        case 6 -> fluidBlockEntity.getFluidStorage().getCapacity();
+                        default -> 0;
+                    };
+                }
+
+                return 0;
+            }
+
+            @Override
+            public void set(int pIndex, int pValue) {
+                if (pIndex <= 4) {
+                    int[] data = blockEntity.createIntArray();
+                    if (pIndex < data.length) {
+                        switch (pIndex) {
+                            case 0 -> blockEntity.setProgress(pValue);
+                            case 1 -> blockEntity.setMaxProgress(pValue);
+                            case 2 -> blockEntity.setCanProcess(pValue == 1);
+                            case 3 -> blockEntity.setRecipeLocked(pValue == 1);
+                            case 4 -> blockEntity.setPaused(pValue == 1);
+                        }
+                    }
+                    return;
+                }
+
+                if (isFluidMachine && pIndex == 5) {
+                    ((AbstractFluidBlockEntity) blockEntity).getFluidStorage().setAmount(pValue);
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return isFluidMachine ? 7 : 5;
+            }
+        };
     }
 
     /**
@@ -47,9 +111,11 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        if (level != null && !level.isClientSide()) {
-            // TODO
-            //PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) getLevel(), getLevel().getChunk(getBlockEntity().getBlockPos()).getPos(), new BlockEntityPacket(getBlockEntity().getBlockPos(), getBlockEntity().getUpdateTag()));
+        if (level != null && !level.isClientSide() && menuPlayer instanceof ServerPlayer serverPlayer) {
+            Packet<ClientGamePacketListener> updatePacket = getBlockEntity().getUpdatePacket();
+            if (updatePacket != null) {
+                serverPlayer.connection.send(updatePacket);
+            }
         }
     }
 

@@ -1,19 +1,37 @@
 package com.smashingmods.alchemylib.api.recipe;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This abstract implementation of {@link ProcessingRecipe} implements default methods that should
  * be ignored by extending classes.
  */
 public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comparable<AbstractProcessingRecipe> {
+    @Nullable
+    private ResourceLocation id;
     private final String group;
 
     public AbstractProcessingRecipe(String pGroup) {
+        this(null, pGroup);
+    }
+
+    public AbstractProcessingRecipe(@Nullable ResourceLocation pId, String pGroup) {
+        this.id = pId;
         this.group = pGroup;
+    }
+
+    @Nullable
+    public ResourceLocation getId() {
+        return id;
+    }
+
+    public void setId(@Nullable ResourceLocation pId) {
+        this.id = pId;
     }
 
     @Override

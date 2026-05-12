@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,6 +67,14 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
     }
 
     @Override
@@ -193,5 +202,20 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         setRecipeLocked(tag.getBoolean("locked"));
         setPaused(tag.getBoolean("paused"));
         energyHandler.deserializeNBT(registries, tag.get("energy"));
+    }
+
+    /**
+     * Create an int array for synchronizing progress state to the client.
+     * Used by AbstractProcessingMenu via addDataSlots().
+     * @return int array with [progress, maxProgress, canProcess (0/1), recipeLocked (0/1), paused (0/1)]
+     */
+    public int[] createIntArray() {
+        return new int[]{
+            progress,
+            maxProgress,
+            canProcess ? 1 : 0,
+            recipeLocked ? 1 : 0,
+            paused ? 1 : 0
+        };
     }
 }

@@ -5,7 +5,6 @@ import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessing
 import com.smashingmods.alchemylib.api.storage.FluidStorageHandler;
 import net.minecraft.client.resources.language.I18n;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -35,8 +34,7 @@ public class FluidDisplayData extends AbstractDisplayData {
     }
 
     public FluidStorageHandler getFluidHandler() {
-        throw new NotImplementedException(); // TODO
-        //return (FluidStorageHandler) blockEntity.getCapability(Capabilities.FluidHandler.BLOCK).orElseGet(() -> new FluidStorageHandler(0, FluidStack.EMPTY));
+        return blockEntity.getFluidStorage();
     }
 
     @Override
