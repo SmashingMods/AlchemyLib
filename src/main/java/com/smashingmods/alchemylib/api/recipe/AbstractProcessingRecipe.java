@@ -76,6 +76,20 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
         return false;
     }
 
+    /**
+     * Null-safe ID comparison for use in compareTo implementations.
+     * Guards against the case where setId() has not yet been called (e.g. during onLoad
+     * if RecipeManager hasn't populated recipe holders yet).
+     */
+    protected final int safeCompareIds(AbstractProcessingRecipe pOther) {
+        ResourceLocation mine = getId();
+        ResourceLocation theirs = pOther.getId();
+        if (mine == null && theirs == null) return 0;
+        if (mine == null) return -1;
+        if (theirs == null) return 1;
+        return mine.compareNamespaced(theirs);
+    }
+
     @Override
     public boolean equals(Object pOther) {
         return pOther instanceof AbstractProcessingRecipe recipe && compareTo(recipe) == 0;
