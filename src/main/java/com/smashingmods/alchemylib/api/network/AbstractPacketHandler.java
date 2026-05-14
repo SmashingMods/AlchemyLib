@@ -1,5 +1,6 @@
 package com.smashingmods.alchemylib.api.network;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -72,11 +73,12 @@ public abstract class AbstractPacketHandler {
      *
      */
     public <MSG extends AlchemyPacket> void sendToNear(MSG pMessage, Level pLevel, BlockPos pBlockPos, double pRadius) {
-        if (pLevel instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersNear(serverLevel, null,
-                    pBlockPos.getX(), pBlockPos.getY(), pBlockPos.getZ(),
-                    pRadius, pMessage);
-        }
+        Preconditions.checkState(pLevel instanceof ServerLevel,
+                "sendToNear must be called server-side, got %s", pLevel.getClass().getSimpleName());
+        ServerLevel serverLevel = (ServerLevel) pLevel;
+        PacketDistributor.sendToPlayersNear(serverLevel, null,
+                pBlockPos.getX(), pBlockPos.getY(), pBlockPos.getZ(),
+                pRadius, pMessage);
     }
 
     /**
@@ -93,8 +95,9 @@ public abstract class AbstractPacketHandler {
      * @see BlockPos
      */
     public <MSG extends AlchemyPacket> void sendToTrackingChunk(MSG pMessage, Level pLevel, BlockPos pBlockPos) {
-        if (pLevel instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pBlockPos), pMessage);
-        }
+        Preconditions.checkState(pLevel instanceof ServerLevel,
+                "sendToTrackingChunk must be called server-side, got %s", pLevel.getClass().getSimpleName());
+        ServerLevel serverLevel = (ServerLevel) pLevel;
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pBlockPos), pMessage);
     }
 }

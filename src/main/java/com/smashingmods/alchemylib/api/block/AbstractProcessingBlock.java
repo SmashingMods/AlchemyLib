@@ -45,9 +45,9 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
     }
 
     /**
-     * Handles rotation for this block using the {@link BlockStateProperties#HORIZONTAL_FACING FACING} property.
-     *
-     * @see BaseEntityBlock#rotate(BlockState, LevelAccessor, BlockPos, Rotation)
+     * Concrete subclasses must override this and return their own {@link MapCodec}. Vanilla
+     * registration calls this on every {@link BaseEntityBlock} subclass; if the override is
+     * missing, the game crashes when the block is registered.
      */
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
@@ -63,20 +63,15 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
      * @return {@link BlockState}
      */
     @Nullable
-    /**
-     * Add {@link BlockStateProperties#HORIZONTAL_FACING FACING} to this block's default block state definition.
-     *
-     * @see BaseEntityBlock#createBlockStateDefinition(StateDefinition.Builder)
-     */
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
         return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection().getOpposite());
     }
 
     /**
-     * This method is called whenever a block is broken in the world by a player or anything else. The first priority
-     * is to make sure that if this block's block entity is an instance of {@link InventoryBlockEntity} that the item contents
-     * of its container are dropped into the world and not deleted.
+     * Handles rotation for this block using the {@link BlockStateProperties#HORIZONTAL_FACING FACING} property.
+     *
+     * @see BaseEntityBlock#rotate(BlockState, LevelAccessor, BlockPos, Rotation)
      */
     @Override
     public BlockState rotate(BlockState pState, LevelAccessor pLevelAccessor, BlockPos pBlockPos, Rotation pRotation) {
@@ -88,6 +83,11 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
         return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
     }
 
+    /**
+     * Add {@link BlockStateProperties#HORIZONTAL_FACING FACING} to this block's default block state definition.
+     *
+     * @see BaseEntityBlock#createBlockStateDefinition(StateDefinition.Builder)
+     */
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         pBuilder.add(FACING);
@@ -98,6 +98,11 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
+    /**
+     * This method is called whenever a block is broken in the world by a player or anything else. The first priority
+     * is to make sure that if this block's block entity is an instance of {@link InventoryBlockEntity} that the item contents
+     * of its container are dropped into the world and not deleted.
+     */
     @Override
     protected void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         if (pState.getBlock() != pNewState.getBlock()) {

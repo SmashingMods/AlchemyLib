@@ -42,9 +42,8 @@ public class IngredientStack {
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is set by creating a new {@link ResourceLocation} from the 0th
-     * entry of the Ingredient's values array. The array is first serialized and then either the "item" or "tag" value
-     * is retrieved depending on which exists.</p>
+     * <p>{@link IngredientStack#registryName} is set from the first entry of the Ingredient's
+     * values array — its tag id for tag-based values, its item id for item-based values.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -52,14 +51,16 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        // Resolve a registry-name from the first matching item. For tag-based ingredients
-        // this picks the first item in the tag; consumers that need the original tag id
-        // should retain it externally.
-        ItemStack[] items = pIngredient.getItems();
-        if (items.length > 0 && !items[0].isEmpty()) {
-            this.registryName = BuiltInRegistries.ITEM.getKey(items[0].getItem());
+        Ingredient.Value[] values = pIngredient.getValues();
+        if (values.length > 0 && values[0] instanceof Ingredient.TagValue tagValue) {
+            this.registryName = tagValue.tag().location();
         } else {
-            this.registryName = ResourceLocation.parse("minecraft:air");
+            ItemStack[] items = pIngredient.getItems();
+            if (items.length > 0 && !items[0].isEmpty()) {
+                this.registryName = BuiltInRegistries.ITEM.getKey(items[0].getItem());
+            } else {
+                this.registryName = ResourceLocation.parse("minecraft:air");
+            }
         }
     }
 
