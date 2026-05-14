@@ -42,8 +42,10 @@ public class IngredientStack {
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is set from the first entry of the Ingredient's
-     * values array — its tag id for tag-based values, its item id for item-based values.</p>
+     * <p>{@link IngredientStack#registryName} is set from the first resolved item of the
+     * Ingredient. For tag-based vanilla ingredients the tag id is used when available, so
+     * tag identity is preserved for equality. Custom ingredients (DataComponentIngredient,
+     * CompoundIngredient, etc.) fall back to the first resolved item's id.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -51,17 +53,21 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        Ingredient.Value[] values = pIngredient.getValues();
-        if (values.length > 0 && values[0] instanceof Ingredient.TagValue tagValue) {
-            this.registryName = tagValue.tag().location();
-        } else {
-            ItemStack[] items = pIngredient.getItems();
-            if (items.length > 0 && !items[0].isEmpty()) {
-                this.registryName = BuiltInRegistries.ITEM.getKey(items[0].getItem());
-            } else {
-                this.registryName = ResourceLocation.parse("minecraft:air");
+        this.registryName = deriveRegistryName(pIngredient);
+    }
+
+    private static ResourceLocation deriveRegistryName(Ingredient pIngredient) {
+        if (!pIngredient.isCustom()) {
+            Ingredient.Value[] values = pIngredient.getValues();
+            if (values.length > 0 && values[0] instanceof Ingredient.TagValue tagValue) {
+                return tagValue.tag().location();
             }
         }
+        ItemStack[] items = pIngredient.getItems();
+        if (items.length > 0 && !items[0].isEmpty()) {
+            return BuiltInRegistries.ITEM.getKey(items[0].getItem());
+        }
+        return ResourceLocation.parse("minecraft:air");
     }
 
     public IngredientStack(Ingredient pIngredient) {
