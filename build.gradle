@@ -165,6 +165,11 @@ publishing {
     }
 }
 
+// TODO: re-enable CurseForge publishing once an apiKey is configured in secrets.properties.
+// Disabled during the NeoForge port: the cursegradle plugin reads apiKey at configuration
+// time and aborts the whole build ("apiKey not set for project 293426") when it is absent,
+// which blocks build/runData on machines without publish credentials.
+/*
 curseforge {
     apiKey = secrets.getProperty("apiKey")
     project {
@@ -181,6 +186,7 @@ curseforge {
         }
     }
 }
+*/
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
