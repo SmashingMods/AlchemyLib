@@ -32,7 +32,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            jvmArgs '-XX:+AllowEnhancedClassRedefinition'
 
             mods {
                 alchemylib {
@@ -47,7 +46,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            jvmArgs '-XX:+AllowEnhancedClassRedefinition'
             args 'nogui'
 
             mods {
@@ -63,7 +61,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'alchemylib'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            jvmArgs '-XX:+AllowEnhancedClassRedefinition'
 
             mods {
                 alchemylib {
@@ -78,7 +75,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            jvmArgs '-XX:+AllowEnhancedClassRedefinition'
 
             args '--mod', "$archivesBaseName", '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources')
 
