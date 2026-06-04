@@ -28,6 +28,6 @@ side="BOTH"
 [[dependencies.${mod_id}]]
 modId="chemlib"
 mandatory=true
-versionRange="[${minecraft_version}-${chemlib_version},)"
+versionRange="[${chemlib_version},)"
 ordering="NONE"
 side="BOTH"
