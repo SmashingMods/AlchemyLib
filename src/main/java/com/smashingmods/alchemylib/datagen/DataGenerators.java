@@ -1,7 +1,7 @@
 package com.smashingmods.alchemylib.datagen;
 
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public class DataGenerators {
 

@@ -12,11 +12,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
+import net.neoforged.neoforge.common.capabilities.Capability;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,9 +66,9 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
+        if (pCapability == Capabilities.ITEM_HANDLER) {
             return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        } else if (pCapability == ForgeCapabilities.FLUID_HANDLER) {
+        } else if (pCapability == Capabilities.FLUID_HANDLER) {
             return lazyFluidHandler.cast();
         }
         return super.getCapability(pCapability, pDirection);

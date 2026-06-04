@@ -6,6 +6,7 @@ import com.smashingmods.alchemylib.api.item.IngredientStack;
 import com.smashingmods.chemlib.common.items.CompoundItem;
 import com.smashingmods.chemlib.common.items.ElementItem;
 import com.smashingmods.chemlib.registry.ItemRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,9 +14,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.crafting.conditions.*;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.conditions.*;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.*;
 
@@ -30,7 +30,7 @@ public class DatagenHelpers {
         if (!pItemStack.isEmpty()) {
 
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(pItemStack.getItem())).toString());
+            jsonObject.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItemStack.getItem())).toString());
 
             if (pItemStack.getCount() > 1) {
                 jsonObject.addProperty("count", pItemStack.getCount());
@@ -48,12 +48,12 @@ public class DatagenHelpers {
 
                 JsonObject jsonObject = new JsonObject();
                 if (itemStack != null) {
-                    jsonObject.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(itemStack.getItem())).toString());
+                    jsonObject.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(itemStack.getItem())).toString());
                     if (itemStack.getCount() > 1) {
                         jsonObject.addProperty("count", itemStack.getCount());
                     }
                 } else {
-                    jsonObject.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(ItemStack.EMPTY.getItem())).toString());
+                    jsonObject.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(ItemStack.EMPTY.getItem())).toString());
                 }
                 jsonArray.add(jsonObject);
             }
@@ -75,7 +75,7 @@ public class DatagenHelpers {
         if (!pFluidStack.isEmpty()) {
 
             JsonObject jsonObject = new JsonObject();
-            ResourceLocation fluidLocation = ForgeRegistries.FLUIDS.getKey(pFluidStack.getFluid());
+            ResourceLocation fluidLocation = BuiltInRegistries.FLUID.getKey(pFluidStack.getFluid());
             String amount = String.valueOf(pFluidStack.getAmount());
 
             jsonObject.addProperty("fluid", Objects.requireNonNull(fluidLocation).toString());
@@ -107,8 +107,8 @@ public class DatagenHelpers {
         Optional<ElementItem> optionalElement = ItemRegistry.getElementByName(pString);
         Optional<CompoundItem> optionalCompound = ItemRegistry.getCompoundByName(pString.replace(" ", "_"));
 
-        Item outputItem = ForgeRegistries.ITEMS.getValue(resourceLocation);
-        Block outputBlock = ForgeRegistries.BLOCKS.getValue(resourceLocation);
+        Item outputItem = BuiltInRegistries.ITEM.get(resourceLocation);
+        Block outputBlock = BuiltInRegistries.BLOCK.get(resourceLocation);
 
         if (optionalElement.isPresent()) {
             return optionalElement.get();
@@ -124,15 +124,15 @@ public class DatagenHelpers {
     }
 
     public static ResourceLocation getLocation(ItemStack pItemStack, String pType, String pModId) {
-        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(pItemStack.getItem())).getPath()));
+        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItemStack.getItem())).getPath()));
     }
 
     public static ResourceLocation getLocation(Item pItem, String pType, String pModId) {
-        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(pItem)).getPath()));
+        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItem)).getPath()));
     }
 
     public static ResourceLocation getLocation(FluidStack pFluidStack, String pType, String pModId) {
-        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(pFluidStack.getFluid())).getPath()));
+        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(pFluidStack.getFluid())).getPath()));
     }
 
     @SuppressWarnings("unused")

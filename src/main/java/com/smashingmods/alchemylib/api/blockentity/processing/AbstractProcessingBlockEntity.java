@@ -3,6 +3,7 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -15,11 +16,10 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
+import net.neoforged.neoforge.common.capabilities.Capability;
+import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
 
     public AbstractProcessingBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pBlockEntityType, pWorldPosition, pBlockState);
-        this.name = MutableComponent.create(new TranslatableContents(String.format("%s.container.%s", pModId, ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(getType())), null, TranslatableContents.NO_ARGS));
+        this.name = MutableComponent.create(new TranslatableContents(String.format("%s.container.%s", pModId, BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(getType())), null, TranslatableContents.NO_ARGS));
     }
 
     @Override
@@ -166,7 +166,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     @Override
     @Nonnull
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ENERGY) {
+        if (pCapability == Capabilities.ENERGY) {
             return lazyEnergyHandler.cast();
         }
         return super.getCapability(pCapability, pDirection);

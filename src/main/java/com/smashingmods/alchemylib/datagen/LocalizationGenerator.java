@@ -2,7 +2,7 @@ package com.smashingmods.alchemylib.datagen;
 
 import com.smashingmods.alchemylib.AlchemyLib;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class LocalizationGenerator extends LanguageProvider {
 

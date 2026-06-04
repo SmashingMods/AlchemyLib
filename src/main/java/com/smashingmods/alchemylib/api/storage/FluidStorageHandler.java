@@ -1,8 +1,8 @@
 package com.smashingmods.alchemylib.api.storage;
 
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 /**
  * This class is a wrapper around {@link FluidTank} that adds some helper methods.

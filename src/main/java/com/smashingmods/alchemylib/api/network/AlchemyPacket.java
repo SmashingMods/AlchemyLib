@@ -3,7 +3,7 @@ package com.smashingmods.alchemylib.api.network;
 import com.smashingmods.alchemylib.common.network.BlockEntityPacket;
 import com.smashingmods.alchemylib.common.network.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.NetworkEvent;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -47,7 +47,7 @@ public interface AlchemyPacket {
      * and sets the packet as handled when done.
      *
      * @param pMessage The implementing packet.
-     * @param pContext Supplier of {@link net.minecraftforge.network.NetworkEvent.Context}
+     * @param pContext Supplier of {@link net.neoforged.neoforge.network.NetworkEvent.Context}
      * @param <MSG> AlchemyPacket
      */
     static <MSG extends AlchemyPacket> void handle(final MSG pMessage, Supplier<NetworkEvent.Context> pContext) {
