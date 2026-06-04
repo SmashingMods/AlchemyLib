@@ -20,7 +20,11 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
         this.group = pGroup;
     }
 
-    @Override
+    /**
+     * Returns the identifier this recipe was created with. As of 1.20.2 {@code Recipe} no longer
+     * declares {@code getId()} (recipe identity moved to {@code RecipeHolder}), so this is a plain
+     * accessor retained for consumers that still key recipes by their own id.
+     */
     public ResourceLocation getId() {
         return recipeId;
     }

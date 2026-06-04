@@ -5,7 +5,6 @@ import com.smashingmods.alchemylib.common.network.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.neoforged.neoforge.network.NetworkEvent;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -15,7 +14,7 @@ import java.util.function.Supplier;
  * The second constructor is used as a decoder to create a new packet object on the receiving side.</p>
  *
  * <p>The packet must be registered in your implementation of {@link AbstractPacketHandler#register} using
- * {@link AbstractPacketHandler#registerMessage(Class, Function)}</p>
+ * {@link AbstractPacketHandler#registerMessage}</p>
  *
  * @see BlockEntityPacket
  * @see PacketHandler

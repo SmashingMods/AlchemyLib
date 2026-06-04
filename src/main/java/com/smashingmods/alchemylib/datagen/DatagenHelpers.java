@@ -146,12 +146,12 @@ public class DatagenHelpers {
 
     @SuppressWarnings("unused")
     public static AndCondition andCondition(ICondition pCondition1, ICondition pCondition2) {
-        return new AndCondition(pCondition1, pCondition2);
+        return new AndCondition(List.of(pCondition1, pCondition2));
     }
 
     @SuppressWarnings("unused")
     public static OrCondition orCondition(ICondition pCondition1, ICondition pCondition2) {
-        return new OrCondition(pCondition1, pCondition2);
+        return new OrCondition(List.of(pCondition1, pCondition2));
     }
 
     public static TagEmptyCondition tagEmptyCondition(String pTag) {

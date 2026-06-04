@@ -1,6 +1,7 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -31,9 +32,8 @@ public class IngredientStack {
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is set by creating a new {@link ResourceLocation} from the 0th
-     * entry of the Ingredient's values array. The array is first serialized and then either the "item" or "tag" value
-     * is retrieved depending on which exists.</p>
+     * <p>{@link IngredientStack#registryName} is taken from the 0th entry of the Ingredient's values array. If that
+     * entry is an item value the item's registry name is used; if it is a tag value the tag's location is used.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -41,9 +41,14 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        this.registryName = new ResourceLocation(pIngredient.values[0].serialize().has("item") ?
-                pIngredient.values[0].serialize().get("item").getAsString()
-                : pIngredient.values[0].serialize().get("tag").getAsString());
+        Ingredient.Value value = pIngredient.values[0];
+        if (value instanceof Ingredient.TagValue tagValue) {
+            this.registryName = tagValue.tag().location();
+        } else if (value instanceof Ingredient.ItemValue itemValue) {
+            this.registryName = BuiltInRegistries.ITEM.getKey(itemValue.item().getItem());
+        } else {
+            throw new IllegalArgumentException("Ingredient value is neither an item nor a tag value.");
+        }
     }
 
     public IngredientStack(Ingredient pIngredient) {
@@ -96,7 +101,7 @@ public class IngredientStack {
      */
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
-        json.add("ingredient", ingredient.toJson());
+        json.add("ingredient", ingredient.toJson(false));
         json.addProperty("count", count);
         return json;
     }
@@ -108,7 +113,7 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromJson(JsonObject pJson) {
-        Ingredient ingredient = Ingredient.fromJson(pJson.getAsJsonObject("ingredient"));
+        Ingredient ingredient = Ingredient.fromJson(pJson.get("ingredient"), false);
         int count = GsonHelper.getAsInt(pJson, "count", 1);
         return new IngredientStack(ingredient, count);
     }

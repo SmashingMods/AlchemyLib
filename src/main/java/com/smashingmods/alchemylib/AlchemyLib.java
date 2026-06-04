@@ -4,7 +4,6 @@ import com.smashingmods.alchemylib.common.network.PacketHandler;
 import com.smashingmods.alchemylib.datagen.DataGenerators;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 
 
 /**
@@ -19,9 +18,8 @@ public class AlchemyLib {
     public static AlchemyLib instance;
     private final PacketHandler packetHandler = new PacketHandler().register();
 
-    public AlchemyLib() {
+    public AlchemyLib(IEventBus modEventBus) {
         instance = this;
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(DataGenerators::gatherData);
     }
 

@@ -11,9 +11,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.network.NetworkRegistry;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.simple.MessageFunctions;
 import net.neoforged.neoforge.network.simple.SimpleChannel;
 
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -87,8 +87,11 @@ public abstract class AbstractPacketHandler {
      * @see PacketHandler#register()
      * @see BlockEntityPacket#BlockEntityPacket(FriendlyByteBuf)  BlockEntityPacket
      */
-    protected <MSG extends AlchemyPacket> void registerMessage(Class<MSG> pMessageType, Function<FriendlyByteBuf, MSG> pDecoder) {
-        getChannel().registerMessage(PACKET_ID++, pMessageType, AlchemyPacket::encode, pDecoder, AlchemyPacket::handle);
+    protected <MSG extends AlchemyPacket> void registerMessage(Class<MSG> pMessageType, MessageFunctions.MessageDecoder<MSG> pDecoder) {
+        getChannel().registerMessage(PACKET_ID++, pMessageType,
+                (msg, buf) -> msg.encode(buf),
+                pDecoder,
+                (msg, ctx) -> AlchemyPacket.handle(msg, () -> ctx));
     }
 
     /**
