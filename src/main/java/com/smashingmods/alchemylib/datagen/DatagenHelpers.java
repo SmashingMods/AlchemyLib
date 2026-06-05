@@ -76,10 +76,9 @@ public class DatagenHelpers {
 
             JsonObject jsonObject = new JsonObject();
             ResourceLocation fluidLocation = BuiltInRegistries.FLUID.getKey(pFluidStack.getFluid());
-            String amount = String.valueOf(pFluidStack.getAmount());
 
             jsonObject.addProperty("fluid", Objects.requireNonNull(fluidLocation).toString());
-            jsonObject.addProperty("amount", amount);
+            jsonObject.addProperty("amount", pFluidStack.getAmount());
             pJson.add(pKey, jsonObject);
         }
     }
