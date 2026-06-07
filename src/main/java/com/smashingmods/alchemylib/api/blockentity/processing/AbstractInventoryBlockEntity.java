@@ -21,9 +21,7 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
 
     @Override
     public void tick() {
-        if (!inputHandler.isEmpty()) {
-            setCanProcess(canProcessRecipe());
-        }
+        setCanProcess(canProcessRecipe());
         super.tick();
     }
 

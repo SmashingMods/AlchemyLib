@@ -28,9 +28,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     @Override
     public void tick() {
-        if (!getFluidStorage().isEmpty()) {
-            setCanProcess(canProcessRecipe());
-        }
+        setCanProcess(canProcessRecipe());
         super.tick();
     }
 
