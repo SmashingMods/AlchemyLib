@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tier-2 tests for {@link ProcessingSlotHandler}'s slot count helpers. {@link ItemStack} reads the item
+ * Tests for {@link ProcessingSlotHandler}'s slot count helpers. {@link ItemStack} reads the item
  * registry for its max-stack size, so these need a populated registry (hence {@link BootstrappedTest}); all
  * stacks are vanilla {@link Items#STONE}, whose max stack size is 64.
  */

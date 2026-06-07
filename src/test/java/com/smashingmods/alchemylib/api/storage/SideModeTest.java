@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tier-0 tests for {@link SideMode}: pure enum flag/ordinal math, no Minecraft classpath
+ * Tests for {@link SideMode}: pure enum flag/ordinal math, no Minecraft classpath
  * and no {@link net.minecraft.server.Bootstrap} required.
  *
  * <p>Pins the pull/push flag pairs of each constant and the {@link SideMode#getFromOrdinal(int)}

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tier-2 tests for {@link FluidStorageHandler}'s amount helpers and their clamping. {@link FluidStack}
+ * Tests for {@link FluidStorageHandler}'s amount helpers and their clamping. {@link FluidStack}
  * resolves its fluid against the fluid registry, so these need a populated registry (hence
  * {@link BootstrappedTest}); the tank holds vanilla {@link Fluids#WATER} with a 10000 capacity, seeded to 5000.
  */

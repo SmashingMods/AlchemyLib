@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tier-1 round-trip test for {@link BlockEntityPacket}. Its two fields are private with no getters, so the round-trip
+ * Round-trip test for {@link BlockEntityPacket}. Its two fields are private with no getters, so the round-trip
  * is asserted two ways: by re-reading the encoded buffer in the same field order (direct field values), and by
  * re-encoding the decoded packet and comparing the bytes (faithful end-to-end equivalence). This guards the
  * encode/decode field order; it does not exercise {@link BlockEntityPacket#handle} wiring.

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Tests for {@link EnergyStorageHandler}'s energy helpers and their clamping against a 1000 capacity.
  *
  * <p>This is pure int arithmetic and does not itself need {@link net.minecraft.server.Bootstrap}, but it runs
- * under {@link BootstrappedTest} alongside the other storage-handler tests for a single shared bootstrap path.</p>
+ * under {@link BootstrappedTest} with the other storage-handler tests for a single shared bootstrap path.</p>
  */
 class EnergyStorageHandlerTest extends BootstrappedTest {
 

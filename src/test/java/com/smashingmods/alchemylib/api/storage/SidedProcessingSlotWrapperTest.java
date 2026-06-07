@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tier-0 tests for the side-mode short pack/unpack on {@link SidedProcessingSlotWrapper}.
+ * Tests for the side-mode short pack/unpack on {@link SidedProcessingSlotWrapper}.
  *
  * <p>The wrapper is built with {@code new SidedProcessingSlotWrapper(null, null)}: pack/unpack and
  * {@code get}/{@code setSideMode} only read and write the {@code sideModes} array, so the (null)
@@ -57,7 +57,6 @@ class SidedProcessingSlotWrapperTest {
 
     @Test
     void sideModeResidual_bitBeyondSevenSideRegion_isIgnored() {
-        // CONTRACT CHANGE (intermission, MC 1.20.4): setSideModesFromShort no longer throws on residual bits -- a deserialization/sync path must tolerate malformed/forward-compatible NBT. Was: threw IllegalArgumentException on leftover bits.
         SidedProcessingSlotWrapper wrapper = new SidedProcessingSlotWrapper(null, null);
 
         // Seven sides occupy bits 0..13 (2 bits each); bit 14 is the first the sideModes array cannot

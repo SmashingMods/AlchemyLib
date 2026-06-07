@@ -6,7 +6,7 @@ import net.minecraft.server.Bootstrap;
 import org.junit.jupiter.api.BeforeAll;
 
 /**
- * Shared base for Tier-2 tests that need Minecraft's built-in registries populated. Extend this and the
+ * Shared base for tests that need Minecraft's built-in registries populated. Extend this and the
  * {@code SharedConstants.setVersion(...)} + {@link Bootstrap#bootStrap()} incantation runs once before the
  * subclass's tests, instead of every bootstrap-needing test class redeclaring its own {@code @BeforeAll}.
  *

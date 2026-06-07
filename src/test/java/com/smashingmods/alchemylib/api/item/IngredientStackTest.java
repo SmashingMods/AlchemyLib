@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tier-2 tests for {@link IngredientStack}: the constructor reads the access-transformer-opened
+ * Tests for {@link IngredientStack}: the constructor reads the access-transformer-opened
  * {@code Ingredient.values} field, so these need the Minecraft classpath and a populated item registry
  * (hence {@link BootstrappedTest}). All ingredients are built from vanilla {@link Items} and {@link ItemTags}.
  * They also pin the {@code toNetwork}/{@code fromNetwork} round trip -- the persistence seam the recipe packets
@@ -112,7 +112,7 @@ class IngredientStackTest extends BootstrappedTest {
 
     @Test
     void networkRoundTrip_itemBacked_reproducesIngredientAndCount() {
-        // Only the network seam is exercised at Tier-2. The JSON seam (toJson/fromJson) routes through
+        // Only the network seam is exercised here. The JSON seam (toJson/fromJson) routes through
         // Ingredient.CODEC_NONEMPTY, which is NeoForge's dispatch codec keyed on the neoforge:ingredient_serializer
         // registry -- absent under a bare Bootstrap -- so toJson throws here and is left to the recipe gametests.
         IngredientStack original = new IngredientStack(Ingredient.of(Items.STONE), 16);

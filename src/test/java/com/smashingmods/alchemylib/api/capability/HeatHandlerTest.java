@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tier-0 tests for {@link HeatHandler}'s {@code increment}/{@code decrement} clamping: pure int
+ * Tests for {@link HeatHandler}'s {@code increment}/{@code decrement} clamping: pure int
  * arithmetic, no Minecraft classpath and no {@link net.minecraft.server.Bootstrap} required.
  *
  * <p>{@link HeatHandler#serializeNBT()} / {@link HeatHandler#deserializeNBT(net.minecraft.nbt.CompoundTag)}

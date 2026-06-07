@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * <p>{@link CompoundTag} is plain NBT and does not itself need {@link net.minecraft.server.Bootstrap}, but
  * this runs under {@link BootstrappedTest} for a single shared bootstrap path across the storage/capability
- * tests added alongside it.</p>
+ * tests.</p>
  */
 class HeatHandlerNbtTest extends BootstrappedTest {
 
