@@ -101,6 +101,9 @@ repositories {
     mavenLocal()
     maven { url "https://maven.blamejared.com/" }
     maven { url "https://maven.tamaized.com/releases" }
+    // JUnit (org.junit.*) is not mirrored by the repos above; settings.gradle has no
+    // dependencyResolutionManagement, so the test deps need Maven Central here.
+    mavenCentral()
 }
 
 dependencies {
@@ -109,7 +112,14 @@ dependencies {
 
     // Consume ChemLib from mavenLocal. NeoGradle remaps mod dependencies declared with a plain configuration, so no 'mod' prefix is needed.
     implementation "smashingmods:chemlib:${minecraft_version}-${chemlib_version}"
+
+    // JUnit 5 for the plain-JUnit `test` source set. testImplementation extends implementation,
+    // so the Minecraft classpath (net.neoforged:neoforge above) is inherited by the test compile/runtime.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+tasks.named('test', Test) { useJUnitPlatform() }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
 def replaceProperties = [
