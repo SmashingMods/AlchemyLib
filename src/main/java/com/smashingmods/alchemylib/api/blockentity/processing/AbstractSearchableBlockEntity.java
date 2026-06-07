@@ -52,6 +52,6 @@ public abstract class AbstractSearchableBlockEntity extends AbstractInventoryBlo
     @Override
     public void load(CompoundTag pTag) {
         super.load(pTag);
-        setSearchText(pTag.getString("searchText"));
+        this.searchText = pTag.getString("searchText");
     }
 }
