@@ -128,7 +128,11 @@ public class IngredientStack {
      */
     public List<ItemStack> toStacks() {
         return Arrays.stream(ingredient.getItems())
-                .peek(item -> item.setCount(count))
+                .map(item -> {
+                    ItemStack copy = item.copy();
+                    copy.setCount(count);
+                    return copy;
+                })
                 .collect(Collectors.toList());
     }
 
