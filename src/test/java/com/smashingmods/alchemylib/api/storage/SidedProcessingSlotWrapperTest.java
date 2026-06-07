@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * input/output handlers and the inner {@code SidedItemHandlerView} are never touched.</p>
  *
  * <p>No {@link net.minecraft.server.Bootstrap} is required -- {@link Direction} is a plain enum and
- * the wrapper's {@code ItemStack}/{@code LazyOptional} references are only field and inner-class
+ * the wrapper's {@code ItemStack}/{@code IItemHandler} references are only field and inner-class
  * types that pack/unpack does not force to initialise.</p>
  */
 class SidedProcessingSlotWrapperTest {

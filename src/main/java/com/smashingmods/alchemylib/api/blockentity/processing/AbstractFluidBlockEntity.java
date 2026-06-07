@@ -5,27 +5,18 @@ import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
 import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 @SuppressWarnings("unused")
 public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEntity implements FluidBlockEntity, InventoryBlockEntity {
 
     private final FluidStorageHandler fluidStorage = initializeFluidStorage();
-    private final LazyOptional<IFluidHandler> lazyFluidHandler = LazyOptional.of(() -> fluidStorage);
 
     private final ProcessingSlotHandler inputHandler = initializeInputHandler();
     private final ProcessingSlotHandler outputHandler = initializeOutputHandler();
@@ -61,24 +52,6 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     @Override
     public SidedProcessingSlotWrapper getCombinedSlotHandler() {
         return combinedHandler;
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == Capabilities.ITEM_HANDLER) {
-            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        } else if (pCapability == Capabilities.FLUID_HANDLER) {
-            return lazyFluidHandler.cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        combinedHandler.invalidate();
-        lazyFluidHandler.invalidate();
-        super.invalidateCaps();
     }
 
     @Override

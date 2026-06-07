@@ -2,7 +2,6 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -16,12 +15,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.util.LazyOptional;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
@@ -39,7 +33,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private boolean ioScreenOpen = false;
 
     private final EnergyStorageHandler energyHandler = initializeEnergyStorage();
-    private final LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.of(() -> energyHandler);
 
     public AbstractProcessingBlockEntity(String pModId, BlockEntityType<?> pBlockEntityType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pBlockEntityType, pWorldPosition, pBlockState);
@@ -161,21 +154,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
 
     public void setEnergyPerTick(int pEnergyPerTick) {
         energyPerTick = pEnergyPerTick;
-    }
-
-    @Override
-    @Nonnull
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == Capabilities.ENERGY) {
-            return lazyEnergyHandler.cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        lazyEnergyHandler.invalidate();
-        super.invalidateCaps();
     }
 
     @Override

@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
@@ -32,8 +31,7 @@ public class SidedProcessingSlotWrapper {
     private final ProcessingSlotHandler inputHandler;
     private final ProcessingSlotHandler outputHandler;
     private final SideMode[] sideModes = new SideMode[7]; // 4 cardinal directions + up/down + unspecified side = 7 sides total
-    @SuppressWarnings("unchecked") // Java does not allow creating arrays with generics for some ungodly reason
-    private final LazyOptional<IItemHandler>[] views = new LazyOptional[7];
+    private final IItemHandler[] views = new IItemHandler[7];
 
     private class SidedItemHandlerView implements IItemHandlerModifiable {
         private final Direction side;
@@ -112,14 +110,11 @@ public class SidedProcessingSlotWrapper {
     }
 
     public IItemHandler getView(@Nullable Direction side) {
-        return getViewLazily(side).orElse(null);
-    }
-
-    public LazyOptional<IItemHandler> getViewLazily(@Nullable Direction side) {
-        LazyOptional<IItemHandler> view = views[side == null ? 6 : side.ordinal()];
+        int index = side == null ? 6 : side.ordinal();
+        IItemHandler view = views[index];
         if (view == null) {
-            view = LazyOptional.of(() -> new SidedItemHandlerView(side));
-            views[side == null ? 6 : side.ordinal()] = view;
+            view = new SidedItemHandlerView(side);
+            views[index] = view;
         }
         return view;
     }
@@ -138,14 +133,6 @@ public class SidedProcessingSlotWrapper {
 
     public ProcessingSlotHandler getOutputHandler() {
         return outputHandler;
-    }
-
-    public void invalidate() {
-        for (LazyOptional<IItemHandler> view : views) {
-            if (view != null) {
-                view.invalidate();
-            }
-        }
     }
 
     /**

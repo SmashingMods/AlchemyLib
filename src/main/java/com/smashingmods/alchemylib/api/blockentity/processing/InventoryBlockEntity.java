@@ -4,11 +4,9 @@ import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
 import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.capabilities.Capability;
 import net.neoforged.neoforge.items.IItemHandler;
 
 /**
@@ -50,8 +48,6 @@ public interface InventoryBlockEntity {
      * to drop the contents of the input and output handlers.
      *
      * @return {@link SidedProcessingSlotWrapper}
-     *
-     * @see AbstractInventoryBlockEntity#getCapability(Capability, Direction)
      */
     SidedProcessingSlotWrapper getCombinedSlotHandler();
 

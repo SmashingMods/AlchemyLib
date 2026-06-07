@@ -4,7 +4,6 @@ import com.smashingmods.alchemylib.api.blockentity.processing.AbstractFluidBlock
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import com.smashingmods.alchemylib.api.storage.FluidStorageHandler;
 import net.minecraft.client.resources.language.I18n;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.text.NumberFormat;
@@ -35,7 +34,7 @@ public class FluidDisplayData extends AbstractDisplayData {
     }
 
     public FluidStorageHandler getFluidHandler() {
-        return (FluidStorageHandler) blockEntity.getCapability(Capabilities.FLUID_HANDLER).orElseGet(() -> new FluidStorageHandler(0, FluidStack.EMPTY));
+        return blockEntity.getFluidStorage();
     }
 
     @Override

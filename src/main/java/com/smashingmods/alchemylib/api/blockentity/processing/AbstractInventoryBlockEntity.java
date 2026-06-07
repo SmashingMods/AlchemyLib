@@ -4,16 +4,9 @@ import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
 import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.util.LazyOptional;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 @SuppressWarnings("unused")
 public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlockEntity implements InventoryBlockEntity {
@@ -47,21 +40,6 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
     @Override
     public SidedProcessingSlotWrapper getCombinedSlotHandler() {
         return combinedHandler;
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == Capabilities.ITEM_HANDLER) {
-            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        combinedHandler.invalidate();
-        super.invalidateCaps();
     }
 
     @Override
