@@ -1,11 +1,9 @@
 package com.smashingmods.alchemylib;
 
-import net.minecraft.DetectedVersion;
-import net.minecraft.SharedConstants;
+import com.smashingmods.alchemylib.testsupport.BootstrappedTest;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,13 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * a mod {@code Item} on 1.20.2 would trigger an intrusive-holder registry write that needs the registry
  * unfrozen, which this guard neither needs nor wants.</p>
  */
-class IngredientValuesAccessibleTest {
-
-    @BeforeAll
-    static void boot() {
-        SharedConstants.setVersion(DetectedVersion.BUILT_IN);
-        Bootstrap.bootStrap();
-    }
+class IngredientValuesAccessibleTest extends BootstrappedTest {
 
     @Test
     void ingredientValuesFieldIsAccessibleOnTestClasspath() {
