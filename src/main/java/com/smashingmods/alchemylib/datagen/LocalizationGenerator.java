@@ -19,5 +19,6 @@ public class LocalizationGenerator extends LanguageProvider {
         add("alchemylib.container.open_recipe_select", "Open Recipe Selection");
         add("alchemylib.container.close_recipe_select", "Close Recipe Selection");
         add("alchemylib.container.show_recipes", "Show Recipes");
+        add("alchemylib.container.sides.button", "Input/Output Configuration");
     }
 }

@@ -42,6 +42,6 @@ public class SideModeButton extends AbstractAlchemyButton {
 
     @Override
     public MutableComponent getMessage() {
-        return MutableComponent.create(new TranslatableContents("alchemistry.container.sides.button", "Input/Output Configuration", TranslatableContents.NO_ARGS));
+        return MutableComponent.create(new TranslatableContents("alchemylib.container.sides.button", "Input/Output Configuration", TranslatableContents.NO_ARGS));
     }
 }
