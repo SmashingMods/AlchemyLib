@@ -1,17 +1,21 @@
 package com.smashingmods.alchemylib.common.network;
 
+import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.network.AlchemyPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.Objects;
 
 public class BlockEntityPacket implements AlchemyPacket {
+
+    public static final ResourceLocation ID = new ResourceLocation(AlchemyLib.MODID, "block_entity");
 
     private final BlockPos blockPos;
     private final CompoundTag tag;
@@ -26,12 +30,19 @@ public class BlockEntityPacket implements AlchemyPacket {
         this.tag = pBuffer.readNbt();
     }
 
-    public void encode(FriendlyByteBuf pBuffer) {
+    @Override
+    public void write(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
         pBuffer.writeNbt(tag);
     }
 
-    public void handle(NetworkEvent.Context pContext) {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void handle(PlayPayloadContext pContext) {
         Level level = Minecraft.getInstance().level;
         BlockEntity blockEntity = Objects.requireNonNull(level).getBlockEntity(blockPos);
         Objects.requireNonNull(blockEntity).load(tag);

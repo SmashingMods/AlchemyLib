@@ -16,10 +16,11 @@ public class AlchemyLib {
 
     public static final String MODID = "alchemylib";
     public static AlchemyLib instance;
-    private final PacketHandler packetHandler = new PacketHandler().register();
+    private final PacketHandler packetHandler = new PacketHandler();
 
     public AlchemyLib(IEventBus modEventBus) {
         instance = this;
+        modEventBus.addListener(packetHandler::register);
         modEventBus.addListener(DataGenerators::gatherData);
     }
 

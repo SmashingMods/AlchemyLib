@@ -1,13 +1,16 @@
 package com.smashingmods.alchemylib.common.network;
 
+import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractProcessingBlockEntity;
 import com.smashingmods.alchemylib.api.network.AlchemyPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 public class ToggleLockButtonPacket implements AlchemyPacket {
+
+    public static final ResourceLocation ID = new ResourceLocation(AlchemyLib.MODID, "toggle_lock_button");
 
     private final BlockPos blockPos;
     private final boolean locked;
@@ -22,20 +25,24 @@ public class ToggleLockButtonPacket implements AlchemyPacket {
         this.locked = pBuffer.readBoolean();
     }
 
-    public void encode(FriendlyByteBuf pBuffer) {
+    @Override
+    public void write(FriendlyByteBuf pBuffer) {
         pBuffer.writeBlockPos(blockPos);
         pBuffer.writeBoolean(locked);
     }
 
-    public void handle(NetworkEvent.Context pContext) {
-        Player player = pContext.getSender();
-        if (player != null) {
-            AbstractProcessingBlockEntity blockEntity = (AbstractProcessingBlockEntity) player.level().getBlockEntity(blockPos);
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 
-            if (blockEntity != null) {
+    @Override
+    public void handle(PlayPayloadContext pContext) {
+        pContext.player().ifPresent(player -> {
+            if (player.level().getBlockEntity(blockPos) instanceof AbstractProcessingBlockEntity blockEntity) {
                 blockEntity.setRecipeLocked(locked);
                 blockEntity.setChanged();
             }
-        }
+        });
     }
 }

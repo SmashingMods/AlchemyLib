@@ -9,13 +9,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.neoforge.network.NetworkRegistry;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.simple.MessageFunctions;
-import net.neoforged.neoforge.network.simple.SimpleChannel;
-
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.handling.IPlayPayloadHandler;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 /**
  * AbstractPacketHandler is meant to be extended by other mods. It provides
@@ -35,67 +33,89 @@ import java.util.function.Supplier;
 public abstract class AbstractPacketHandler {
 
     /**
-     * All packets need to have a valid unique discriminator. AbstractPacketHandler
-     * sets a private int PACKET_ID that implementing classes will need to increment.
+     * The registrar used to register packets. It is created from the {@link RegisterPayloadHandlerEvent}
+     * passed to {@link #register(RegisterPayloadHandlerEvent)} and is only valid for the duration of that
+     * event, which is why packets must be registered there.
      */
-    private int PACKET_ID;
+    private IPayloadRegistrar registrar;
 
     /**
-     * To send packets, you have to have a SimpleChannel registered in the NetworkRegistry.
+     * This method should be used to register all of your packets. Add it as a listener for
+     * {@link RegisterPayloadHandlerEvent} on your mod event bus so it runs while the network registry is
+     * being set up.
      *
-     * @param pChannelName ResourceLocation for your {@link SimpleChannel}.
-     * @param pProtocolVersion String representation of your protocol version (for example "1.0.0").
-     * @return a new SimpleChannel registered in the {@link NetworkRegistry}.
+     * <p>Call {@link #registrar(RegisterPayloadHandlerEvent, String)} first to obtain a registrar for your
+     * namespace, then register each packet with {@link #registerClientBound} or {@link #registerServerBound}.</p>
      *
-     * @see NetworkRegistry#newSimpleChannel(ResourceLocation, Supplier, Predicate, Predicate)
+     * @param pEvent {@link RegisterPayloadHandlerEvent}
+     *
+     * @see PacketHandler#register(RegisterPayloadHandlerEvent)
      */
-    protected static SimpleChannel createChannel(ResourceLocation pChannelName, String pProtocolVersion) {
-        return NetworkRegistry.newSimpleChannel(pChannelName, () -> pProtocolVersion, pProtocolVersion::equals, pProtocolVersion::equals);
+    public abstract void register(RegisterPayloadHandlerEvent pEvent);
+
+    /**
+     * Obtains the {@link IPayloadRegistrar} for your namespace from the event and stores it for the
+     * {@link #registerClientBound} and {@link #registerServerBound} helpers. Call this at the start of your
+     * {@link #register(RegisterPayloadHandlerEvent)} implementation.
+     *
+     * @param pEvent {@link RegisterPayloadHandlerEvent}
+     * @param pNamespace The namespace (mod id) the packets belong to.
+     *
+     * @see PacketHandler#register(RegisterPayloadHandlerEvent)
+     */
+    protected void registrar(RegisterPayloadHandlerEvent pEvent, String pNamespace) {
+        this.registrar = pEvent.registrar(pNamespace);
     }
 
     /**
-     * This method should be used to register all of your packets. After registering, return
-     * the instance of your PacketHandler so that it can be used to send packets.
+     * Registers a packet that is sent from the server to the client. The packet's
+     * {@link AlchemyPacket#handle(net.neoforged.neoforge.network.handling.PlayPayloadContext) handle} method
+     * runs on the client side.
      *
-     * @return an implementation of AbstractPacketHandler.
-     *
-     * @see PacketHandler#register()
-     */
-    public abstract AbstractPacketHandler register();
-
-    /**
-     * Implement this getter to return your own instance of {@link SimpleChannel} on your
-     * PacketHandler class. This is used to get the channel for sending packets
-     * by other parts of your mod.
-     *
-     * @return {@link SimpleChannel}
-     *
-     * @see AbstractProcessingMenu#broadcastChanges()
-     */
-    protected abstract SimpleChannel getChannel();
-
-    /**
-     * All packets must be registered on your SimpleChannel. Call this method in your
-     * implementation class's register method.
-     *
-     * @param pMessageType Class of your packet. (for example BlockEntityPacket.class)
+     * @param pId The packet's id. Must match the {@link AlchemyPacket#id()} the packet returns.
      * @param pDecoder A function that takes a {@link FriendlyByteBuf} and returns a packet.
      *                 Typically, you want this to be a constructor on your packet,
      *                 but it can also be a static method that returns a new object.
      * @param <MSG> AlchemyPacket
      *
-     * @see PacketHandler#register()
+     * @see PacketHandler#register(RegisterPayloadHandlerEvent)
      * @see BlockEntityPacket#BlockEntityPacket(FriendlyByteBuf)  BlockEntityPacket
      */
-    protected <MSG extends AlchemyPacket> void registerMessage(Class<MSG> pMessageType, MessageFunctions.MessageDecoder<MSG> pDecoder) {
-        getChannel().registerMessage(PACKET_ID++, pMessageType,
-                (msg, buf) -> msg.encode(buf),
-                pDecoder,
-                (msg, ctx) -> AlchemyPacket.handle(msg, () -> ctx));
+    protected <MSG extends AlchemyPacket> void registerClientBound(ResourceLocation pId, FriendlyByteBuf.Reader<MSG> pDecoder) {
+        registrar.play(pId, pDecoder, handler -> handler.client(AbstractPacketHandler::handle));
     }
 
     /**
-     * Sends the packet passed as a parameter to the server via your {@link SimpleChannel}.
+     * Registers a packet that is sent from the client to the server. The packet's
+     * {@link AlchemyPacket#handle(net.neoforged.neoforge.network.handling.PlayPayloadContext) handle} method
+     * runs on the server side, where {@link net.neoforged.neoforge.network.handling.IPayloadContext#player()}
+     * resolves to the sending player.
+     *
+     * @param pId The packet's id. Must match the {@link AlchemyPacket#id()} the packet returns.
+     * @param pDecoder A function that takes a {@link FriendlyByteBuf} and returns a packet.
+     * @param <MSG> AlchemyPacket
+     *
+     * @see PacketHandler#register(RegisterPayloadHandlerEvent)
+     */
+    protected <MSG extends AlchemyPacket> void registerServerBound(ResourceLocation pId, FriendlyByteBuf.Reader<MSG> pDecoder) {
+        registrar.play(pId, pDecoder, handler -> handler.server(AbstractPacketHandler::handle));
+    }
+
+    /**
+     * Adapts an {@link AlchemyPacket} to the {@link IPlayPayloadHandler} expected by the payload registrar.
+     * The packet is decoded on the network thread, so its {@link AlchemyPacket#handle(PlayPayloadContext) handle}
+     * method is enqueued onto the main thread of the receiving side before it runs.
+     *
+     * @param pMessage The implementing packet.
+     * @param pContext {@link PlayPayloadContext} supplied by the network layer.
+     * @param <MSG> AlchemyPacket
+     */
+    private static <MSG extends AlchemyPacket> void handle(final MSG pMessage, PlayPayloadContext pContext) {
+        pContext.workHandler().execute(() -> pMessage.handle(pContext));
+    }
+
+    /**
+     * Sends the packet passed as a parameter to the server.
      *
      * @param pMessage Your packet to send to the server.
      * @param <MSG> extends AlchemyPacket
@@ -103,11 +123,11 @@ public abstract class AbstractPacketHandler {
      * @see AlchemyPacket
      */
     public <MSG extends AlchemyPacket> void sendToServer(MSG pMessage) {
-        getChannel().sendToServer(pMessage);
+        PacketDistributor.SERVER.noArg().send(pMessage);
     }
 
     /**
-     * Sends a packet to the specific player specified in parameters via your {@link SimpleChannel}.
+     * Sends a packet to the specific player specified in parameters.
      *
      * @param pMessage Your packet to send to the player.
      * @param pPlayer And instance of ServerPlayer.
@@ -116,19 +136,18 @@ public abstract class AbstractPacketHandler {
      * @see AlchemyPacket
      */
     public <MSG extends AlchemyPacket> void sendToPlayer(MSG pMessage, ServerPlayer pPlayer) {
-        getChannel().send(PacketDistributor.PLAYER.with(() -> pPlayer), pMessage);
+        PacketDistributor.PLAYER.with(pPlayer).send(pMessage);
     }
 
     /**
-     * Sends the packet passed as a parameter to all players connected to the server via
-     * your {@link SimpleChannel}. Note: this will work if you are in a single player instance,
-     * LAN, or a dedicated server.
+     * Sends the packet passed as a parameter to all players connected to the server. Note: this will work
+     * if you are in a single player instance, LAN, or a dedicated server.
      *
      * @param pMessage Your packet to send to all players.
      * @param <MSG> AlchemyPacket
      */
     public <MSG extends AlchemyPacket> void sendToAll(MSG pMessage) {
-         getChannel().send(PacketDistributor.ALL.noArg(), pMessage);
+         PacketDistributor.ALL.noArg().send(pMessage);
     }
 
     /**
@@ -148,7 +167,7 @@ public abstract class AbstractPacketHandler {
         double posX = pBlockPos.getX();
         double posY = pBlockPos.getY();
         double posZ = pBlockPos.getZ();
-        getChannel().send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(posX, posY, posZ, pRadius, dimension)), pMessage);
+        PacketDistributor.NEAR.with(new PacketDistributor.TargetPoint(posX, posY, posZ, pRadius, dimension)).send(pMessage);
     }
 
     /**
@@ -166,6 +185,6 @@ public abstract class AbstractPacketHandler {
      */
     public <MSG extends AlchemyPacket> void sendToTrackingChunk(MSG pMessage, Level pLevel, BlockPos pBlockPos) {
         LevelChunk levelChunk = pLevel.getChunkAt(pBlockPos);
-        getChannel().send(PacketDistributor.TRACKING_CHUNK.with(() -> levelChunk), pMessage);
+        PacketDistributor.TRACKING_CHUNK.with(levelChunk).send(pMessage);
     }
 }
