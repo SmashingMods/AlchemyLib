@@ -154,12 +154,9 @@ public class SidedProcessingSlotWrapper {
      * @param value The packed value as obtained from {@link #sideModesToShort()}.
      */
     public void setSideModesFromShort(int value) {
+        // CONTRACT CHANGE (intermission, MC 1.20.4): setSideModesFromShort no longer throws on residual bits -- a deserialization/sync path must tolerate malformed/forward-compatible NBT. Was: threw IllegalArgumentException on leftover bits.
         for (int i = 0; i < sideModes.length; i++) {
-            sideModes[i] = SideMode.getFromOrdinal(value & 0b11);
-            value >>= 2;
-        }
-        if (value != 0) {
-            throw new IllegalArgumentException("Did not apply cleanly: Rest " + value);
+            sideModes[i] = SideMode.getFromOrdinal((value >> (i * 2)) & 0b11);
         }
     }
 }

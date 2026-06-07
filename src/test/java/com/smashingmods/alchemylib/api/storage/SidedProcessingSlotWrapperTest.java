@@ -4,7 +4,6 @@ import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tier-0 tests for the side-mode short pack/unpack on {@link SidedProcessingSlotWrapper}.
@@ -57,12 +56,21 @@ class SidedProcessingSlotWrapperTest {
     }
 
     @Test
-    void sideModeResidualThrows_bitBeyondSevenSideRegion() {
+    void sideModeResidual_bitBeyondSevenSideRegion_isIgnored() {
+        // CONTRACT CHANGE (intermission, MC 1.20.4): setSideModesFromShort no longer throws on residual bits -- a deserialization/sync path must tolerate malformed/forward-compatible NBT. Was: threw IllegalArgumentException on leftover bits.
         SidedProcessingSlotWrapper wrapper = new SidedProcessingSlotWrapper(null, null);
 
-        // Seven sides occupy bits 0..13 (2 bits each); bit 14 is the first that cannot be consumed,
-        // so it must be reported as an unclean residual.
-        assertThrows(IllegalArgumentException.class, () -> wrapper.setSideModesFromShort(1 << 14));
+        // Seven sides occupy bits 0..13 (2 bits each); bit 14 is the first the sideModes array cannot
+        // consume. With a residual high bit set, the low 14 bits must still decode and the high bit is ignored.
+        wrapper.setSideModesFromShort(SidedProcessingSlotWrapper.LEGACY_SIDES_CONFIGURATION | (1 << 14));
+
+        assertEquals(SideMode.PULL, wrapper.getSideMode(Direction.UP));
+        assertEquals(SideMode.PULL, wrapper.getSideMode(Direction.WEST));
+        assertEquals(SideMode.PUSH, wrapper.getSideMode(Direction.DOWN));
+        assertEquals(SideMode.PUSH, wrapper.getSideMode(Direction.EAST));
+        assertEquals(SideMode.DISABLED, wrapper.getSideMode(Direction.NORTH));
+        assertEquals(SideMode.DISABLED, wrapper.getSideMode(Direction.SOUTH));
+        assertEquals(SideMode.DISABLED, wrapper.getSideMode(null));
     }
 
     @Test
