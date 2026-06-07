@@ -16,10 +16,10 @@ public class PauseButton extends AbstractAlchemyButton {
 
     public PauseButton(AbstractProcessingScreen<?> pParent) {
         super(pParent, pButton -> {
-            boolean togglePause = !pParent.getBlockEntity().isProcessingPaused();
-            pParent.getBlockEntity().setPaused(!togglePause);
+            boolean paused = !pParent.getBlockEntity().isProcessingPaused();
+            pParent.getBlockEntity().setPaused(paused);
             pParent.getBlockEntity().setChanged();
-            AlchemyLib.getPacketHandler().sendToServer(new TogglePauseButtonPacket(pParent.getBlockEntity().getBlockPos(), togglePause));
+            AlchemyLib.getPacketHandler().sendToServer(new TogglePauseButtonPacket(pParent.getBlockEntity().getBlockPos(), paused));
         });
     }
 
