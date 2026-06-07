@@ -14,7 +14,9 @@ archivesBaseName = 'alchemylib'
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 // Wire AlchemyLib's access transformer into the NeoGradle build.
-// The AT name-form (f_43902_ -> values) is handled separately; this only registers the file.
+// NeoForge 1.20.2 ATs use Mojmap names, so the field is referenced as 'values' directly (no SRG step).
+// NOTE: this 'Ingredient values' line is redundant on NeoForge 1.20.2 -- NeoForge's own bundled AT
+// already opens that field -- but is kept harmlessly (and would matter on a loader/version that doesn't open it).
 minecraft {
     accessTransformers {
         file 'src/main/resources/META-INF/accesstransformer.cfg'
