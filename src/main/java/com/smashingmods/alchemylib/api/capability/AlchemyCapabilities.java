@@ -19,10 +19,8 @@ import java.util.function.BiFunction;
 public class AlchemyCapabilities {
 
     /**
-     * The heat capability. This is intentionally never registered against any
-     * {@link BlockEntityType}, so querying it on a level always resolves to {@code null};
-     * it is retained purely to preserve the public API symbol that existed under the
-     * legacy {@code Capability<HeatCapability>} model.
+     * The heat capability token only; AlchemyLib registers no provider for it, so an unregistered query
+     * resolves to {@code null}. Dependents that need heat register their own provider via {@link #register}.
      */
     public static final BlockCapability<HeatCapability, Direction> HEAT_HANDLER =
             BlockCapability.createSided(new ResourceLocation("alchemylib", "heat_handler"), HeatCapability.class);

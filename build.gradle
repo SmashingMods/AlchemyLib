@@ -14,9 +14,8 @@ archivesBaseName = 'alchemylib'
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 // Wire AlchemyLib's access transformer into the NeoGradle build.
-// NeoForge 1.20.2 ATs use Mojmap names, so the field is referenced as 'values' directly (no SRG step).
-// NOTE: this 'Ingredient values' line is redundant on NeoForge 1.20.2 -- NeoForge's own bundled AT
-// already opens that field -- but is kept harmlessly (and would matter on a loader/version that doesn't open it).
+// Opens Ingredient.values (Mojmap name on NeoForge 1.20.2, so referenced directly with no SRG step) so
+// IngredientStack can read it directly.
 minecraft {
     accessTransformers {
         file 'src/main/resources/META-INF/accesstransformer.cfg'
@@ -201,10 +200,10 @@ publishing {
     }
 }
 
+// The cursegradle plugin reads apiKey at configuration time and aborts the whole build
+// ("apiKey not set for project 293426") when it is absent, which would block build/runData on
+// machines without publish credentials -- so it stays commented out until that key is configured.
 // TODO: re-enable CurseForge publishing once an apiKey is configured in secrets.properties.
-// Disabled during the NeoForge port: the cursegradle plugin reads apiKey at configuration
-// time and aborts the whole build ("apiKey not set for project 293426") when it is absent,
-// which blocks build/runData on machines without publish credentials.
 /*
 curseforge {
     apiKey = secrets.getProperty("apiKey")

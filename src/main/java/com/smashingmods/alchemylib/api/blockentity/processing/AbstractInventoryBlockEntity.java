@@ -22,7 +22,6 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
     @Override
     public void tick() {
         // Defense-in-depth: recompute unconditionally so base correctness doesn't rely on every subclass refreshing canProcess in its input handler's onContentsChanged.
-        // Current machines already do that, and reactors override tick() (no super.tick()), so this is hardening -- not a fix for a live energy-drain bug.
         setCanProcess(canProcessRecipe());
         super.tick();
     }
