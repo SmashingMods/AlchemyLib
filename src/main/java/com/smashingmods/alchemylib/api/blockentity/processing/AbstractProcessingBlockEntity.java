@@ -171,6 +171,8 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         setProgress(pTag.getInt("progress"));
         setRecipeLocked(pTag.getBoolean("locked"));
         setPaused(pTag.getBoolean("paused"));
-        energyHandler.deserializeNBT(pTag.get("energy"));
+        if (pTag.contains("energy")) {
+            energyHandler.deserializeNBT(pTag.get("energy"));
+        }
     }
 }
