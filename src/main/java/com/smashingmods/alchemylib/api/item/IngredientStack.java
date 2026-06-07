@@ -1,6 +1,8 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -101,7 +103,7 @@ public class IngredientStack {
      */
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
-        json.add("ingredient", ingredient.toJson(false));
+        json.add("ingredient", Util.getOrThrow(Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, ingredient), IllegalStateException::new));
         json.addProperty("count", count);
         return json;
     }

@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.PlainTextContents;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -28,7 +28,7 @@ public abstract class AbstractAlchemyButton extends Button {
      * @param pOnPress {@link Button#onPress}
      */
     public AbstractAlchemyButton(AbstractProcessingScreen<?> pParent, Button.OnPress pOnPress) {
-        this(0, 0, 20, 20, MutableComponent.create(new LiteralContents("")), pParent, pOnPress);
+        this(0, 0, 20, 20, MutableComponent.create(PlainTextContents.create("")), pParent, pOnPress);
     }
 
     /**

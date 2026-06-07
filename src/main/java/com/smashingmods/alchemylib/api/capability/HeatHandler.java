@@ -4,7 +4,7 @@ import io.netty.util.internal.UnstableApi;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.PlainTextContents;
 
 @SuppressWarnings("unused")
 @UnstableApi
@@ -64,7 +64,7 @@ public class HeatHandler implements HeatCapability {
 
     @Override
     public Component getComponent() {
-        return MutableComponent.create(new LiteralContents(String.format("%s H", heat)));
+        return MutableComponent.create(PlainTextContents.create(String.format("%s H", heat)));
     }
 
     @Override

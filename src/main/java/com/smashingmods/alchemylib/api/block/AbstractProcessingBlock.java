@@ -1,5 +1,6 @@
 package com.smashingmods.alchemylib.api.block;
 
+import com.mojang.serialization.MapCodec;
 import com.smashingmods.alchemylib.api.blockentity.processing.InventoryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,6 +27,17 @@ import java.util.function.BiFunction;
 @SuppressWarnings("unused")
 public class AbstractProcessingBlock extends BaseEntityBlock {
 
+    /**
+     * Every concrete {@link BlockBehaviour} must supply a {@link #codec} as of 1.20.2; {@link BaseEntityBlock}
+     * re-declares it abstract. This shared codec satisfies that contract for {@code AbstractProcessingBlock} and
+     * every block extending it, so subclasses need not declare their own. It only serializes the block's
+     * {@link BlockBehaviour.Properties} (which vanilla encodes as a unit anyway -- see {@code Properties.CODEC}),
+     * because the {@link #blockEntityFunction block entity factory} is a behavioural reference with no serialized
+     * form; the decode side therefore reconstructs with a no-op factory. These blocks are only ever instantiated
+     * through their registry suppliers, never decoded from this codec, so the placeholder factory is never invoked.
+     */
+    public static final MapCodec<AbstractProcessingBlock> CODEC = simpleCodec(pProperties -> new AbstractProcessingBlock((pPos, pState) -> null));
+
     private final BiFunction<BlockPos, BlockState, BlockEntity> blockEntityFunction;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
@@ -43,6 +55,11 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
     public AbstractProcessingBlock(BiFunction<BlockPos, BlockState, BlockEntity> pBlockEntity) {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL));
         blockEntityFunction = pBlockEntity;
+    }
+
+    @Override
+    protected MapCodec<? extends AbstractProcessingBlock> codec() {
+        return CODEC;
     }
 
     /**
