@@ -28,7 +28,7 @@ import java.util.function.BiFunction;
 public class AbstractProcessingBlock extends BaseEntityBlock {
 
     /**
-     * Every concrete {@link BlockBehaviour} must supply a {@link #codec} as of 1.20.2; {@link BaseEntityBlock}
+     * Every concrete {@link BlockBehaviour} must supply a {@link #codec}; {@link BaseEntityBlock}
      * re-declares it abstract. This shared codec satisfies that contract for {@code AbstractProcessingBlock} and
      * every block extending it, so subclasses need not declare their own. It only serializes the block's
      * {@link BlockBehaviour.Properties} (which vanilla encodes as a unit anyway -- see {@code Properties.CODEC}),

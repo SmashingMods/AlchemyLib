@@ -14,7 +14,7 @@ archivesBaseName = 'alchemylib'
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 // Wire AlchemyLib's access transformer into the NeoGradle build.
-// Opens Ingredient.values (Mojmap name on NeoForge 1.20.2, so referenced directly with no SRG step) so
+// Opens Ingredient.values (Mojmap name on NeoForge, so referenced directly with no SRG step) so
 // IngredientStack can read it directly.
 minecraft {
     accessTransformers {

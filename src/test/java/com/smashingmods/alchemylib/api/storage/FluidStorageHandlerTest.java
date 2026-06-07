@@ -40,7 +40,7 @@ class FluidStorageHandlerTest extends BootstrappedTest {
      * Verifies the tank reads as 0 after a negative {@code setAmount}. This is jointly enforced by the
      * handler's {@code Math.max(..., 0)} ({@link FluidStorageHandler#setAmount}) and {@link FluidStack}'s own
      * {@code amount <= 0} -> empty flooring, so it does not isolate the handler's lower clamp — that clamp is
-     * observably redundant with {@link FluidStack} on NeoForge 1.20.2. The handler's upper clamp is independently
+     * observably redundant with {@link FluidStack} on NeoForge. The handler's upper clamp is independently
      * covered by {@link #setAmount_aboveCapacity_clampsToCapacity()}.
      */
     @Test
@@ -83,7 +83,7 @@ class FluidStorageHandlerTest extends BootstrappedTest {
      * Verifies the tank reads as 0 after draining past empty. This is jointly enforced by the handler's
      * {@code Math.max(..., 0)} ({@link FluidStorageHandler#drainAmount}) and {@link FluidStack}'s own
      * {@code amount <= 0} -> empty flooring, so it does not isolate the handler's lower clamp — that clamp is
-     * observably redundant with {@link FluidStack} on NeoForge 1.20.2. The handler's upper clamp is independently
+     * observably redundant with {@link FluidStack} on NeoForge. The handler's upper clamp is independently
      * covered by {@link #fillAmount_pastCapacity_clampsToCapacity()}.
      */
     @Test
