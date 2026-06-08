@@ -2,9 +2,8 @@ package com.smashingmods.alchemylib.api.item;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.Util;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
@@ -74,24 +73,24 @@ public class IngredientStack {
     }
 
     /**
-     * Encodes this IngredientStack to a FriendlyByteBuf for transmitting over network.
+     * Encodes this IngredientStack to a RegistryFriendlyByteBuf for transmitting over network.
      *
-     * @param pBuffer {@link FriendlyByteBuf}
+     * @param pBuffer {@link RegistryFriendlyByteBuf}
      */
-    public void toNetwork(FriendlyByteBuf pBuffer) {
-        ingredient.toNetwork(pBuffer);
+    public void toNetwork(RegistryFriendlyByteBuf pBuffer) {
+        Ingredient.CONTENTS_STREAM_CODEC.encode(pBuffer, ingredient);
         pBuffer.writeInt(count);
     }
 
     /**
-     * This static method can be referenced when decoding a FriendlyByteBuf sent over the network
+     * This static method can be referenced when decoding a RegistryFriendlyByteBuf sent over the network
      * to create a new IngredientStack.
      *
-     * @param pBuffer {@link FriendlyByteBuf}
+     * @param pBuffer {@link RegistryFriendlyByteBuf}
      * @return IngredientStack
      */
-    public static IngredientStack fromNetwork(FriendlyByteBuf pBuffer) {
-        Ingredient ingredient = Ingredient.fromNetwork(pBuffer);
+    public static IngredientStack fromNetwork(RegistryFriendlyByteBuf pBuffer) {
+        Ingredient ingredient = Ingredient.CONTENTS_STREAM_CODEC.decode(pBuffer);
         int count = pBuffer.readInt();
         return new IngredientStack(ingredient, count);
     }
@@ -103,7 +102,7 @@ public class IngredientStack {
      */
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
-        json.add("ingredient", Util.getOrThrow(Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, ingredient), IllegalStateException::new));
+        json.add("ingredient", Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, ingredient).getOrThrow());
         json.addProperty("count", count);
         return json;
     }
@@ -115,7 +114,7 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromJson(JsonObject pJson) {
-        Ingredient ingredient = Ingredient.fromJson(pJson.get("ingredient"), false);
+        Ingredient ingredient = Ingredient.CODEC_NONEMPTY.parse(JsonOps.INSTANCE, pJson.get("ingredient")).getOrThrow();
         int count = GsonHelper.getAsInt(pJson, "count", 1);
         return new IngredientStack(ingredient, count);
     }
