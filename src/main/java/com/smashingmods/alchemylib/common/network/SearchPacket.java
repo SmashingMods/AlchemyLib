@@ -4,14 +4,22 @@ import com.smashingmods.alchemylib.AlchemyLib;
 import com.smashingmods.alchemylib.api.blockentity.processing.AbstractSearchableBlockEntity;
 import com.smashingmods.alchemylib.api.network.AlchemyPacket;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class SearchPacket implements AlchemyPacket {
 
-    public static final ResourceLocation ID = new ResourceLocation(AlchemyLib.MODID, "search");
+    public static final Type<SearchPacket> TYPE = new Type<>(new ResourceLocation(AlchemyLib.MODID, "search"));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SearchPacket> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC, packet -> packet.blockPos,
+            ByteBufCodecs.STRING_UTF8, packet -> packet.searchText,
+            SearchPacket::new
+    );
 
     private final BlockPos blockPos;
     private final String searchText;
@@ -21,29 +29,16 @@ public class SearchPacket implements AlchemyPacket {
         this.searchText = pSearchText;
     }
 
-    public SearchPacket(FriendlyByteBuf pBuffer) {
-        this.blockPos = pBuffer.readBlockPos();
-        this.searchText = pBuffer.readUtf();
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
     @Override
-    public void write(FriendlyByteBuf pBuffer) {
-        pBuffer.writeBlockPos(blockPos);
-        pBuffer.writeUtf(searchText);
-    }
-
-    @Override
-    public ResourceLocation id() {
-        return ID;
-    }
-
-    @Override
-    public void handle(PlayPayloadContext pContext) {
-        pContext.player().ifPresent(player -> {
-            if (player.level().getBlockEntity(blockPos) instanceof AbstractSearchableBlockEntity blockEntity) {
-                blockEntity.setSearchText(searchText);
-                blockEntity.setChanged();
-            }
-        });
+    public void handle(IPayloadContext pContext) {
+        if (pContext.player().level().getBlockEntity(blockPos) instanceof AbstractSearchableBlockEntity blockEntity) {
+            blockEntity.setSearchText(searchText);
+            blockEntity.setChanged();
+        }
     }
 }
