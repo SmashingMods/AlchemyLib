@@ -42,7 +42,7 @@ public class FluidDisplayData extends AbstractDisplayData {
         NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
         FluidStack fluidStack = getFluidHandler().getFluidStack();
 
-        boolean emptyFluid = fluidStack.isFluidEqual(FluidStack.EMPTY);
+        boolean emptyFluid = FluidStack.isSameFluidSameComponents(fluidStack, FluidStack.EMPTY);
 
         String fluidName = emptyFluid ? "" : String.format(" %s", I18n.get(fluidStack.getTranslationKey()).toLowerCase());
         String stored = numberFormat.format(getValue());

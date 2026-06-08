@@ -63,7 +63,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         pTag.put("input", inputHandler.serializeNBT(pRegistries));
         pTag.put("output", outputHandler.serializeNBT(pRegistries));
-        pTag.put("fluid", fluidStorage.writeToNBT(new CompoundTag()));
+        pTag.put("fluid", fluidStorage.writeToNBT(pRegistries, new CompoundTag()));
         pTag.putShort("sides", combinedHandler.sideModesToShort());
         super.saveAdditional(pTag, pRegistries);
     }
@@ -73,7 +73,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
         super.loadAdditional(pTag, pRegistries);
         inputHandler.deserializeNBT(pRegistries, pTag.getCompound("input"));
         outputHandler.deserializeNBT(pRegistries, pTag.getCompound("output"));
-        fluidStorage.readFromNBT(pTag.getCompound("fluid"));
+        fluidStorage.readFromNBT(pRegistries, pTag.getCompound("fluid"));
         if (pTag.contains("sides")) {
             combinedHandler.setSideModesFromShort(pTag.getShort("sides"));
         } else {
