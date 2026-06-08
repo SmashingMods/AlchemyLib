@@ -1,4 +1,7 @@
-# AlchemyLib 1.20.1-1.0.30 RELEASE
+# AlchemyLib 1.20.6-1.1.4 RELEASE
+
+Shared library for Alchemistry and other ChemLib add-ons.
 
 Changes:
-- Includes PR #7 which should fix machines that stop working after a recipe change. Thanks to contributor cyb0124.
+- Updated to Minecraft 1.20.6.
+- Now requires Java 21 (this comes with Minecraft 1.20.6 — make sure your launcher is using it).
