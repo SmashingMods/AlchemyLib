@@ -1,7 +1,7 @@
 package com.smashingmods.alchemylib.api.recipe;
 
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 
 /**
  * The input and output of ProcessingRecipe can be of any type without defined class inheritance.
@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.Recipe;
  * <p>Consumers of this recipe need to handle type casting when getting the input and output.</p>
  */
 @SuppressWarnings("unused")
-public interface ProcessingRecipe extends Recipe<Inventory> {
+public interface ProcessingRecipe extends Recipe<RecipeInput> {
 
     /**
      * Create a copy of this ProcessingRecipe that can be modified without altering

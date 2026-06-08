@@ -2,8 +2,8 @@ package com.smashingmods.alchemylib.api.recipe;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 
 /**
@@ -50,7 +50,7 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      * class if another return is necessary.
      */
     @Override
-    public boolean matches(Inventory pContainer, Level pLevel) {
+    public boolean matches(RecipeInput pContainer, Level pLevel) {
         return false;
     }
 
@@ -59,7 +59,7 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      * crafting ignores this in favor of handling this logic within block entities.
      */
     @Override
-    public ItemStack assemble(Inventory pContainer, HolderLookup.Provider pRegistries) {
+    public ItemStack assemble(RecipeInput pContainer, HolderLookup.Provider pRegistries) {
         return ItemStack.EMPTY;
     }
 
