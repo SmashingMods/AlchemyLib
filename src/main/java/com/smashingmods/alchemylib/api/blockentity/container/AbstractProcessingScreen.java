@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,6 +22,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.joml.Matrix4f;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -80,13 +82,13 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *
      * @see AbstractProcessingScreen#renderDisplayData(List, GuiGraphics, int, int)
      */
-    public void drawFluidTank(FluidDisplayData pData) {
+    public void drawFluidTank(GuiGraphics pGuiGraphics, FluidDisplayData pData) {
         if (pData.getValue() > 0) {
             FluidStack fluidStack = pData.getFluidHandler().getFluidStack();
             IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(fluidStack.getFluid());
             setShaderColor(fluidTypeExtensions.getTintColor());
             TextureAtlasSprite icon = getResourceTexture(fluidTypeExtensions.getStillTexture());
-            drawTexture(pData, icon, leftPos + pData.getX(), topPos + pData.getY());
+            drawTexture(pGuiGraphics, pData, icon, leftPos + pData.getX(), topPos + pData.getY());
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
@@ -94,6 +96,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     /**
      * This method is similar to using blit but manually interacts with the rendering engine to draw a texture to the screen.
      *
+     * @param pGuiGraphics {@link GuiGraphics} Used for its pose transform when emitting the textured quad.
      * @param pData {@link AbstractDisplayData} Can pass any implementer of {@link DisplayData}.
      * @param pSprite {@link TextureAtlasSprite}
      * @param pTextureX Integer for the X position of the screen to render from.
@@ -101,9 +104,12 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      */
 
     //TODO: Discover why FluidStack textures become invisible when picking up an inventory item.
-    public void drawTexture(AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
+    public void drawTexture(GuiGraphics pGuiGraphics, AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
 
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+
+        Matrix4f pose = pGuiGraphics.pose().last().pose();
 
         int renderAmount = Math.max(Math.min(pData.getHeight(), pData.getValue() * pData.getHeight() / pData.getMaxValue()), 1);
         int posY = pTextureY + pData.getHeight() - renderAmount;
@@ -129,15 +135,12 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
 
                 float blitOffset = 0;
 
-                Tesselator tesselator = Tesselator.getInstance();
-                BufferBuilder bufferBuilder = tesselator.getBuilder();
-
-                bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                bufferBuilder.vertex(x1, y2, blitOffset).uv(minU, scaleV).endVertex();
-                bufferBuilder.vertex(x2, y2, blitOffset).uv(scaleU, scaleV).endVertex();
-                bufferBuilder.vertex(x2, y1, blitOffset).uv(scaleU, minV).endVertex();
-                bufferBuilder.vertex(x1, y1, blitOffset).uv(minU, minV).endVertex();
-                tesselator.end();
+                BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+                bufferBuilder.addVertex(pose, x1, y2, blitOffset).setUv(minU, scaleV);
+                bufferBuilder.addVertex(pose, x2, y2, blitOffset).setUv(scaleU, scaleV);
+                bufferBuilder.addVertex(pose, x2, y1, blitOffset).setUv(scaleU, minV);
+                bufferBuilder.addVertex(pose, x1, y1, blitOffset).setUv(minU, minV);
+                BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 
                 height += 15;
             }
@@ -302,7 +305,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
                 drawEnergyBar(pGuiGraphics, energyData);
             }
             if (data instanceof FluidDisplayData fluidData) {
-                drawFluidTank(fluidData);
+                drawFluidTank(pGuiGraphics, fluidData);
             }
         });
     }
