@@ -1,4 +1,6 @@
-# AlchemyLib 1.20.1-1.0.30 RELEASE
+# AlchemyLib 1.20.2-1.1.2 RELEASE
+
+AlchemyLib is now on NeoForge, for Minecraft 1.20.2. This is a shared library required by Alchemistry (and other ChemLib add-ons) — install it alongside them.
 
 Changes:
-- Includes PR #7 which should fix machines that stop working after a recipe change. Thanks to contributor cyb0124.
+- Ported from Forge to NeoForge for Minecraft 1.20.2.

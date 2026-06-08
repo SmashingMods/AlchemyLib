@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'net.neoforged.gradle.userdev' version '7.0.116'
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'net.darkhax.curseforgegradle' version '1.1.28'
 }
 
 apply plugin: 'maven-publish'
@@ -197,28 +197,19 @@ publishing {
     }
 }
 
-// TODO: re-enable CurseForge publishing once an apiKey is configured in secrets.properties.
-// Disabled during the NeoForge port: the cursegradle plugin reads apiKey at configuration
-// time and aborts the whole build ("apiKey not set for project 293426") when it is absent,
-// which blocks build/runData on machines without publish credentials.
-/*
-curseforge {
-    apiKey = secrets.getProperty("apiKey")
-    project {
-        id = '293426'
-        releaseType = 'release'
-        changelogType = 'markdown'
-        changelog = file("changelog.md")
-        addGameVersion 'Java 17'
-        mainArtifact(jar) {
-            displayName = "AlchemyLib - $project.version"
-            relations {
-                requiredDependency 'chemlib'
-            }
-        }
-    }
+tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    apiToken = secrets.getProperty("apiKey")
+    dependsOn tasks.named('build')
+    debugMode = project.hasProperty('curseDebug')   // -PcurseDebug = dry run, no upload
+    def main = upload('293426', tasks.jar.archiveFile)
+    main.displayName   = "AlchemyLib ${version}"
+    main.releaseType   = 'release'
+    main.changelog     = file('changelog.md')
+    main.changelogType = 'markdown'
+    main.addModLoader('NeoForge')
+    main.addGameVersion("${minecraft_version}")
+    main.addRequirement('chemlib')
 }
-*/
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
