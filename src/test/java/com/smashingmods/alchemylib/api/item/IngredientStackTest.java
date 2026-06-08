@@ -55,14 +55,14 @@ class IngredientStackTest extends BootstrappedTest {
     void getRegistryName_itemValue_isItemRegistryName() {
         IngredientStack stack = new IngredientStack(Ingredient.of(Items.STONE));
 
-        assertEquals(new ResourceLocation("minecraft", "stone"), stack.getRegistryName());
+        assertEquals(ResourceLocation.fromNamespaceAndPath("minecraft", "stone"), stack.getRegistryName());
     }
 
     @Test
     void getRegistryName_tagValue_isTagLocation() {
         IngredientStack stack = new IngredientStack(Ingredient.of(ItemTags.PLANKS));
 
-        assertEquals(new ResourceLocation("minecraft", "planks"), stack.getRegistryName());
+        assertEquals(ResourceLocation.fromNamespaceAndPath("minecraft", "planks"), stack.getRegistryName());
     }
 
     @Test
