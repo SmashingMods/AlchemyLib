@@ -1,9 +1,9 @@
 package com.smashingmods.alchemylib.common.network;
 
-import io.netty.buffer.Unpooled;
+import com.smashingmods.alchemylib.testsupport.BootstrappedTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -14,8 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * is asserted two ways: by re-reading the encoded buffer in the same field order (direct field values), and by
  * re-encoding the decoded packet and comparing the bytes (faithful end-to-end equivalence). This guards the
  * encode/decode field order; it does not exercise {@link BlockEntityPacket#handle} wiring.
+ *
+ * <p>Serialization runs through {@link BlockEntityPacket#STREAM_CODEC} over a
+ * {@link RegistryFriendlyByteBuf}, the registry-aware buffer that buffer is bound to on the network.</p>
  */
-class BlockEntityPacketTest {
+class BlockEntityPacketTest extends BootstrappedTest {
 
     @Test
     void blockEntityPacket_roundTrip() {
@@ -26,24 +29,28 @@ class BlockEntityPacketTest {
 
         BlockEntityPacket original = new BlockEntityPacket(pos, tag);
 
-        // Encode, then decode via the buffer constructor, then re-encode the decoded copy.
-        FriendlyByteBuf encoded = new FriendlyByteBuf(Unpooled.buffer());
-        original.write(encoded);
+        // Encode via the stream codec, then decode it back, then re-encode the decoded copy.
+        RegistryFriendlyByteBuf encoded = registryBuffer();
+        BlockEntityPacket.STREAM_CODEC.encode(encoded, original);
         byte[] encodedBytes = readableBytes(encoded);
 
         // The encode order is blockPos, tag -- re-read it to assert the field values survive the trip.
-        FriendlyByteBuf forFields = new FriendlyByteBuf(Unpooled.wrappedBuffer(encodedBytes));
+        RegistryFriendlyByteBuf forFields = registryBuffer();
+        forFields.writeBytes(encodedBytes);
         assertEquals(pos, forFields.readBlockPos());
         assertEquals(tag, forFields.readNbt());
 
-        BlockEntityPacket decoded = new BlockEntityPacket(new FriendlyByteBuf(Unpooled.wrappedBuffer(encodedBytes)));
-        FriendlyByteBuf reEncoded = new FriendlyByteBuf(Unpooled.buffer());
-        decoded.write(reEncoded);
+        RegistryFriendlyByteBuf forDecode = registryBuffer();
+        forDecode.writeBytes(encodedBytes);
+        BlockEntityPacket decoded = BlockEntityPacket.STREAM_CODEC.decode(forDecode);
+
+        RegistryFriendlyByteBuf reEncoded = registryBuffer();
+        BlockEntityPacket.STREAM_CODEC.encode(reEncoded, decoded);
 
         assertArrayEquals(encodedBytes, readableBytes(reEncoded));
     }
 
-    private static byte[] readableBytes(FriendlyByteBuf buffer) {
+    private static byte[] readableBytes(RegistryFriendlyByteBuf buffer) {
         byte[] bytes = new byte[buffer.readableBytes()];
         buffer.getBytes(buffer.readerIndex(), bytes);
         return bytes;

@@ -20,10 +20,10 @@ class HeatHandlerNbtTest extends BootstrappedTest {
         HeatHandler source = new HeatHandler(100);
         source.setHeat(42);
 
-        CompoundTag tag = source.serializeNBT();
+        CompoundTag tag = source.serializeNBT(registryAccess());
 
         HeatHandler restored = new HeatHandler(100);
-        restored.deserializeNBT(tag);
+        restored.deserializeNBT(registryAccess(), tag);
 
         assertEquals(42, restored.getHeat());
     }

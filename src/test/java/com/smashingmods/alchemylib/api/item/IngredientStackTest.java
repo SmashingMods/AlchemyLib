@@ -1,8 +1,7 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.smashingmods.alchemylib.testsupport.BootstrappedTest;
-import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
@@ -125,7 +124,7 @@ class IngredientStackTest extends BootstrappedTest {
     }
 
     private static IngredientStack encodeDecodeNetwork(IngredientStack stack) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        RegistryFriendlyByteBuf buffer = registryBuffer();
         stack.toNetwork(buffer);
         return IngredientStack.fromNetwork(buffer);
     }
