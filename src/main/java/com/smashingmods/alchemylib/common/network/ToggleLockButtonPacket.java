@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ToggleLockButtonPacket implements AlchemyPacket {
 
-    public static final Type<ToggleLockButtonPacket> TYPE = new Type<>(new ResourceLocation(AlchemyLib.MODID, "toggle_lock_button"));
+    public static final Type<ToggleLockButtonPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "toggle_lock_button"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ToggleLockButtonPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, packet -> packet.blockPos,

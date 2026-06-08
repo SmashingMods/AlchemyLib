@@ -37,7 +37,7 @@ public class RecipeSelectorButton extends AbstractAlchemyButton {
             int u = open ? 25 : 45;
             int v = open ? 80 : 60;
 
-            pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+            pGuiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
             renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 

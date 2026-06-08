@@ -253,7 +253,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
             }
             case DOWN -> vHeight = pVScaled;
         }
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), x, y, uOffset, vOffset, uWidth, vHeight);
+        pGuiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), x, y, uOffset, vOffset, uWidth, vHeight);
     }
 
     /**

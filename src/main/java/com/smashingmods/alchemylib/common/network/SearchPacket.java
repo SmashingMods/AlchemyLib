@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class SearchPacket implements AlchemyPacket {
 
-    public static final Type<SearchPacket> TYPE = new Type<>(new ResourceLocation(AlchemyLib.MODID, "search"));
+    public static final Type<SearchPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "search"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SearchPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, packet -> packet.blockPos,

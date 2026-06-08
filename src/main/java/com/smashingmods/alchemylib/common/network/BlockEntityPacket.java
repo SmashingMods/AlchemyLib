@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class BlockEntityPacket implements AlchemyPacket {
 
-    public static final Type<BlockEntityPacket> TYPE = new Type<>(new ResourceLocation(AlchemyLib.MODID, "block_entity"));
+    public static final Type<BlockEntityPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "block_entity"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, BlockEntityPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, packet -> packet.blockPos,

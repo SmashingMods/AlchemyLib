@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class TogglePauseButtonPacket implements AlchemyPacket {
 
-    public static final Type<TogglePauseButtonPacket> TYPE = new Type<>(new ResourceLocation(AlchemyLib.MODID, "toggle_pause_button"));
+    public static final Type<TogglePauseButtonPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "toggle_pause_button"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, TogglePauseButtonPacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, packet -> packet.blockPos,

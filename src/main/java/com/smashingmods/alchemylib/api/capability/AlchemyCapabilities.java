@@ -23,7 +23,7 @@ public class AlchemyCapabilities {
      * resolves to {@code null}. Dependents that need heat register their own provider via {@link #register}.
      */
     public static final BlockCapability<HeatCapability, Direction> HEAT_HANDLER =
-            BlockCapability.createSided(new ResourceLocation("alchemylib", "heat_handler"), HeatCapability.class);
+            BlockCapability.createSided(ResourceLocation.fromNamespaceAndPath("alchemylib", "heat_handler"), HeatCapability.class);
 
     /**
      * Register a {@link BlockCapability} provider for a concrete {@link BlockEntityType}.

@@ -101,7 +101,7 @@ public class DatagenHelpers {
 
     private static ItemLike getChemicalItem(String pString) {
 
-        ResourceLocation resourceLocation = new ResourceLocation(pString);
+        ResourceLocation resourceLocation = ResourceLocation.parse(pString);
 
         Optional<ElementItem> optionalElement = ItemRegistry.getElementByName(pString);
         Optional<CompoundItem> optionalCompound = ItemRegistry.getCompoundByName(pString.replace(" ", "_"));
@@ -123,15 +123,15 @@ public class DatagenHelpers {
     }
 
     public static ResourceLocation getLocation(ItemStack pItemStack, String pType, String pModId) {
-        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItemStack.getItem())).getPath()));
+        return ResourceLocation.fromNamespaceAndPath(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItemStack.getItem())).getPath()));
     }
 
     public static ResourceLocation getLocation(Item pItem, String pType, String pModId) {
-        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItem)).getPath()));
+        return ResourceLocation.fromNamespaceAndPath(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItem)).getPath()));
     }
 
     public static ResourceLocation getLocation(FluidStack pFluidStack, String pType, String pModId) {
-        return new ResourceLocation(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(pFluidStack.getFluid())).getPath()));
+        return ResourceLocation.fromNamespaceAndPath(pModId, String.format("%s/%s", pType, Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(pFluidStack.getFluid())).getPath()));
     }
 
     @SuppressWarnings("unused")

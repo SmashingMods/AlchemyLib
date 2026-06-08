@@ -25,7 +25,7 @@ public class LockButton extends AbstractAlchemyButton {
 
     @Override
     public void renderWidget(@Nonnull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
+        pGuiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), 25 + ((blockEntity.isRecipeLocked() ? 0 : 1) * 20), 0, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 

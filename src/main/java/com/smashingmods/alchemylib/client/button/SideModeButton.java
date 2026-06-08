@@ -36,7 +36,7 @@ public class SideModeButton extends AbstractAlchemyButton {
         int u = open ? 25 : 85;
         int v = open ? 80 : 0;
 
-        pGuiGraphics.blit(new ResourceLocation(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+        pGuiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
