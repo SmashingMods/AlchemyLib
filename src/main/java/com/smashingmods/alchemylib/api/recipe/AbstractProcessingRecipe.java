@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
  */
 public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comparable<AbstractProcessingRecipe> {
 
-    private final ResourceLocation recipeId;
+    private ResourceLocation recipeId;
     private final String group;
 
     public AbstractProcessingRecipe(ResourceLocation pRecipeId, String pGroup) {
@@ -27,6 +27,16 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      */
     public ResourceLocation getId() {
         return recipeId;
+    }
+
+    /**
+     * Overwrites the identifier this recipe carries. Recipe identity now lives on the
+     * {@code RecipeHolder} rather than in the serialized payload, so a decoded recipe is created with a
+     * placeholder id; the consumer that unwraps the holder calls this to stamp the recipe with its real
+     * {@code RecipeHolder} key before {@link #getId()} is relied upon.
+     */
+    public void setId(ResourceLocation pRecipeId) {
+        this.recipeId = pRecipeId;
     }
 
     @Override
