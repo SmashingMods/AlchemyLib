@@ -1,6 +1,7 @@
 package com.smashingmods.alchemylib.api.capability;
 
 import io.netty.util.internal.UnstableApi;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -51,14 +52,14 @@ public class HeatHandler implements HeatCapability {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider pProvider) {
         final CompoundTag tag = new CompoundTag();
         tag.putInt("heat", heat);
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag pTag) {
+    public void deserializeNBT(HolderLookup.Provider pProvider, CompoundTag pTag) {
         setHeat(pTag.getInt("heat"));
     }
 

@@ -44,13 +44,13 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
      *
      * <p>This method sends a packet from the server to the client with the parent BlockEntity's update tag.</p>
      *
-     * @see AbstractProcessingBlockEntity#getUpdateTag()
+     * @see AbstractProcessingBlockEntity#getUpdateTag(net.minecraft.core.HolderLookup.Provider)
      */
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
         if (level != null && !level.isClientSide()) {
-            AlchemyLib.getPacketHandler().sendToTrackingChunk(new BlockEntityPacket(getBlockEntity().getBlockPos(), getBlockEntity().getUpdateTag()), getLevel(), getBlockEntity().getBlockPos());
+            AlchemyLib.getPacketHandler().sendToTrackingChunk(new BlockEntityPacket(getBlockEntity().getBlockPos(), getBlockEntity().getUpdateTag(level.registryAccess())), getLevel(), getBlockEntity().getBlockPos());
         }
     }
 

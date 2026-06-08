@@ -5,6 +5,7 @@ import com.smashingmods.alchemylib.api.storage.ProcessingSlotHandler;
 import com.smashingmods.alchemylib.api.storage.SidedProcessingSlotWrapper;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -59,19 +60,19 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        pTag.put("input", inputHandler.serializeNBT());
-        pTag.put("output", outputHandler.serializeNBT());
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        pTag.put("input", inputHandler.serializeNBT(pRegistries));
+        pTag.put("output", outputHandler.serializeNBT(pRegistries));
         pTag.put("fluid", fluidStorage.writeToNBT(new CompoundTag()));
         pTag.putShort("sides", combinedHandler.sideModesToShort());
-        super.saveAdditional(pTag);
+        super.saveAdditional(pTag, pRegistries);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        inputHandler.deserializeNBT(pTag.getCompound("input"));
-        outputHandler.deserializeNBT(pTag.getCompound("output"));
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
+        inputHandler.deserializeNBT(pRegistries, pTag.getCompound("input"));
+        outputHandler.deserializeNBT(pRegistries, pTag.getCompound("output"));
         fluidStorage.readFromNBT(pTag.getCompound("fluid"));
         if (pTag.contains("sides")) {
             combinedHandler.setSideModesFromShort(pTag.getShort("sides"));

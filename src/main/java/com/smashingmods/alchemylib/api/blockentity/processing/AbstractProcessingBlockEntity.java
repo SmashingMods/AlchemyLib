@@ -2,6 +2,7 @@ package com.smashingmods.alchemylib.api.blockentity.processing;
 
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -45,17 +46,17 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        saveAdditional(tag);
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        CompoundTag tag = super.getUpdateTag(pRegistries);
+        saveAdditional(tag, pRegistries);
         return tag;
     }
 
     @Override
-    public void onDataPacket(Connection pConnection, ClientboundBlockEntityDataPacket pPacket) {
+    public void onDataPacket(Connection pConnection, ClientboundBlockEntityDataPacket pPacket, HolderLookup.Provider pRegistries) {
         Objects.requireNonNull(pPacket.getTag());
-        this.load(pPacket.getTag());
-        super.onDataPacket(pConnection, pPacket);
+        this.loadAdditional(pPacket.getTag(), pRegistries);
+        super.onDataPacket(pConnection, pPacket, pRegistries);
     }
 
     @Nullable
@@ -157,22 +158,22 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         pTag.putInt("progress", progress);
         pTag.putBoolean("locked", isRecipeLocked());
         pTag.putBoolean("paused", isProcessingPaused());
-        pTag.put("energy", energyHandler.serializeNBT());
-        super.saveAdditional(pTag);
+        pTag.put("energy", energyHandler.serializeNBT(pRegistries));
+        super.saveAdditional(pTag, pRegistries);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
         setProgress(pTag.getInt("progress"));
         setRecipeLocked(pTag.getBoolean("locked"));
         setPaused(pTag.getBoolean("paused"));
         if (pTag.contains("energy")) {
-            energyHandler.deserializeNBT(pTag.get("energy"));
+            energyHandler.deserializeNBT(pRegistries, pTag.get("energy"));
         }
     }
 }
