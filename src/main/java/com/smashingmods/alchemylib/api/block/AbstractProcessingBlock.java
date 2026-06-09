@@ -3,6 +3,7 @@ package com.smashingmods.alchemylib.api.block;
 import com.mojang.serialization.MapCodec;
 import com.smashingmods.alchemylib.api.blockentity.processing.InventoryBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 
 import javax.annotation.Nullable;
@@ -39,7 +40,7 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
     public static final MapCodec<AbstractProcessingBlock> CODEC = simpleCodec(pProperties -> new AbstractProcessingBlock((pPos, pState) -> null));
 
     private final BiFunction<BlockPos, BlockState, BlockEntity> blockEntityFunction;
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     /**
      * The block needs to have a reference to its block entity so that it can return that
