@@ -98,9 +98,9 @@ class IngredientStackTest extends BootstrappedTest {
     @Test
     void toStacks_appliesCountWithoutMutatingIngredientCache() {
         Ingredient ingredient = Ingredient.of(Items.STONE);
-        // Ingredient#items caches and hands back the same immutable Holder list on every call; toStacks builds
-        // fresh ItemStacks from it, so the count it applies must not leak back onto that shared backing.
-        assertEquals(1, ingredient.items().size());
+        // Ingredient#items streams the same cached Holder backing on every call; toStacks builds fresh
+        // ItemStacks from it, so the count it applies must not leak back onto that shared backing.
+        assertEquals(1, ingredient.items().count());
 
         IngredientStack stack = new IngredientStack(ingredient, 16);
         List<ItemStack> stacks = stack.toStacks();
@@ -109,8 +109,8 @@ class IngredientStackTest extends BootstrappedTest {
         assertEquals(16, stacks.get(0).getCount());
         // The returned stack carries the count; the Ingredient's cached backing is untouched -- it still
         // resolves to the single STONE holder, and a fresh toStacks call produces an independent stack.
-        assertEquals(1, ingredient.items().size());
-        assertEquals(Items.STONE, ingredient.items().get(0).value());
+        assertEquals(1, ingredient.items().count());
+        assertEquals(Items.STONE, ingredient.items().findFirst().orElseThrow().value());
         assertEquals(16, stack.toStacks().get(0).getCount());
     }
 
