@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * An IngredientStack is similar to an {@link ItemStack}. It's a wrapper for an {@link Ingredient} with an
  * optional count. Ingredients extend Predicate&lt;ItemStack&gt; that hold values for potential items. For example, you can create an
- * Ingredient using {@link Ingredient#of(ItemLike...)}, {@link Ingredient#of(ItemStack...)}, or {@link Ingredient#of(TagKey)}.
+ * Ingredient using {@link Ingredient#of(ItemLike...)} for items, or {@link Ingredient#of(net.minecraft.core.HolderSet)} for a tag's items.
  *
  * <p>IngredientStack has wrappers around these methods using constructors. You can use an IngredientStack the same way you would
  * use an Ingredient to test an ItemStack if it matches.</p>
