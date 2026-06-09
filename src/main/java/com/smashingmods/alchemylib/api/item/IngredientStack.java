@@ -156,7 +156,7 @@ public class IngredientStack {
     }
 
     public boolean isEmpty() {
-        return ingredient.getValues().size() == 0;
+        return ingredient.getValues().size() == 0 && !ingredient.isCustom();
     }
 
     /**
