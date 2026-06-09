@@ -34,18 +34,41 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
      * every block extending it, so subclasses need not declare their own. It only serializes the block's
      * {@link BlockBehaviour.Properties} (which vanilla encodes as a unit anyway -- see {@code Properties.CODEC}),
      * because the {@link #blockEntityFunction block entity factory} is a behavioural reference with no serialized
-     * form; the decode side therefore reconstructs with a no-op factory. These blocks are only ever instantiated
-     * through their registry suppliers, never decoded from this codec, so the placeholder factory is never invoked.
+     * form; the decode side therefore reconstructs with a no-op factory, forwarding the decoded
+     * {@link BlockBehaviour.Properties}. These blocks are only ever instantiated through their registry suppliers,
+     * never decoded from this codec, so the placeholder factory is never invoked.
      */
-    public static final MapCodec<AbstractProcessingBlock> CODEC = simpleCodec(pProperties -> new AbstractProcessingBlock((pPos, pState) -> null));
+    public static final MapCodec<AbstractProcessingBlock> CODEC = simpleCodec(pProperties -> new AbstractProcessingBlock((pPos, pState) -> null, pProperties));
 
     private final BiFunction<BlockPos, BlockState, BlockEntity> blockEntityFunction;
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     /**
+     * The default machine {@link BlockBehaviour.Properties}: a {@link MapColor#METAL metal}-coloured block that
+     * {@linkplain BlockBehaviour.Properties#requiresCorrectToolForDrops() requires the correct tool},
+     * has a {@linkplain BlockBehaviour.Properties#strength(float, float) hardness/resistance} of {@code 5.0F / 6.0F}
+     * and the {@link SoundType#METAL metal} sound.
+     *
+     * <p>A fresh instance is returned on every call rather than a shared constant, because a block's
+     * {@link net.minecraft.resources.ResourceKey id} is recorded by mutating its {@code Properties}, so each
+     * registered block needs its own instance to stamp.
+     *
+     * @return a new {@link BlockBehaviour.Properties} carrying the standard machine appearance and behaviour.
+     */
+    public static BlockBehaviour.Properties machineProperties() {
+        return BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL);
+    }
+
+    /**
      * The block needs to have a reference to its block entity so that it can return that
      * reference in {@link #newBlockEntity}. The block entity's BlockPos and BlockState can't be known
      * in advance, pass a function that can apply the BlockPos and BlockState at runtime.
+     *
+     * <p>This convenience constructor uses the standard {@link #machineProperties() machine properties}. A block's
+     * id must be recorded on its {@link BlockBehaviour.Properties} before the block is registered, otherwise
+     * construction throws; consumers that need their own id stamped should register through
+     * {@link net.neoforged.neoforge.registries.DeferredRegister.Blocks#registerBlock(String, java.util.function.Function, BlockBehaviour.Properties)}
+     * (which records the id) by way of {@link #AbstractProcessingBlock(BiFunction, BlockBehaviour.Properties)}.
      *
      * @param pBlockEntity takes a BiFunction that requires a BlockPos and BlockState and returns a BlockEntity.
      *
@@ -54,7 +77,25 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
      * @see BlockEntity
      */
     public AbstractProcessingBlock(BiFunction<BlockPos, BlockState, BlockEntity> pBlockEntity) {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL));
+        this(pBlockEntity, machineProperties());
+    }
+
+    /**
+     * As {@link #AbstractProcessingBlock(BiFunction)}, but with caller-supplied {@link BlockBehaviour.Properties}.
+     * This lets a consumer flow id-aware properties into {@code super(...)} so the block can be registered through
+     * {@link net.neoforged.neoforge.registries.DeferredRegister.Blocks#registerBlock(String, java.util.function.Function, BlockBehaviour.Properties)},
+     * which records the block's id on the properties before the factory builds it. A block constructed with
+     * properties whose id has not been recorded throws at registration.
+     *
+     * @param pBlockEntity takes a BiFunction that requires a BlockPos and BlockState and returns a BlockEntity.
+     * @param pProperties the block's {@link BlockBehaviour.Properties}.
+     *
+     * @see BlockPos
+     * @see BlockState
+     * @see BlockEntity
+     */
+    public AbstractProcessingBlock(BiFunction<BlockPos, BlockState, BlockEntity> pBlockEntity, BlockBehaviour.Properties pProperties) {
+        super(pProperties);
         blockEntityFunction = pBlockEntity;
     }
 
