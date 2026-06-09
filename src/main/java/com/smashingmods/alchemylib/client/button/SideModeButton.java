@@ -8,6 +8,7 @@ import com.smashingmods.alchemylib.api.blockentity.processing.SearchableBlockEnt
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +37,7 @@ public class SideModeButton extends AbstractAlchemyButton {
         int u = open ? 25 : 85;
         int v = open ? 80 : 0;
 
-        pGuiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height);
+        pGuiGraphics.blit(RenderType::guiTextured, ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), getX(), getY(), u, v, width, height, 256, 256);
         renderButtonTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
 
