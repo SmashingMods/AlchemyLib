@@ -39,7 +39,6 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
         this.recipeId = pRecipeId;
     }
 
-    @Override
     public String getGroup() {
         return group;
     }
@@ -67,7 +66,6 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      * Not all implementations of this class will output an ItemStack. The default is to return
      * an empty ItemStack. If your implementing class does return an ItemStack, override this.
      */
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
         return ItemStack.EMPTY;
     }
@@ -76,7 +74,6 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
      * This method is for 2x2 and 3x3 Minecraft crafting tables. Recipes extending this abstract class are designed
      * for custom crafting methods. Therefore, this simply returns false in all cases.
      */
-    @Override
     public boolean canCraftInDimensions(int pWidth, int pHeight) {
         return false;
     }
