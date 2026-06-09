@@ -1,17 +1,19 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,8 +35,8 @@ public class IngredientStack {
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is taken from the 0th entry of the Ingredient's values array. If that
-     * entry is an item value the item's registry name is used; if it is a tag value the tag's location is used.</p>
+     * <p>{@link IngredientStack#registryName} is taken from the Ingredient's backing {@link net.minecraft.core.HolderSet}.
+     * A tag-backed set uses the tag's location; an item-backed set uses the registry name of its first item.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -42,14 +44,13 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        Ingredient.Value value = pIngredient.values[0];
-        if (value instanceof Ingredient.TagValue tagValue) {
-            this.registryName = tagValue.tag().location();
-        } else if (value instanceof Ingredient.ItemValue itemValue) {
-            this.registryName = BuiltInRegistries.ITEM.getKey(itemValue.item().getItem());
-        } else {
-            throw new IllegalArgumentException("Ingredient value is neither an item nor a tag value.");
-        }
+        Either<TagKey<Item>, List<Holder<Item>>> values = pIngredient.getValues().unwrap();
+        this.registryName = values.map(
+                TagKey::location,
+                holders -> holders.get(0).unwrapKey()
+                        .map(ResourceKey::location)
+                        .orElseThrow(() -> new IllegalArgumentException("Ingredient item is not registered."))
+        );
     }
 
     public IngredientStack(Ingredient pIngredient) {
@@ -102,7 +103,7 @@ public class IngredientStack {
      */
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
-        json.add("ingredient", Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, ingredient).getOrThrow());
+        json.add("ingredient", Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, ingredient).getOrThrow());
         json.addProperty("count", count);
         return json;
     }
@@ -114,7 +115,7 @@ public class IngredientStack {
      * @return IngredientStack
      */
     public static IngredientStack fromJson(JsonObject pJson) {
-        Ingredient ingredient = Ingredient.CODEC_NONEMPTY.parse(JsonOps.INSTANCE, pJson.get("ingredient")).getOrThrow();
+        Ingredient ingredient = Ingredient.CODEC.parse(JsonOps.INSTANCE, pJson.get("ingredient")).getOrThrow();
         int count = GsonHelper.getAsInt(pJson, "count", 1);
         return new IngredientStack(ingredient, count);
     }
@@ -126,12 +127,8 @@ public class IngredientStack {
      * @return List of ItemStacks.
      */
     public List<ItemStack> toStacks() {
-        return Arrays.stream(ingredient.getItems())
-                .map(item -> {
-                    ItemStack copy = item.copy();
-                    copy.setCount(count);
-                    return copy;
-                })
+        return ingredient.items().stream()
+                .map(item -> new ItemStack(item, count))
                 .collect(Collectors.toList());
     }
 
@@ -159,7 +156,7 @@ public class IngredientStack {
     }
 
     public boolean isEmpty() {
-        return ingredient.isEmpty();
+        return ingredient.getValues().size() == 0;
     }
 
     /**
