@@ -106,8 +106,8 @@ public class DatagenHelpers {
         Optional<ElementItem> optionalElement = ItemRegistry.getElementByName(pString);
         Optional<CompoundItem> optionalCompound = ItemRegistry.getCompoundByName(pString.replace(" ", "_"));
 
-        Item outputItem = BuiltInRegistries.ITEM.get(resourceLocation);
-        Block outputBlock = BuiltInRegistries.BLOCK.get(resourceLocation);
+        Item outputItem = BuiltInRegistries.ITEM.getValue(resourceLocation);
+        Block outputBlock = BuiltInRegistries.BLOCK.getValue(resourceLocation);
 
         if (optionalElement.isPresent()) {
             return optionalElement.get();
