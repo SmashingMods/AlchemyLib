@@ -12,7 +12,8 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -106,7 +107,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     //TODO: Discover why FluidStack textures become invisible when picking up an inventory item.
     public void drawTexture(GuiGraphics pGuiGraphics, AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
         RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
 
         Matrix4f pose = pGuiGraphics.pose().last().pose();
@@ -253,7 +254,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
             }
             case DOWN -> vHeight = pVScaled;
         }
-        pGuiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), x, y, uOffset, vOffset, uWidth, vHeight);
+        pGuiGraphics.blit(RenderType::guiTextured, ResourceLocation.fromNamespaceAndPath(AlchemyLib.MODID, "textures/gui/widgets.png"), x, y, uOffset, vOffset, uWidth, vHeight, 256, 256);
     }
 
     /**
