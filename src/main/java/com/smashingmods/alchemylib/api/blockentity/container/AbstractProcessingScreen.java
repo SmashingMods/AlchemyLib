@@ -14,12 +14,12 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -108,7 +108,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     public void drawTexture(GuiGraphics pGuiGraphics, AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
 
         RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
 
         Matrix4f pose = pGuiGraphics.pose().last().pose();
 
@@ -150,13 +150,13 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     }
 
     /**
-     * Gets a texture from {@link InventoryMenu#BLOCK_ATLAS} by the passed ResourceLocation.
+     * Gets a texture from {@link TextureAtlas#LOCATION_BLOCKS} by the passed ResourceLocation.
      *
      * @param pResourceLocation {@link ResourceLocation}
      * @return {@link TextureAtlasSprite}
      */
     public static TextureAtlasSprite getResourceTexture(ResourceLocation pResourceLocation) {
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(pResourceLocation);
+        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(pResourceLocation);
     }
 
     /**

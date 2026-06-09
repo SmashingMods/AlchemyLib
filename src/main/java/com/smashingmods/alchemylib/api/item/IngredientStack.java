@@ -127,8 +127,8 @@ public class IngredientStack {
      * @return List of ItemStacks.
      */
     public List<ItemStack> toStacks() {
-        return ingredient.items().stream()
-                .map(item -> new ItemStack(item, count))
+        return ingredient.items()
+                .map(holder -> new ItemStack(holder, count))
                 .collect(Collectors.toList());
     }
 

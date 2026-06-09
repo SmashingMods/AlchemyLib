@@ -7,7 +7,9 @@ import com.smashingmods.chemlib.common.items.CompoundItem;
 import com.smashingmods.chemlib.common.items.ElementItem;
 import com.smashingmods.chemlib.registry.ItemRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -153,8 +155,8 @@ public class DatagenHelpers {
         return new OrCondition(List.of(pCondition1, pCondition2));
     }
 
-    public static TagEmptyCondition tagEmptyCondition(String pTag) {
-        return new TagEmptyCondition(pTag);
+    public static TagEmptyCondition<Item> tagEmptyCondition(String pTag) {
+        return new TagEmptyCondition<>(TagKey.create(Registries.ITEM, ResourceLocation.parse(pTag)));
     }
 
     public static NotCondition tagNotEmptyCondition(String pTag) {
