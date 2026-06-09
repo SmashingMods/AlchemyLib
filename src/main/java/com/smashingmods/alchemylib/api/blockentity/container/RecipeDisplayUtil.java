@@ -24,7 +24,7 @@ public class RecipeDisplayUtil {
         String namespace = StringUtils.capitalize(Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(pItemStack.getItem())).getNamespace());
 
         components.add(pComponent.withStyle(ChatFormatting.UNDERLINE, ChatFormatting.YELLOW));
-        components.add(MutableComponent.create(PlainTextContents.create(String.format("%dx %s", pItemStack.getCount(), pItemStack.getItem().getDescription().getString()))));
+        components.add(MutableComponent.create(PlainTextContents.create(String.format("%dx %s", pItemStack.getCount(), pItemStack.getItem().getName().getString()))));
 
         if (pItemStack.getItem() instanceof Chemical chemical) {
 
