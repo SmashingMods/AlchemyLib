@@ -44,6 +44,16 @@ public abstract class AbstractProcessingRecipe implements ProcessingRecipe, Comp
     }
 
     /**
+     * Exposes the stored group through the {@code Recipe} interface, whose default
+     * implementation returns an empty string. Returning the real group here keeps interface
+     * callers that filter recipes by group in agreement with {@link #getGroup()}.
+     */
+    @Override
+    public String group() {
+        return getGroup();
+    }
+
+    /**
      * This method must be overridden by the implementing class, but it's only used for
      * the base game. This class set the return to false. Override this in an implementing
      * class if another return is necessary.
