@@ -33,8 +33,9 @@ public class IngredientStack {
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is taken from the 0th entry of the Ingredient's values array. If that
-     * entry is an item value the item's registry name is used; if it is a tag value the tag's location is used.</p>
+     * <p>{@link IngredientStack#registryName} is derived by {@link #resolveRegistryName(Ingredient)}: normally from
+     * the 0th entry of the Ingredient's values array, with a fallback for ingredients whose values array is empty
+     * (NeoForge custom ingredients and the empty ingredient).</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -42,14 +43,37 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        Ingredient.Value value = pIngredient.values[0];
-        if (value instanceof Ingredient.TagValue tagValue) {
-            this.registryName = tagValue.tag().location();
-        } else if (value instanceof Ingredient.ItemValue itemValue) {
-            this.registryName = BuiltInRegistries.ITEM.getKey(itemValue.item().getItem());
-        } else {
+        this.registryName = resolveRegistryName(pIngredient);
+    }
+
+    /**
+     * Derives a non-null registry name for an Ingredient.
+     *
+     * <p>The 0th entry of the Ingredient's {@code values} array is preferred: an item value yields the item's
+     * registry name, a tag value yields the tag's location. NeoForge custom ingredients (and the empty ingredient
+     * produced by {@code Ingredient.of()}) carry an <em>empty</em> {@code values} array, so reading {@code values[0]}
+     * would throw {@link ArrayIndexOutOfBoundsException} while a recipe is being decoded. For that case we fall back
+     * to the first item the ingredient actually resolves to, and finally to the item registry's default key
+     * ({@code minecraft:air}) when it resolves to nothing.</p>
+     *
+     * @param pIngredient {@link Ingredient}
+     * @return the resolved {@link ResourceLocation}, never {@code null}
+     */
+    private static ResourceLocation resolveRegistryName(Ingredient pIngredient) {
+        if (pIngredient.values.length > 0) {
+            Ingredient.Value value = pIngredient.values[0];
+            if (value instanceof Ingredient.TagValue tagValue) {
+                return tagValue.tag().location();
+            } else if (value instanceof Ingredient.ItemValue itemValue) {
+                return BuiltInRegistries.ITEM.getKey(itemValue.item().getItem());
+            }
             throw new IllegalArgumentException("Ingredient value is neither an item nor a tag value.");
         }
+        ItemStack[] items = pIngredient.getItems();
+        if (items.length > 0) {
+            return BuiltInRegistries.ITEM.getKey(items[0].getItem());
+        }
+        return BuiltInRegistries.ITEM.getDefaultKey();
     }
 
     public IngredientStack(Ingredient pIngredient) {

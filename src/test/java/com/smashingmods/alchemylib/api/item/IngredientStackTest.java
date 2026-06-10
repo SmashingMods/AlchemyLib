@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -23,10 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * They also pin the {@code toNetwork}/{@code fromNetwork} round trip -- the persistence seam the recipe packets
  * depend on -- and that {@code toStacks} does not mutate the Ingredient's shared cached stacks.
  *
- * <p>The constructor's {@code else throw IllegalArgumentException} branch (value neither item nor tag) is
- * unreachable for real ingredients -- an empty {@code Ingredient.of()} has an empty {@code values} array, so
- * {@code values[0]} is an {@code ArrayIndexOutOfBoundsException} rather than that exception -- so it is left
- * untested on purpose.</p>
+ * <p>An empty {@code Ingredient.of()} has an empty {@code values} array (the same shape NeoForge custom
+ * ingredients take), so the constructor must not read {@code values[0]} blindly -- doing so threw an
+ * {@code ArrayIndexOutOfBoundsException} while recipes were being decoded. That empty-ingredient path is
+ * pinned below. The {@code throw IllegalArgumentException} branch (a non-empty value that is neither item
+ * nor tag) stays unreachable for real ingredients, so it is left untested on purpose.</p>
  */
 class IngredientStackTest extends BootstrappedTest {
 
@@ -63,6 +65,20 @@ class IngredientStackTest extends BootstrappedTest {
         IngredientStack stack = new IngredientStack(Ingredient.of(ItemTags.PLANKS));
 
         assertEquals(ResourceLocation.fromNamespaceAndPath("minecraft", "planks"), stack.getRegistryName());
+    }
+
+    @Test
+    void constructor_emptyIngredient_doesNotThrow() {
+        // Regression for the ArrayIndexOutOfBoundsException at IngredientStack.<init>: an empty Ingredient has an
+        // empty values[] array (the shape NeoForge custom ingredients also take), which crashed recipe decode.
+        assertDoesNotThrow(() -> new IngredientStack(Ingredient.of()));
+    }
+
+    @Test
+    void getRegistryName_emptyIngredient_isItemRegistryDefaultKey() {
+        IngredientStack stack = new IngredientStack(Ingredient.of());
+
+        assertEquals(ResourceLocation.fromNamespaceAndPath("minecraft", "air"), stack.getRegistryName());
     }
 
     @Test
