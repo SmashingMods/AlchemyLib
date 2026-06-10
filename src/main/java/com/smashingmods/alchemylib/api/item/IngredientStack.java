@@ -28,15 +28,26 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class IngredientStack {
 
+    /**
+     * Stand-in registry name for an item-backed Ingredient with no items (e.g. {@code Ingredient.of()}). It is
+     * namespaced to the mod so it can never collide with a real item or tag id, keeping {@link #getRegistryName()}
+     * non-null for that degenerate case instead of indexing into an empty holder list.
+     */
+    private static final ResourceLocation EMPTY = ResourceLocation.fromNamespaceAndPath("alchemylib", "empty");
+
     private final Ingredient ingredient;
     private final int count;
     private final ResourceLocation registryName;
+    private final List<ResourceLocation> identity;
 
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is taken from the Ingredient's backing {@link net.minecraft.core.HolderSet}.
-     * A tag-backed set uses the tag's location; an item-backed set uses the registry name of its first item.</p>
+     * <p>{@link IngredientStack#registryName} is a single representative location taken from the Ingredient's backing
+     * {@link net.minecraft.core.HolderSet}: a tag-backed set uses the tag's location; an item-backed set uses the
+     * registry name of its first item. {@link IngredientStack#identity} is the full identity used for equality: the
+     * tag location for a tag-backed set, or the sorted registry names of every item for an item-backed set, so two
+     * multi-item ingredients are only equal when their whole item set matches.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -45,11 +56,19 @@ public class IngredientStack {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
         Either<TagKey<Item>, List<Holder<Item>>> values = pIngredient.getValues().unwrap();
+        this.identity = values.map(
+                tag -> List.of(tag.location()),
+                holders -> holders.stream()
+                        .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location).stream())
+                        .sorted()
+                        .collect(Collectors.toUnmodifiableList())
+        );
         this.registryName = values.map(
                 TagKey::location,
-                holders -> holders.get(0).unwrapKey()
-                        .map(ResourceKey::location)
-                        .orElseThrow(() -> new IllegalArgumentException("Ingredient item is not registered."))
+                holders -> holders.stream()
+                        .findFirst()
+                        .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location))
+                        .orElse(EMPTY)
         );
     }
 
@@ -160,7 +179,9 @@ public class IngredientStack {
     }
 
     /**
-     * Determines object equality of this IngredientStack against another object based on {@link ResourceLocation#equals(Object)}.
+     * Determines object equality of this IngredientStack against another object. Two IngredientStacks are equal
+     * when they share the same {@link #getCount() count} and the same {@link #identity full ingredient identity},
+     * so two multi-item ingredients that merely share a first item are not equal.
      *
      * @param pObject Object
      * @return boolean
@@ -171,18 +192,19 @@ public class IngredientStack {
         if (!(pObject instanceof IngredientStack that)) return false;
 
         if (getCount() != that.getCount()) return false;
-        return getRegistryName().equals(that.getRegistryName());
+        return identity.equals(that.identity);
     }
 
     /**
-     * Calculates the hash code for this IngredientStack based on its {@link ResourceLocation registryName} hash code.
+     * Calculates the hash code for this IngredientStack based on its {@link #getCount() count} and its
+     * {@link #identity full ingredient identity}.
      *
      * @return int
      */
     @Override
     public int hashCode() {
         int result = getCount();
-        result = 31 * result + getRegistryName().hashCode();
+        result = 31 * result + identity.hashCode();
         return result;
     }
 
