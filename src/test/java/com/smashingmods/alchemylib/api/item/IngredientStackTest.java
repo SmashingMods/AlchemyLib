@@ -25,10 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code fromNetwork} round trip -- the persistence seam the recipe packets depend on -- and that
  * {@code toStacks} does not mutate the Ingredient's shared cached backing.
  *
- * <p>The constructor's {@code orElseThrow} (an item-backed ingredient whose first item is not registered) is
- * unreachable for real ingredients -- an empty {@code Ingredient.of()} has an empty item list, so the first
- * lookup is an {@code IndexOutOfBoundsException} rather than that exception -- so it is left untested on
- * purpose.</p>
+ * <p>Equality is keyed on the count plus the Ingredient's full identity (the tag location, or the sorted item
+ * registry names), so the multi-item cases below pin that two ingredients sharing only a first item are not
+ * equal while the same item set in any order is. The degenerate empty {@code Ingredient.of()} (no items, so no
+ * first registry name) falls back to a stand-in location rather than throwing, but that path needs no real
+ * ingredient and is left untested.</p>
  */
 class IngredientStackTest extends BootstrappedTest {
 
@@ -93,6 +94,26 @@ class IngredientStackTest extends BootstrappedTest {
         IngredientStack second = new IngredientStack(Ingredient.of(Items.DIRT), 4);
 
         assertNotEquals(first, second);
+    }
+
+    @Test
+    void equals_multiItemSharingFirstItem_areNotEqual() {
+        // Identity must reflect the whole item set, not just the first item: these two share IRON_INGOT as their
+        // first item but differ on the second, so they must not collide in hash-based dedup/lookup.
+        IngredientStack first = new IngredientStack(Ingredient.of(Items.IRON_INGOT, Items.GOLD_INGOT), 4);
+        IngredientStack second = new IngredientStack(Ingredient.of(Items.IRON_INGOT, Items.COPPER_INGOT), 4);
+
+        assertNotEquals(first, second);
+    }
+
+    @Test
+    void equalsAndHashCode_sameItemSetAndCount_areEqual() {
+        // Same full item set (regardless of declared order) and same count: equal, with matching hash codes.
+        IngredientStack first = new IngredientStack(Ingredient.of(Items.IRON_INGOT, Items.GOLD_INGOT), 4);
+        IngredientStack second = new IngredientStack(Ingredient.of(Items.GOLD_INGOT, Items.IRON_INGOT), 4);
+
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
     }
 
     @Test
