@@ -53,6 +53,6 @@ public abstract class AbstractSearchableBlockEntity extends AbstractInventoryBlo
     @Override
     protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.loadAdditional(pTag, pRegistries);
-        this.searchText = pTag.getString("searchText");
+        this.searchText = pTag.getStringOr("searchText", "");
     }
 }

@@ -1,11 +1,9 @@
 package com.smashingmods.alchemylib.api.block;
 
 import com.mojang.serialization.MapCodec;
-import com.smashingmods.alchemylib.api.blockentity.processing.InventoryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -147,24 +145,6 @@ public class AbstractProcessingBlock extends BaseEntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;
-    }
-
-    /**
-     * This method is called whenever a block is broken in the world by a player or anything else. The first priority
-     * is to make sure that if this block's block entity is an instance of {@link InventoryBlockEntity} that the item contents
-     * of its container are dropped into the world and not deleted.
-     */
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if (pState.getBlock() != pNewState.getBlock()) {
-            BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
-            if (blockEntity instanceof InventoryBlockEntity inventoryBlockEntity) {
-                inventoryBlockEntity.dropContents(pLevel, pPos);
-            }
-        }
-        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 
     /**

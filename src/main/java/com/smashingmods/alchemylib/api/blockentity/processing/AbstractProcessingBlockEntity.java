@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -77,6 +78,26 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
                 }
             }
         }
+    }
+
+    /**
+     * 1.21.5 split the old {@code BlockBehaviour#onRemove} removal logic in two: dropping anything held by the block
+     * entity moved to {@link BlockEntity#preRemoveSideEffects(BlockPos, BlockState)} (called by {@code LevelChunk}
+     * while the block entity is still in the level, before it is removed), and neighbour updates moved to
+     * {@code BlockBehaviour#affectNeighborsAfterRemoval} (which runs after the block entity is gone). The inventory
+     * drop therefore belongs here rather than on {@link com.smashingmods.alchemylib.api.block.AbstractProcessingBlock}.
+     *
+     * <p>The vanilla default only drops block entities that implement {@link net.minecraft.world.Container}; these
+     * machines hold their inventory in an {@code IItemHandler}, so {@link InventoryBlockEntity#dropContents(Level, BlockPos)}
+     * is invoked for any subclass mixing in {@link InventoryBlockEntity}. {@code super} is still called so the vanilla
+     * behaviour applies to any subclass that also implements {@link net.minecraft.world.Container}.
+     */
+    @Override
+    public void preRemoveSideEffects(BlockPos pPos, BlockState pState) {
+        if (level != null && this instanceof InventoryBlockEntity inventoryBlockEntity) {
+            inventoryBlockEntity.dropContents(level, pPos);
+        }
+        super.preRemoveSideEffects(pPos, pState);
     }
 
     @Override
@@ -169,9 +190,9 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     @Override
     protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.loadAdditional(pTag, pRegistries);
-        setProgress(pTag.getInt("progress"));
-        setRecipeLocked(pTag.getBoolean("locked"));
-        setPaused(pTag.getBoolean("paused"));
+        setProgress(pTag.getIntOr("progress", 0));
+        setRecipeLocked(pTag.getBooleanOr("locked", false));
+        setPaused(pTag.getBooleanOr("paused", false));
         if (pTag.contains("energy")) {
             energyHandler.deserializeNBT(pRegistries, pTag.get("energy"));
         }

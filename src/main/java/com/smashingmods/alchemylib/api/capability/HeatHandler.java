@@ -60,7 +60,7 @@ public class HeatHandler implements HeatCapability {
 
     @Override
     public void deserializeNBT(HolderLookup.Provider pProvider, CompoundTag pTag) {
-        setHeat(pTag.getInt("heat"));
+        setHeat(pTag.getIntOr("heat", 0));
     }
 
     @Override

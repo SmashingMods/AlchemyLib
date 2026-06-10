@@ -12,7 +12,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -87,10 +87,8 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
         if (pData.getValue() > 0) {
             FluidStack fluidStack = pData.getFluidHandler().getFluidStack();
             IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(fluidStack.getFluid());
-            setShaderColor(fluidTypeExtensions.getTintColor());
             TextureAtlasSprite icon = getResourceTexture(fluidTypeExtensions.getStillTexture());
-            drawTexture(pGuiGraphics, pData, icon, leftPos + pData.getX(), topPos + pData.getY());
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            drawTexture(pGuiGraphics, pData, icon, leftPos + pData.getX(), topPos + pData.getY(), fluidTypeExtensions.getTintColor());
         }
     }
 
@@ -106,9 +104,20 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
 
     //TODO: Discover why FluidStack textures become invisible when picking up an inventory item.
     public void drawTexture(GuiGraphics pGuiGraphics, AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
+        drawTexture(pGuiGraphics, pData, pSprite, pTextureX, pTextureY, 0xFFFFFFFF);
+    }
 
-        RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+    /**
+     * As {@link #drawTexture(GuiGraphics, AbstractDisplayData, TextureAtlasSprite, int, int)}, but tinting the sprite
+     * with the given packed ARGB colour. 1.21.5's render-pipeline rework removed the immediate-mode
+     * {@code Tesselator}/{@code BufferUploader} path this used to draw through, and a GUI sprite is no longer tinted by
+     * the global {@code RenderSystem.setShaderColor}; the quads are emitted through {@link GuiGraphics#drawSpecial} on a
+     * {@link RenderType#guiTextured(ResourceLocation) guiTextured} buffer with the tint applied per-vertex instead. The
+     * tiling and partial-fill geometry is unchanged.
+     *
+     * @param pColor Packed ARGB colour to tint the sprite with. Pass {@code 0xFFFFFFFF} for an untinted draw.
+     */
+    private void drawTexture(GuiGraphics pGuiGraphics, AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY, int pColor) {
 
         Matrix4f pose = pGuiGraphics.pose().last().pose();
 
@@ -120,33 +129,35 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
         float minV = pSprite.getV0();
         float maxV = pSprite.getV1();
 
-        for (int width = 0; width < pData.getWidth(); width++) {
-            for (int height = 0; height < pData.getHeight(); height++) {
+        pGuiGraphics.drawSpecial((MultiBufferSource bufferSource) -> {
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.guiTextured(pSprite.atlasLocation()));
 
-                int drawHeight = Math.min(renderAmount - height, 16);
-                int drawWidth = Math.min(pData.getWidth() - width, 16);
+            for (int width = 0; width < pData.getWidth(); width++) {
+                for (int height = 0; height < pData.getHeight(); height++) {
 
-                int x1 = pTextureX + width;
-                float x2 = x1 + drawWidth;
-                int y1 = posY + height;
-                float y2 = y1 + drawHeight;
+                    int drawHeight = Math.min(renderAmount - height, 16);
+                    int drawWidth = Math.min(pData.getWidth() - width, 16);
 
-                float scaleV = minV + (maxV - minV) * drawHeight / 16f;
-                float scaleU = minU + (maxU - minU) * drawWidth / 16f;
+                    int x1 = pTextureX + width;
+                    float x2 = x1 + drawWidth;
+                    int y1 = posY + height;
+                    float y2 = y1 + drawHeight;
 
-                float blitOffset = 0;
+                    float scaleV = minV + (maxV - minV) * drawHeight / 16f;
+                    float scaleU = minU + (maxU - minU) * drawWidth / 16f;
 
-                BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                bufferBuilder.addVertex(pose, x1, y2, blitOffset).setUv(minU, scaleV);
-                bufferBuilder.addVertex(pose, x2, y2, blitOffset).setUv(scaleU, scaleV);
-                bufferBuilder.addVertex(pose, x2, y1, blitOffset).setUv(scaleU, minV);
-                bufferBuilder.addVertex(pose, x1, y1, blitOffset).setUv(minU, minV);
-                BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+                    float blitOffset = 0;
 
-                height += 15;
+                    vertexConsumer.addVertex(pose, x1, y2, blitOffset).setUv(minU, scaleV).setColor(pColor);
+                    vertexConsumer.addVertex(pose, x2, y2, blitOffset).setUv(scaleU, scaleV).setColor(pColor);
+                    vertexConsumer.addVertex(pose, x2, y1, blitOffset).setUv(scaleU, minV).setColor(pColor);
+                    vertexConsumer.addVertex(pose, x1, y1, blitOffset).setUv(minU, minV).setColor(pColor);
+
+                    height += 15;
+                }
+                width += 16;
             }
-            width += 16;
-        }
+        });
     }
 
     /**

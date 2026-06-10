@@ -44,7 +44,7 @@ public class FluidDisplayData extends AbstractDisplayData {
 
         boolean emptyFluid = FluidStack.isSameFluidSameComponents(fluidStack, FluidStack.EMPTY);
 
-        String fluidName = emptyFluid ? "" : String.format(" %s", I18n.get(fluidStack.getTranslationKey()).toLowerCase());
+        String fluidName = emptyFluid ? "" : String.format(" %s", I18n.get(fluidStack.getDescriptionId()).toLowerCase());
         String stored = numberFormat.format(getValue());
         String capacity = numberFormat.format(getMaxValue());
         return String.format("%s/%s mb%s", stored, capacity, fluidName);

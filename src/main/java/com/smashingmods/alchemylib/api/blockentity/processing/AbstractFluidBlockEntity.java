@@ -71,11 +71,11 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     @Override
     protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
         super.loadAdditional(pTag, pRegistries);
-        inputHandler.deserializeNBT(pRegistries, pTag.getCompound("input"));
-        outputHandler.deserializeNBT(pRegistries, pTag.getCompound("output"));
-        fluidStorage.readFromNBT(pRegistries, pTag.getCompound("fluid"));
+        inputHandler.deserializeNBT(pRegistries, pTag.getCompoundOrEmpty("input"));
+        outputHandler.deserializeNBT(pRegistries, pTag.getCompoundOrEmpty("output"));
+        fluidStorage.readFromNBT(pRegistries, pTag.getCompoundOrEmpty("fluid"));
         if (pTag.contains("sides")) {
-            combinedHandler.setSideModesFromShort(pTag.getShort("sides"));
+            combinedHandler.setSideModesFromShort(pTag.getShortOr("sides", (short) 0));
         } else {
             combinedHandler.setSideModesFromShort(SidedProcessingSlotWrapper.LEGACY_SIDES_CONFIGURATION);
         }
