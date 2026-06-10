@@ -1,5 +1,6 @@
 package com.smashingmods.alchemylib.api.blockentity.processing;
 
+import com.smashingmods.alchemylib.api.recipe.AbstractProcessingRecipe;
 import com.smashingmods.alchemylib.api.storage.EnergyStorageHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -12,6 +13,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,6 +32,12 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
     private boolean canProcess = false;
     private boolean recipeLocked = false;
     private boolean paused = false;
+
+    // The id of the recipe the player explicitly chose in the recipe selector, or null when the machine
+    // auto-picks. Tracked separately from the current recipe so updateRecipe can tell a player's choice
+    // apart from its own tick-time auto-pick and keep the choice while it still matches the inputs.
+    @Nullable
+    private ResourceLocation selectedRecipeId = null;
 
     private boolean ioScreenOpen = false;
 
@@ -114,6 +122,46 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         this.progress++;
     }
 
+    /**
+     * Applies a player's recipe-selector choice to this machine. This is the single server-side entry point
+     * for recipe selection: the network handler delegates here, and tests can call it to drive the real
+     * selection path. The choice is remembered (see {@link #getSelectedRecipeId()}) so a machine's
+     * {@link #updateRecipe()} can keep it over the first-in-sort-order auto-pick while the inputs still
+     * match it. Re-selecting the recipe that is already both current and selected is a no-op, so repeated
+     * clicks or client re-sends never reset progress mid-operation. A locked machine refuses the selection
+     * outright -- the lock's contract is that the recipe can't be changed.
+     */
+    public <R extends AbstractProcessingRecipe> void selectRecipe(R pRecipe) {
+        if (isRecipeLocked()) {
+            return;
+        }
+        AbstractProcessingRecipe currentRecipe = getRecipe();
+        if (currentRecipe != null && currentRecipe.equals(pRecipe) && pRecipe.getId().equals(selectedRecipeId)) {
+            return;
+        }
+        setProgress(0);
+        setRecipe(pRecipe);
+        selectedRecipeId = pRecipe.getId();
+        setChanged();
+    }
+
+    /**
+     * The id of the recipe the player explicitly selected, or null when the machine auto-picks. Selections
+     * persist until the player picks another recipe; inputs coming and going do not clear them.
+     */
+    @Nullable
+    public ResourceLocation getSelectedRecipeId() {
+        return selectedRecipeId;
+    }
+
+    /**
+     * Whether the given recipe is the player's explicit selection. Intended for {@link #updateRecipe()}
+     * predicates: prefer a matching recipe this returns true for before falling back to the first match.
+     */
+    public boolean isSelectedRecipe(AbstractProcessingRecipe pRecipe) {
+        return selectedRecipeId != null && selectedRecipeId.equals(pRecipe.getId());
+    }
+
     @Override
     public boolean isRecipeLocked() {
         return this.recipeLocked;
@@ -162,6 +210,9 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         pTag.putInt("progress", progress);
         pTag.putBoolean("locked", isRecipeLocked());
         pTag.putBoolean("paused", isProcessingPaused());
+        if (selectedRecipeId != null) {
+            pTag.putString("selectedRecipe", selectedRecipeId.toString());
+        }
         pTag.put("energy", energyHandler.serializeNBT(pRegistries));
         super.saveAdditional(pTag, pRegistries);
     }
@@ -172,6 +223,9 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         setProgress(pTag.getInt("progress"));
         setRecipeLocked(pTag.getBoolean("locked"));
         setPaused(pTag.getBoolean("paused"));
+        // Reset to null when the key is absent: this tag also arrives through the menu's client sync, so a
+        // cleared selection on the server must clear the client mirror too.
+        selectedRecipeId = pTag.contains("selectedRecipe") ? ResourceLocation.tryParse(pTag.getString("selectedRecipe")) : null;
         if (pTag.contains("energy")) {
             energyHandler.deserializeNBT(pRegistries, pTag.get("energy"));
         }
