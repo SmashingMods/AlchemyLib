@@ -3,9 +3,12 @@ package com.smashingmods.alchemylib.api.item;
 import com.smashingmods.alchemylib.testsupport.BootstrappedTest;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -38,11 +41,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * at decode time registry tags are not yet bound. Customs instead map to a mod-namespaced stand-in registry
  * name, pinned below.</p>
  *
- * <p>Equality is keyed on the count plus the Ingredient's full identity (the tag location, the sorted item
- * registry names, or the {@code ICustomIngredient} itself), so the multi-item cases below pin that two
- * ingredients sharing only a first item are not equal while the same item set in any order is, and the custom
- * cases pin that two different custom ingredients stay distinct -- collapsing them to one stand-in name would
- * make hash-based recipe-input sets silently drop inputs. The degenerate empty {@code Ingredient.of()} (no
+ * <p>Equality is keyed on the count plus the Ingredient's full identity (the declared tag location or item
+ * registry names, each prefixed with its kind -- {@code tag:}/{@code item:} -- and sorted, or the
+ * {@code ICustomIngredient} itself), so the multi-item cases below pin that two ingredients sharing only a first
+ * item are not equal while the same item set in any order is, the tag-vs-item case pins that a tag and an item
+ * sharing a location stay distinct, and the custom cases pin that two different custom ingredients stay distinct
+ * -- collapsing any of these to one key would make hash-based recipe-input sets silently drop inputs. The degenerate empty {@code Ingredient.of()} (no
  * items, so no first registry name) falls back to a stand-in location rather than throwing, but that path needs
  * no real ingredient and is left untested.</p>
  */
@@ -134,6 +138,19 @@ class IngredientStackTest extends BootstrappedTest {
         IngredientStack second = new IngredientStack(Ingredient.of(Items.DIRT), 4);
 
         assertNotEquals(first, second);
+    }
+
+    @Test
+    void equals_tagAndItemSharingLocation_areNotEqual() {
+        // Kind-discriminator regression: a tag and an item may legally share a ResourceLocation. Identity entries
+        // are kind-prefixed ("tag:"/"item:") so these two must not compare equal -- with bare locations they
+        // collided and hash-based recipe-input sets silently merged distinct inputs. emptyNamed carries the tag
+        // key without binding the tag's contents, which is all the identity derivation reads.
+        TagKey<Item> stoneTag = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "stone"));
+        IngredientStack tagBacked = new IngredientStack(Ingredient.of(HolderSet.emptyNamed(BuiltInRegistries.ITEM, stoneTag)), 4);
+        IngredientStack itemBacked = new IngredientStack(Ingredient.of(Items.STONE), 4);
+
+        assertNotEquals(tagBacked, itemBacked);
     }
 
     @Test
