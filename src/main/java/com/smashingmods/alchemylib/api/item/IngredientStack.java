@@ -50,11 +50,14 @@ public class IngredientStack {
     private final int count;
     private final ResourceLocation registryName;
     /**
-     * The equality key for this stack: the tag's location, or the sorted, unmodifiable registry names of every
-     * item, for a vanilla ingredient; or the {@link ICustomIngredient} itself for a custom one. NeoForge requires
-     * custom ingredients to implement {@code equals}/{@code hashCode} (its own, like {@code CompoundIngredient},
-     * are records with structural equality); a third-party custom that skips that contract degrades to instance
-     * identity, which still keeps separately decoded ingredients distinct.
+     * The equality key for this stack: a sorted, unmodifiable list of kind-prefixed declared locations
+     * ({@code "tag:<location>"} for a tag-backed ingredient, {@code "item:<registry name>"} per item for an
+     * item-backed one) for a vanilla ingredient, or the {@link ICustomIngredient} itself for a custom one. The
+     * kind prefix keeps a tag and an item that share a location distinct -- with bare locations they compared
+     * equal and hash-based recipe-input sets silently merged them. NeoForge requires custom ingredients to
+     * implement {@code equals}/{@code hashCode} (its own, like {@code CompoundIngredient}, are records with
+     * structural equality); a third-party custom that skips that contract degrades to instance identity, which
+     * still keeps separately decoded ingredients distinct.
      */
     private final Object identity;
 
@@ -67,11 +70,12 @@ public class IngredientStack {
      * {@linkplain Ingredient#isCustom() custom ingredient} declares no item or tag set at all -- its
      * {@link Ingredient#getValues()} throws -- so it gets the {@link #CUSTOM} stand-in name and is identified by
      * its {@link ICustomIngredient}. A vanilla ingredient is identified by its backing
-     * {@link net.minecraft.core.HolderSet}: a tag-backed set uses the tag's location for both the registry name
-     * and the identity; an item-backed set uses the sorted registry names of every item as the identity -- so two
-     * multi-item ingredients are only equal when their whole item set matches -- with the first item's registry
-     * name as the representative {@link #registryName}, or {@link #EMPTY} when there are no items at all
-     * (e.g. {@code Ingredient.of()}).</p>
+     * {@link net.minecraft.core.HolderSet}: a tag-backed set uses the tag's location for the registry name and
+     * {@code "tag:<location>"} as the identity; an item-backed set uses the sorted {@code "item:<registry name>"}
+     * of every item as the identity -- so two multi-item ingredients are only equal when their whole item set
+     * matches, and the kind prefix keeps a tag and an item that share a location distinct -- with the first
+     * item's registry name as the representative {@link #registryName}, or {@link #EMPTY} when there are no items
+     * at all (e.g. {@code Ingredient.of()}).</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -85,9 +89,9 @@ public class IngredientStack {
         } else {
             Either<TagKey<Item>, List<Holder<Item>>> values = pIngredient.getValues().unwrap();
             this.identity = values.map(
-                    tag -> List.of(tag.location()),
+                    tag -> List.of("tag:" + tag.location()),
                     holders -> holders.stream()
-                            .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location).stream())
+                            .flatMap(holder -> holder.unwrapKey().map(key -> "item:" + key.location()).stream())
                             .sorted()
                             .collect(Collectors.toUnmodifiableList())
             );
