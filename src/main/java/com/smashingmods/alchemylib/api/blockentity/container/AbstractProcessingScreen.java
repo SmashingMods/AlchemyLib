@@ -60,13 +60,15 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
     }
 
     /**
-     * Implementers should override this method and call super. This sets up the background color overlay, calls renderBG
-     * which is set up by extenders, and renders all widgets added to the widgets field.
+     * Implementers should override this method and call super. This renders all widgets added to the widgets field.
+     *
+     * <p>The background overlay and renderBg are deliberately not called here: since 1.20.2,
+     * {@link AbstractContainerScreen#render} draws them itself (its renderBackground fills the translucent dark
+     * gradient and then calls renderBg). Calling renderBackground here as well stacks a second darkening gradient
+     * over vanilla's, making the backdrop far darker than the standard container look.</p>
      */
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        renderBg(pGuiGraphics, pPartialTick, pMouseX, pMouseY);
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
         for (int index = 0; index < widgets.size(); index++) {
