@@ -1,9 +1,12 @@
 package com.smashingmods.alchemylib.api.item;
 
 import com.smashingmods.alchemylib.testsupport.BootstrappedTest;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -37,11 +40,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * below. The {@code throw IllegalArgumentException} branch (a declared value that is neither item nor tag)
  * stays unreachable for real ingredients, so it is left untested on purpose.</p>
  *
- * <p>Equality is keyed on the count plus the Ingredient's full identity (the declared tag locations and sorted
- * item registry names, or the {@code ICustomIngredient} itself), so the multi-item cases below pin that two
- * ingredients sharing only a first item are not equal while the same item set in any order is, and the custom
- * cases pin that two different custom ingredients stay distinct -- with first-value-only equality they collapsed
- * to one stand-in name and hash-based recipe-input sets silently dropped inputs.</p>
+ * <p>Equality is keyed on the count plus the Ingredient's full identity (the declared value locations, each
+ * prefixed with its kind -- {@code tag:}/{@code item:} -- and sorted, or the {@code ICustomIngredient} itself),
+ * so the multi-item cases below pin that two ingredients sharing only a first item are not equal while the same
+ * item set in any order is, the tag-vs-item case pins that a tag and an item sharing a location stay distinct,
+ * and the custom cases pin that two different custom ingredients stay distinct -- with first-value-only equality
+ * they collapsed to one stand-in name and hash-based recipe-input sets silently dropped inputs.</p>
  */
 class IngredientStackTest extends BootstrappedTest {
 
@@ -134,6 +138,18 @@ class IngredientStackTest extends BootstrappedTest {
         IngredientStack second = new IngredientStack(Ingredient.of(Items.DIRT), 4);
 
         assertNotEquals(first, second);
+    }
+
+    @Test
+    void equals_tagAndItemSharingLocation_areNotEqual() {
+        // Kind-discriminator regression: a tag and an item may legally share a ResourceLocation. Identity entries
+        // are kind-prefixed ("tag:"/"item:") so these two must not compare equal -- with bare locations they
+        // collided and hash-based recipe-input sets silently merged distinct inputs.
+        TagKey<Item> stoneTag = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "stone"));
+        IngredientStack tagBacked = new IngredientStack(Ingredient.of(stoneTag), 4);
+        IngredientStack itemBacked = new IngredientStack(Ingredient.of(Items.STONE), 4);
+
+        assertNotEquals(tagBacked, itemBacked);
     }
 
     @Test

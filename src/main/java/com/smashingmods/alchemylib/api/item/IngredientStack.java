@@ -47,11 +47,14 @@ public class IngredientStack {
     private final int count;
     private final ResourceLocation registryName;
     /**
-     * The equality key for this stack: the sorted, unmodifiable list of declared value locations (tag locations and
-     * item registry names) for a vanilla ingredient, or the {@link ICustomIngredient} itself for a custom one.
-     * NeoForge requires custom ingredients to implement {@code equals}/{@code hashCode} (its own, like
-     * {@code CompoundIngredient}, are records with structural equality); a third-party custom that skips that
-     * contract degrades to instance identity, which still keeps separately decoded ingredients distinct.
+     * The equality key for this stack: the sorted, unmodifiable list of kind-prefixed declared value locations
+     * ({@code "tag:<location>"} for tag values, {@code "item:<registry name>"} for item values) for a vanilla
+     * ingredient, or the {@link ICustomIngredient} itself for a custom one. The kind prefix keeps a tag and an
+     * item that share a location distinct -- with bare locations they compared equal and hash-based
+     * recipe-input sets silently merged them. NeoForge requires custom ingredients to implement
+     * {@code equals}/{@code hashCode} (its own, like {@code CompoundIngredient}, are records with structural
+     * equality); a third-party custom that skips that contract degrades to instance identity, which still keeps
+     * separately decoded ingredients distinct.
      */
     private final Object identity;
 
@@ -63,9 +66,10 @@ public class IngredientStack {
      * tags are bound to that reload, so {@link Ingredient#getItems()} would substitute -- and permanently memoize --
      * NeoForge's barrier "Empty Tag" placeholder stacks. A {@linkplain Ingredient#isCustom() custom ingredient}
      * gets the {@link #CUSTOM} stand-in name and is identified by its {@link ICustomIngredient}; a vanilla
-     * ingredient is identified by its full declared value set (each tag's location, each item's registry name,
-     * sorted) with the first value's location as the representative {@link #registryName}; an ingredient with no
-     * values at all (e.g. {@code Ingredient.of()}) gets the {@link #EMPTY} stand-in and an empty identity.</p>
+     * ingredient is identified by its full declared value set (each value's location prefixed with its kind,
+     * {@code tag:}/{@code item:}, sorted) with the first value's location as the representative
+     * {@link #registryName}; an ingredient with no values at all (e.g. {@code Ingredient.of()}) gets the
+     * {@link #EMPTY} stand-in and an empty identity.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -78,11 +82,24 @@ public class IngredientStack {
             this.registryName = CUSTOM;
         } else {
             this.identity = Arrays.stream(pIngredient.values)
-                    .map(IngredientStack::valueLocation)
+                    .map(IngredientStack::valueIdentity)
                     .sorted()
                     .collect(Collectors.toUnmodifiableList());
             this.registryName = pIngredient.values.length > 0 ? valueLocation(pIngredient.values[0]) : EMPTY;
         }
+    }
+
+    /**
+     * The identity entry an Ingredient value contributes: its {@linkplain #valueLocation(Ingredient.Value)
+     * declared location} prefixed with the value's kind ({@code "tag:"} or {@code "item:"}). A tag and an item
+     * may legally share a location, so the bare location is not enough to keep them distinct.
+     *
+     * @param pValue {@link Ingredient.Value}
+     * @return the kind-prefixed declared location, never {@code null}
+     */
+    private static String valueIdentity(Ingredient.Value pValue) {
+        String kind = pValue instanceof Ingredient.TagValue ? "tag" : "item";
+        return kind + ":" + valueLocation(pValue);
     }
 
     /**
