@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,19 +36,42 @@ public class IngredientStack {
      */
     private static final ResourceLocation EMPTY = ResourceLocation.fromNamespaceAndPath("alchemylib", "empty");
 
+    /**
+     * Stand-in registry name for a NeoForge {@linkplain Ingredient#isCustom() custom ingredient}
+     * ({@link ICustomIngredient}). A custom ingredient declares no item or tag set --
+     * {@link Ingredient#getValues()} throws {@link IllegalStateException} for it -- and its contents are only
+     * knowable by resolving items, which the constructor must never do (see
+     * {@link #IngredientStack(Ingredient, int)}) -- so this mod-namespaced stand-in keeps
+     * {@link #getRegistryName()} non-null without colliding with a real item or tag id.
+     */
+    private static final ResourceLocation CUSTOM = ResourceLocation.fromNamespaceAndPath("alchemylib", "custom");
+
     private final Ingredient ingredient;
     private final int count;
     private final ResourceLocation registryName;
-    private final List<ResourceLocation> identity;
+    /**
+     * The equality key for this stack: the tag's location, or the sorted, unmodifiable registry names of every
+     * item, for a vanilla ingredient; or the {@link ICustomIngredient} itself for a custom one. NeoForge requires
+     * custom ingredients to implement {@code equals}/{@code hashCode} (its own, like {@code CompoundIngredient},
+     * are records with structural equality); a third-party custom that skips that contract degrades to instance
+     * identity, which still keeps separately decoded ingredients distinct.
+     */
+    private final Object identity;
 
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is a single representative location taken from the Ingredient's backing
-     * {@link net.minecraft.core.HolderSet}: a tag-backed set uses the tag's location; an item-backed set uses the
-     * registry name of its first item. {@link IngredientStack#identity} is the full identity used for equality: the
-     * tag location for a tag-backed set, or the sorted registry names of every item for an item-backed set, so two
-     * multi-item ingredients are only equal when their whole item set matches.</p>
+     * <p>Both {@link #registryName} and {@link #identity} are derived from what the Ingredient <em>declares</em>,
+     * never from the items it resolves to: recipes are decoded during {@code RecipeManager.apply}, before registry
+     * tags are bound to that reload, so the constructor must not call {@link Ingredient#items()}. A
+     * {@linkplain Ingredient#isCustom() custom ingredient} declares no item or tag set at all -- its
+     * {@link Ingredient#getValues()} throws -- so it gets the {@link #CUSTOM} stand-in name and is identified by
+     * its {@link ICustomIngredient}. A vanilla ingredient is identified by its backing
+     * {@link net.minecraft.core.HolderSet}: a tag-backed set uses the tag's location for both the registry name
+     * and the identity; an item-backed set uses the sorted registry names of every item as the identity -- so two
+     * multi-item ingredients are only equal when their whole item set matches -- with the first item's registry
+     * name as the representative {@link #registryName}, or {@link #EMPTY} when there are no items at all
+     * (e.g. {@code Ingredient.of()}).</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -55,21 +79,26 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        Either<TagKey<Item>, List<Holder<Item>>> values = pIngredient.getValues().unwrap();
-        this.identity = values.map(
-                tag -> List.of(tag.location()),
-                holders -> holders.stream()
-                        .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location).stream())
-                        .sorted()
-                        .collect(Collectors.toUnmodifiableList())
-        );
-        this.registryName = values.map(
-                TagKey::location,
-                holders -> holders.stream()
-                        .findFirst()
-                        .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location))
-                        .orElse(EMPTY)
-        );
+        if (pIngredient.isCustom()) {
+            this.identity = pIngredient.getCustomIngredient();
+            this.registryName = CUSTOM;
+        } else {
+            Either<TagKey<Item>, List<Holder<Item>>> values = pIngredient.getValues().unwrap();
+            this.identity = values.map(
+                    tag -> List.of(tag.location()),
+                    holders -> holders.stream()
+                            .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location).stream())
+                            .sorted()
+                            .collect(Collectors.toUnmodifiableList())
+            );
+            this.registryName = values.map(
+                    TagKey::location,
+                    holders -> holders.stream()
+                            .findFirst()
+                            .flatMap(holder -> holder.unwrapKey().map(ResourceKey::location))
+                            .orElse(EMPTY)
+            );
+        }
     }
 
     public IngredientStack(Ingredient pIngredient) {
@@ -175,13 +204,15 @@ public class IngredientStack {
     }
 
     public boolean isEmpty() {
-        return ingredient.getValues().size() == 0 && !ingredient.isCustom();
+        // isCustom() must short-circuit first: getValues() throws for a custom ingredient, which is never empty.
+        return !ingredient.isCustom() && ingredient.getValues().size() == 0;
     }
 
     /**
      * Determines object equality of this IngredientStack against another object. Two IngredientStacks are equal
      * when they share the same {@link #getCount() count} and the same {@link #identity full ingredient identity},
-     * so two multi-item ingredients that merely share a first item are not equal.
+     * so two multi-item ingredients that merely share a first item are not equal, and two custom ingredients are
+     * only equal when their {@link ICustomIngredient}s are.
      *
      * @param pObject Object
      * @return boolean
