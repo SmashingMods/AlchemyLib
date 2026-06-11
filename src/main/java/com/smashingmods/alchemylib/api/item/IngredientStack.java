@@ -54,7 +54,11 @@ public class IngredientStack {
      * ({@code "tag:<location>"} for a tag-backed ingredient, {@code "item:<registry name>"} per item for an
      * item-backed one) for a vanilla ingredient, or the {@link ICustomIngredient} itself for a custom one. The
      * kind prefix keeps a tag and an item that share a location distinct -- with bare locations they compared
-     * equal and hash-based recipe-input sets silently merged them. NeoForge requires custom ingredients to
+     * equal and hash-based recipe-input sets silently merged them. Only keyed holders contribute item entries:
+     * a keyless {@linkplain Holder#direct(Object) direct holder} declares no location and is excluded from the
+     * identity, so ingredients built programmatically from unregistered direct holders are not distinguishable
+     * by identity -- decoded ingredients (JSON or network) always carry keyed registry holders, leaving that
+     * use outside this API's supported surface. NeoForge requires custom ingredients to
      * implement {@code equals}/{@code hashCode} (its own, like {@code CompoundIngredient}, are records with
      * structural equality); a third-party custom that skips that contract degrades to instance identity, which
      * still keeps separately decoded ingredients distinct.
@@ -72,10 +76,13 @@ public class IngredientStack {
      * its {@link ICustomIngredient}. A vanilla ingredient is identified by its backing
      * {@link net.minecraft.core.HolderSet}: a tag-backed set uses the tag's location for the registry name and
      * {@code "tag:<location>"} as the identity; an item-backed set uses the sorted {@code "item:<registry name>"}
-     * of every item as the identity -- so two multi-item ingredients are only equal when their whole item set
-     * matches, and the kind prefix keeps a tag and an item that share a location distinct -- with the first
+     * of every keyed item as the identity -- so two multi-item ingredients are only equal when their whole item
+     * set matches, and the kind prefix keeps a tag and an item that share a location distinct -- with the first
      * item's registry name as the representative {@link #registryName}, or {@link #EMPTY} when there are no items
-     * at all (e.g. {@code Ingredient.of()}).</p>
+     * at all (e.g. {@code Ingredient.of()}). A keyless {@linkplain Holder#direct(Object) direct holder} declares
+     * no location and contributes nothing to the identity (a direct-holder-only set collapses to the same empty
+     * identity as {@code Ingredient.of()}): every decoded ingredient (JSON or network) carries keyed registry
+     * holders, so unregistered direct holders are outside this API's supported surface.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
