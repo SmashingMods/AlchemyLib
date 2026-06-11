@@ -10,6 +10,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,16 +27,45 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class IngredientStack {
 
+    /**
+     * Stand-in registry name for an Ingredient that declares no values at all (e.g. {@code Ingredient.of()}). It is
+     * namespaced to the mod so it can never collide with a real item or tag id, keeping {@link #getRegistryName()}
+     * non-null for that degenerate case instead of indexing into an empty values array.
+     */
+    private static final ResourceLocation EMPTY = ResourceLocation.fromNamespaceAndPath("alchemylib", "empty");
+
+    /**
+     * Stand-in registry name for a NeoForge {@linkplain Ingredient#isCustom() custom ingredient}
+     * ({@link ICustomIngredient}). A custom ingredient declares no item or tag values -- its contents are only
+     * knowable by resolving items, which the constructor must never do (see
+     * {@link #IngredientStack(Ingredient, int)}) -- so this mod-namespaced stand-in keeps
+     * {@link #getRegistryName()} non-null without colliding with a real item or tag id.
+     */
+    private static final ResourceLocation CUSTOM = ResourceLocation.fromNamespaceAndPath("alchemylib", "custom");
+
     private final Ingredient ingredient;
     private final int count;
     private final ResourceLocation registryName;
+    /**
+     * The equality key for this stack: the sorted, unmodifiable list of declared value locations (tag locations and
+     * item registry names) for a vanilla ingredient, or the {@link ICustomIngredient} itself for a custom one.
+     * NeoForge requires custom ingredients to implement {@code equals}/{@code hashCode} (its own, like
+     * {@code CompoundIngredient}, are records with structural equality); a third-party custom that skips that
+     * contract degrades to instance identity, which still keeps separately decoded ingredients distinct.
+     */
+    private final Object identity;
 
     /**
      * All other constructors reference this main constructor for creating a new IngredientStack.
      *
-     * <p>{@link IngredientStack#registryName} is derived by {@link #resolveRegistryName(Ingredient)}: normally from
-     * the 0th entry of the Ingredient's values array, with a fallback for ingredients whose values array is empty
-     * (NeoForge custom ingredients and the empty ingredient).</p>
+     * <p>Both {@link #registryName} and {@link #identity} are derived from what the Ingredient <em>declares</em>,
+     * never from the items it resolves to: recipes are decoded during {@code RecipeManager.apply}, before registry
+     * tags are bound to that reload, so {@link Ingredient#getItems()} would substitute -- and permanently memoize --
+     * NeoForge's barrier "Empty Tag" placeholder stacks. A {@linkplain Ingredient#isCustom() custom ingredient}
+     * gets the {@link #CUSTOM} stand-in name and is identified by its {@link ICustomIngredient}; a vanilla
+     * ingredient is identified by its full declared value set (each tag's location, each item's registry name,
+     * sorted) with the first value's location as the representative {@link #registryName}; an ingredient with no
+     * values at all (e.g. {@code Ingredient.of()}) gets the {@link #EMPTY} stand-in and an empty identity.</p>
      *
      * @param pIngredient {@link Ingredient}
      * @param pCount The count for how items are in this stack. Only a max of 64 is valid, similar to ItemStack.
@@ -43,37 +73,33 @@ public class IngredientStack {
     public IngredientStack(Ingredient pIngredient, int pCount) {
         this.ingredient = pIngredient;
         this.count = Math.min(pCount, 64);
-        this.registryName = resolveRegistryName(pIngredient);
+        if (pIngredient.isCustom()) {
+            this.identity = pIngredient.getCustomIngredient();
+            this.registryName = CUSTOM;
+        } else {
+            this.identity = Arrays.stream(pIngredient.values)
+                    .map(IngredientStack::valueLocation)
+                    .sorted()
+                    .collect(Collectors.toUnmodifiableList());
+            this.registryName = pIngredient.values.length > 0 ? valueLocation(pIngredient.values[0]) : EMPTY;
+        }
     }
 
     /**
-     * Derives a non-null registry name for an Ingredient.
+     * The location an Ingredient value declares: a tag value yields the tag's location, an item value yields the
+     * item's registry name. Neither requires resolving the ingredient's items, so this is safe at recipe-decode
+     * time.
      *
-     * <p>The 0th entry of the Ingredient's {@code values} array is preferred: an item value yields the item's
-     * registry name, a tag value yields the tag's location. NeoForge custom ingredients (and the empty ingredient
-     * produced by {@code Ingredient.of()}) carry an <em>empty</em> {@code values} array, so reading {@code values[0]}
-     * would throw {@link ArrayIndexOutOfBoundsException} while a recipe is being decoded. For that case we fall back
-     * to the first item the ingredient actually resolves to, and finally to the item registry's default key
-     * ({@code minecraft:air}) when it resolves to nothing.</p>
-     *
-     * @param pIngredient {@link Ingredient}
-     * @return the resolved {@link ResourceLocation}, never {@code null}
+     * @param pValue {@link Ingredient.Value}
+     * @return the declared {@link ResourceLocation}, never {@code null}
      */
-    private static ResourceLocation resolveRegistryName(Ingredient pIngredient) {
-        if (pIngredient.values.length > 0) {
-            Ingredient.Value value = pIngredient.values[0];
-            if (value instanceof Ingredient.TagValue tagValue) {
-                return tagValue.tag().location();
-            } else if (value instanceof Ingredient.ItemValue itemValue) {
-                return BuiltInRegistries.ITEM.getKey(itemValue.item().getItem());
-            }
-            throw new IllegalArgumentException("Ingredient value is neither an item nor a tag value.");
+    private static ResourceLocation valueLocation(Ingredient.Value pValue) {
+        if (pValue instanceof Ingredient.TagValue tagValue) {
+            return tagValue.tag().location();
+        } else if (pValue instanceof Ingredient.ItemValue itemValue) {
+            return BuiltInRegistries.ITEM.getKey(itemValue.item().getItem());
         }
-        ItemStack[] items = pIngredient.getItems();
-        if (items.length > 0) {
-            return BuiltInRegistries.ITEM.getKey(items[0].getItem());
-        }
-        return BuiltInRegistries.ITEM.getDefaultKey();
+        throw new IllegalArgumentException("Ingredient value is neither an item nor a tag value.");
     }
 
     public IngredientStack(Ingredient pIngredient) {
@@ -187,7 +213,10 @@ public class IngredientStack {
     }
 
     /**
-     * Determines object equality of this IngredientStack against another object based on {@link ResourceLocation#equals(Object)}.
+     * Determines object equality of this IngredientStack against another object. Two IngredientStacks are equal
+     * when they share the same {@link #getCount() count} and the same {@link #identity full ingredient identity},
+     * so two multi-item ingredients that merely share a first item are not equal, and two custom ingredients are
+     * only equal when their {@link ICustomIngredient}s are.
      *
      * @param pObject Object
      * @return boolean
@@ -198,18 +227,19 @@ public class IngredientStack {
         if (!(pObject instanceof IngredientStack that)) return false;
 
         if (getCount() != that.getCount()) return false;
-        return getRegistryName().equals(that.getRegistryName());
+        return identity.equals(that.identity);
     }
 
     /**
-     * Calculates the hash code for this IngredientStack based on its {@link ResourceLocation registryName} hash code.
+     * Calculates the hash code for this IngredientStack based on its {@link #getCount() count} and its
+     * {@link #identity full ingredient identity}.
      *
      * @return int
      */
     @Override
     public int hashCode() {
         int result = getCount();
-        result = 31 * result + getRegistryName().hashCode();
+        result = 31 * result + identity.hashCode();
         return result;
     }
 
