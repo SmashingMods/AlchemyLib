@@ -23,11 +23,13 @@ public class ProgressDisplayData extends AbstractDisplayData {
 
     @Override
     public int getValue() {
+        if (blockEntity == null) return 0;
         return blockEntity.getProgress();
     }
 
     @Override
     public int getMaxValue() {
+        if (blockEntity == null) return 1;
         return blockEntity.getMaxProgress();
     }
 

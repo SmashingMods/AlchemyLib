@@ -40,26 +40,29 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
         this.menuPlayer = pInventory.player;
 
         addPlayerInventorySlots(pInventory);
-        
-        // Agregar sincronización de progreso desde el BlockEntity al cliente
+
         addDataSlots(createProgressData());
     }
 
     /**
-     * Crea los DataSlots para sincronizar el estado del progreso desde el BlockEntity al cliente.
-     * @return ContainerData con [progress, maxProgress, canProcess, recipeLocked, paused]
+     * Indica si esta máquina maneja fluidos. Las subclases que sean fluid machines deben sobrescribir esto.
+     * Se usa para determinar el número de data slots a registrar (5 vs 7).
      */
+    protected boolean isFluidMachine() {
+        return blockEntity instanceof AbstractFluidBlockEntity;
+    }
+
     private ContainerData createProgressData() {
-        final boolean isFluidMachine = blockEntity instanceof AbstractFluidBlockEntity;
         return new ContainerData() {
             @Override
             public int get(int pIndex) {
+                if (blockEntity == null) return 0;
                 if (pIndex <= 4) {
                     int[] data = blockEntity.createIntArray();
                     return pIndex < data.length ? data[pIndex] : 0;
                 }
 
-                if (isFluidMachine) {
+                if (isFluidMachine()) {
                     AbstractFluidBlockEntity fluidBlockEntity = (AbstractFluidBlockEntity) blockEntity;
                     return switch (pIndex) {
                         case 5 -> fluidBlockEntity.getFluidStorage().getFluidAmount();
@@ -73,6 +76,7 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
 
             @Override
             public void set(int pIndex, int pValue) {
+                if (blockEntity == null) return;
                 if (pIndex <= 4) {
                     int[] data = blockEntity.createIntArray();
                     if (pIndex < data.length) {
@@ -87,14 +91,14 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
                     return;
                 }
 
-                if (isFluidMachine && pIndex == 5) {
+                if (isFluidMachine() && pIndex == 5) {
                     ((AbstractFluidBlockEntity) blockEntity).getFluidStorage().setAmount(pValue);
                 }
             }
 
             @Override
             public int getCount() {
-                return isFluidMachine ? 7 : 5;
+                return isFluidMachine() ? 7 : 5;
             }
         };
     }
@@ -111,7 +115,7 @@ public abstract class AbstractProcessingMenu extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        if (level != null && !level.isClientSide() && menuPlayer instanceof ServerPlayer serverPlayer) {
+        if (level != null && !level.isClientSide() && menuPlayer instanceof ServerPlayer serverPlayer && getBlockEntity() != null) {
             Packet<ClientGamePacketListener> updatePacket = getBlockEntity().getUpdatePacket();
             if (updatePacket != null) {
                 serverPlayer.connection.send(updatePacket);

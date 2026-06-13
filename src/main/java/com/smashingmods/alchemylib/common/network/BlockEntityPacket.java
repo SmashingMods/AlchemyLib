@@ -31,7 +31,6 @@ public record BlockEntityPacket(BlockPos blockPos, CompoundTag tag) implements C
         pContext.enqueueWork(() -> {
             Level level = Minecraft.getInstance().level;
             BlockEntity blockEntity = Objects.requireNonNull(level).getBlockEntity(packet.blockPos);
-            //Objects.requireNonNull(blockEntity).load(packet.tag); TODO
         });
     }
 

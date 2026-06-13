@@ -41,7 +41,7 @@ public abstract class AbstractProcessingBlock extends BaseEntityBlock {
      * @see BlockEntity
      */
     public AbstractProcessingBlock(BiFunction<BlockPos, BlockState, BlockEntity> pBlockEntity) {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.METAL));
+        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3.0F, 3.0F).sound(SoundType.METAL));
         blockEntityFunction = pBlockEntity;
     }
 
@@ -103,6 +103,7 @@ public abstract class AbstractProcessingBlock extends BaseEntityBlock {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
             if (blockEntity instanceof InventoryBlockEntity inventoryBlockEntity) {
                 inventoryBlockEntity.dropContents(pLevel, pPos);
+                pLevel.updateNeighbourForOutputSignal(pPos, this);
             }
         }
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);

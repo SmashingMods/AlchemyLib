@@ -46,6 +46,9 @@ public abstract class AbstractAlchemyButton extends Button {
         super(pX, pY, pWidth, pHeight, pComponent, pOnPress, DEFAULT_NARRATION);
         this.parent = pParent;
         this.blockEntity = pParent.getBlockEntity();
+        if (this.blockEntity == null) {
+            this.visible = false;
+        }
     }
 
     /**

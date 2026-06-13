@@ -9,6 +9,5 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("unused")
 @UnstableApi
 public class AlchemyCapabilities {
-    // TODO
     public static final BlockCapability<HeatCapability, @Nullable Direction> HEAT_HANDLER = BlockCapability.createSided(AlchemyLib.modLoc("heat"), HeatCapability.class);
 }

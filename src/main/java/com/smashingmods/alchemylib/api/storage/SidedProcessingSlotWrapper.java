@@ -31,8 +31,8 @@ public class SidedProcessingSlotWrapper {
 
     private final ProcessingSlotHandler inputHandler;
     private final ProcessingSlotHandler outputHandler;
-    private final SideMode[] sideModes = new SideMode[7]; // 4 cardinal directions + up/down + unspecified side = 7 sides total
-    @SuppressWarnings("unchecked") // Java does not allow creating arrays with generics for some ungodly reason
+    private final SideMode[] sideModes = new SideMode[7]; // 4 cardinal directions + up/down + unspecified side
+    @SuppressWarnings("unchecked")
     private final Lazy<IItemHandler>[] views = new Lazy[7];
 
     private class SidedItemHandlerView implements IItemHandlerModifiable {

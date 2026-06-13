@@ -80,13 +80,13 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      *
      * @see AbstractProcessingScreen#renderDisplayData(List, GuiGraphics, int, int)
      */
-    public void drawFluidTank(FluidDisplayData pData) {
+    public void drawFluidTank(FluidDisplayData pData, GuiGraphics pGuiGraphics) {
         if (pData.getValue() > 0) {
             FluidStack fluidStack = pData.getFluidHandler().getFluidStack();
             IClientFluidTypeExtensions fluidTypeExtensions = IClientFluidTypeExtensions.of(fluidStack.getFluid());
             setShaderColor(fluidTypeExtensions.getTintColor());
             TextureAtlasSprite icon = getResourceTexture(fluidTypeExtensions.getStillTexture());
-            drawTexture(pData, icon, leftPos + pData.getX(), topPos + pData.getY());
+            drawTexture(pGuiGraphics, pData, icon, leftPos + pData.getX(), topPos + pData.getY());
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
@@ -100,51 +100,16 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
      * @param pTextureY Integer for the Y position of the screen to render from.
      */
 
-    //TODO: Discover why FluidStack textures become invisible when picking up an inventory item.
-    public void drawTexture(AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
-
-        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-
+    public void drawTexture(GuiGraphics pGuiGraphics, AbstractDisplayData pData, TextureAtlasSprite pSprite, int pTextureX, int pTextureY) {
         int renderAmount = Math.max(Math.min(pData.getHeight(), pData.getValue() * pData.getHeight() / pData.getMaxValue()), 1);
         int posY = pTextureY + pData.getHeight() - renderAmount;
 
-        float minU = pSprite.getU0();
-        float maxU = pSprite.getU1();
-        float minV = pSprite.getV0();
-        float maxV = pSprite.getV1();
-
-        for (int width = 0; width < pData.getWidth(); width++) {
-            for (int height = 0; height < pData.getHeight(); height++) {
-
-                int drawHeight = Math.min(renderAmount - height, 16);
-                int drawWidth = Math.min(pData.getWidth() - width, 16);
-
-                int x1 = pTextureX + width;
-                float x2 = x1 + drawWidth;
-                int y1 = posY + height;
-                float y2 = y1 + drawHeight;
-
-                float scaleV = minV + (maxV - minV) * drawHeight / 16f;
-                float scaleU = minU + (maxU - minU) * drawWidth / 16f;
-
-                float blitOffset = 0;
-
-                /* TODO
-                Tesselator tesselator = Tesselator.getInstance();
-                BufferBuilder bufferBuilder = tesselator.getBuilder();
-                
-                bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                bufferBuilder.vertex(x1, y2, blitOffset).uv(minU, scaleV).endVertex();
-                bufferBuilder.vertex(x2, y2, blitOffset).uv(scaleU, scaleV).endVertex();
-                bufferBuilder.vertex(x2, y1, blitOffset).uv(scaleU, minV).endVertex();
-                bufferBuilder.vertex(x1, y1, blitOffset).uv(minU, minV).endVertex();
-                tesselator.end();
-                
-                 */
-
-                height += 15;
+        for (int tileX = 0; tileX < pData.getWidth(); tileX += 16) {
+            for (int tileY = 0; tileY < renderAmount; tileY += 16) {
+                int drawWidth = Math.min(pData.getWidth() - tileX, 16);
+                int drawHeight = Math.min(renderAmount - tileY, 16);
+                pGuiGraphics.blit(pTextureX + tileX, posY + tileY, 0, drawWidth, drawHeight, pSprite);
             }
-            width += 16;
         }
     }
 
@@ -169,6 +134,8 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
         float red = (pColor >> 16 & 255) / 255f;
         float green = (pColor >> 8 & 255) / 255f;
         float blue = (pColor & 255) / 255f;
+        // If alpha is 0, the tint color is RGB-only (no alpha byte). Default to fully opaque.
+        if (alpha == 0.0f) alpha = 1.0f;
         RenderSystem.setShaderColor(red, green, blue, alpha);
     }
 
@@ -305,7 +272,7 @@ public abstract class AbstractProcessingScreen<M extends AbstractProcessingMenu>
                 drawEnergyBar(pGuiGraphics, energyData);
             }
             if (data instanceof FluidDisplayData fluidData) {
-                drawFluidTank(fluidData);
+                drawFluidTank(fluidData, pGuiGraphics);
             }
         });
     }

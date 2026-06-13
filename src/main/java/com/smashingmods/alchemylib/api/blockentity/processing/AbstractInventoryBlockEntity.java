@@ -42,17 +42,6 @@ public abstract class AbstractInventoryBlockEntity extends AbstractProcessingBlo
         return combinedHandler;
     }
 
-    /* TODO
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
-            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-     */
-    
     @Override
     public void invalidateCapabilities() {
         combinedHandler.invalidate();

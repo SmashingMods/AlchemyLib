@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 @SuppressWarnings("unused")
-//@AutoRegisterCapability TODO
 @UnstableApi
 public interface HeatCapability extends INBTSerializable<CompoundTag> {
 

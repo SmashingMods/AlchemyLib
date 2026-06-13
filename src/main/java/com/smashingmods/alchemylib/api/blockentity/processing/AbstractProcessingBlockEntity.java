@@ -21,7 +21,6 @@ import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 
 @SuppressWarnings("unused")
 public abstract class AbstractProcessingBlockEntity extends BlockEntity implements ProcessingBlockEntity, EnergyBlockEntity, MenuProvider {
@@ -58,7 +57,7 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
 
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        Objects.requireNonNull(pkt.getTag());
+        if (pkt.getTag() == null) return;
         this.loadAdditional(pkt.getTag(), lookupProvider);
         super.onDataPacket(net, pkt, lookupProvider);
     }
@@ -169,17 +168,6 @@ public abstract class AbstractProcessingBlockEntity extends BlockEntity implemen
         energyPerTick = pEnergyPerTick;
     }
 
-    /* TODO
-    @Override
-    @Nonnull
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ENERGY) {
-            return lazyEnergyHandler.cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-     */
-    
     @Override
     public void invalidateCapabilities() {
         lazyEnergyHandler.invalidate();

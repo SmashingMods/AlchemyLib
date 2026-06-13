@@ -25,15 +25,18 @@ public class FluidDisplayData extends AbstractDisplayData {
 
     @Override
     public int getValue() {
+        if (blockEntity == null) return 0;
         return blockEntity.getFluidStorage().getFluidAmount();
     }
 
     @Override
     public int getMaxValue() {
+        if (blockEntity == null) return 1;
         return blockEntity.getFluidStorage().getCapacity();
     }
 
     public FluidStorageHandler getFluidHandler() {
+        if (blockEntity == null) return null;
         return blockEntity.getFluidStorage();
     }
 
@@ -42,7 +45,7 @@ public class FluidDisplayData extends AbstractDisplayData {
         NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
         FluidStack fluidStack = getFluidHandler().getFluidStack();
 
-        boolean emptyFluid = fluidStack.isFluidEqual(FluidStack.EMPTY);
+        boolean emptyFluid = fluidStack.isEmpty();
 
         String fluidName = emptyFluid ? "" : String.format(" %s", I18n.get(fluidStack.getTranslationKey()).toLowerCase());
         String stored = numberFormat.format(getValue());

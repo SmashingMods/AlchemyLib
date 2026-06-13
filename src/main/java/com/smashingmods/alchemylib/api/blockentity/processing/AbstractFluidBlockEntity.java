@@ -35,9 +35,7 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
 
     @Override
     public void tick() {
-        if (!getFluidStorage().isEmpty()) {
-            setCanProcess(canProcessRecipe());
-        }
+        setCanProcess(canProcessRecipe());
         super.tick();
     }
 
@@ -61,18 +59,6 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
         return combinedHandler;
     }
 
-    /* TODO
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> pCapability, @Nullable Direction pDirection) {
-        if (pCapability == ForgeCapabilities.ITEM_HANDLER) {
-            return getCombinedSlotHandler().getViewLazily(pDirection).cast();
-        } else if (pCapability == ForgeCapabilities.FLUID_HANDLER) {
-            return lazyFluidHandler.cast();
-        }
-        return super.getCapability(pCapability, pDirection);
-    }
-     */
     @Override
     public void invalidateCapabilities() {
         combinedHandler.invalidate();
@@ -108,6 +94,14 @@ public abstract class AbstractFluidBlockEntity extends AbstractProcessingBlockEn
     }
 
     public boolean onBlockActivated(Level pLevel, BlockPos pBlockPos, Player pPlayer, InteractionHand pHand) {
-        return FluidUtil.interactWithFluidHandler(pPlayer, pHand, pLevel, pBlockPos, null);
+        return FluidUtil.interactWithFluidHandler(pPlayer, pHand, getFluidStorage());
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) {
+            setChanged();
+        }
     }
 }
